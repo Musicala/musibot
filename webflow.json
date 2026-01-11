@@ -1,0 +1,729 @@
+{
+  "name": "Musicala - Intro Captura (Base + Menu Programas + Guardar Servicio + Edad Vacacionales + Intensivos Re-Edad + Arte + Modalidad + Imagen Precios)",
+  "type": "botflow",
+  "version": "v3.10.4",
+  "notes": [
+    "Flow mínimo desde cero (audio primero):",
+    "1) Audio intro (assets/introaudio.mp3)",
+    "2) Captura nombre (texto libre) -> guarda en memoria: name",
+    "3) Captura celular (texto libre) -> guarda en memoria: phone",
+    "4) Menú de opciones (Vacacionales/Presencial/Virtual/Domicilio/Otros) -> guarda en memoria: service",
+    "5) En Vacacionales: info + botones de edad",
+    "6) Si edad es 4-6, 7-11, 12-15: muestra 2 opciones (Vacaciones Artísticas / Cursos Intensivos) y guarda vacacionales_tipo",
+    "7) Si 4-15 eligen Cursos Intensivos: repregunta edad (4-6/7-11/12-15) para coherencia y CONTINÚA a elegir ARTE",
+    "8) Si edad es 1-3, 16-40, 40+: muestra mensaje de Intensivos y pide escoger el ARTE",
+    "9) Guarda edad en memoria: edad (sin contaminar con 'Volver al menú')",
+    "10) Guarda disciplina elegida en memoria: arte",
+    "11) Muestra imagen de precios (assets/intensivos.png) y luego pregunta MODALIDAD. Guarda en memoria: modalidad",
+    "Solo nombre y celular permiten escribir; lo demás es botones.",
+    "FIX: allowFreeText ahora va en parameters.options.allowFreeText (el engine NO lee _flow.allowFreeText)."
+  ],
+  "nodes": [
+    {
+      "id": "webhook",
+      "name": "webhook node",
+      "type": "webhook",
+      "position": [0, 0],
+      "parameters": { "path": "MUSIBOT" }
+    },
+
+    {
+      "id": "ask_name",
+      "name": "01 - Audio + Pedir nombre",
+      "type": "autobotAction",
+      "position": [220, 0],
+      "parameters": {
+        "options": {
+          "allowFreeText": true,
+          "_flow": { "allowFreeText": true },
+          "textMessage": "Gracias por comunicarte con Musicala, escuela de formación artística 🥰🎶💃🏽🎨. Antes de empezar, ¿podrías decirnos tu nombre?",
+          "waitResponse": true,
+          "typeMessage": "text",
+          "options": ["Prefiero no dejarlo"],
+          "media": [{ "type": "audio", "url": "assets/introaudio.mp3" }]
+        }
+      }
+    },
+    {
+      "id": "ask_name_filter",
+      "name": "02 - Guardar nombre",
+      "type": "filter",
+      "position": [700, 0],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "ask_phone",
+              "storeResponseInMemory": true,
+              "labelInMemory": "name"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "ask_phone",
+            "storeResponseInMemory": true,
+            "labelInMemory": "name"
+          }
+        }
+      }
+    },
+
+    {
+      "id": "ask_phone",
+      "name": "03 - Pedir celular",
+      "type": "autobotAction",
+      "position": [940, 0],
+      "parameters": {
+        "options": {
+          "allowFreeText": true,
+          "_flow": { "allowFreeText": true },
+          "textMessage": "Podrías indicarnos ahora, ¿cuál es tu número de celular? (ej: +57 300 123 4567)",
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "ask_phone_filter",
+      "name": "04 - Guardar celular",
+      "type": "filter",
+      "position": [1180, 0],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "show_program_options",
+              "storeResponseInMemory": true,
+              "labelInMemory": "phone"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "show_program_options",
+            "storeResponseInMemory": true,
+            "labelInMemory": "phone"
+          }
+        }
+      }
+    },
+
+    {
+      "id": "show_program_options",
+      "name": "05 - Menú opciones (Programas / Modalidades)",
+      "type": "autobotAction",
+      "position": [1420, 0],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "✨ ¡Descubre nuestras opciones en Música, Danza, Artes Plásticas y Teatro! 🎭🎶🎨\n\n1️⃣ Cursos Vacacionales – Actividades artísticas y divertidas para vacaciones o recesos escolares.\n2️⃣ Clases Presenciales – En nuestra sede, con clases individuales o en grupos pequeños.\n3️⃣ Clases Virtuales – Aprende desde casa con clases en vivo o a tu ritmo por nuestra plataforma.\n4️⃣ Clases a Domicilio – Profes en casa. Llevamos el arte hasta tu puerta. 🏠\n5️⃣ Otros Servicios – Alquiler de espacios, tienda de instrumentos, eventos y más.\n\n💬 ¿Cuál opción te gustaría conocer mejor?",
+          "options": [
+            "Cursos Vacacionales",
+            "Clases Presenciales",
+            "Clases Virtuales",
+            "Clases a Domicilio",
+            "Otros Servicios"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "show_program_options_filter",
+      "name": "06 - Ruteo menú opciones (y guardar service)",
+      "type": "filter",
+      "position": [1660, 0],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "vacacional",
+              "targetNodeId": "flow_vacacionales",
+              "storeResponseInMemory": true,
+              "labelInMemory": "service"
+            },
+            {
+              "operator": "contains",
+              "value": "presencial",
+              "targetNodeId": "flow_presencial",
+              "storeResponseInMemory": true,
+              "labelInMemory": "service"
+            },
+            {
+              "operator": "contains",
+              "value": "virtual",
+              "targetNodeId": "flow_virtual",
+              "storeResponseInMemory": true,
+              "labelInMemory": "service"
+            },
+            {
+              "operator": "contains",
+              "value": "domicilio",
+              "targetNodeId": "flow_domicilio",
+              "storeResponseInMemory": true,
+              "labelInMemory": "service"
+            },
+            {
+              "operator": "contains",
+              "value": "otros",
+              "targetNodeId": "flow_otros_servicios",
+              "storeResponseInMemory": true,
+              "labelInMemory": "service"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "menu_fallback",
+            "storeResponseInMemory": true,
+            "labelInMemory": "service"
+          }
+        }
+      }
+    },
+    {
+      "id": "menu_fallback",
+      "name": "07 - Fallback menú",
+      "type": "autobotAction",
+      "position": [1900, -120],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "Te entendí a medias 😅 Para ayudarte mejor, elige una opción con los botones:",
+          "options": [
+            "Cursos Vacacionales",
+            "Clases Presenciales",
+            "Clases Virtuales",
+            "Clases a Domicilio",
+            "Otros Servicios"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+
+    {
+      "id": "flow_vacacionales",
+      "name": "Vacacionales - Info + Elegir edad",
+      "type": "autobotAction",
+      "position": [2140, 0],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "🎶❄️ ¡Estas vacaciones vive el arte en Musicala! 🎭🎨💃\n\nDel 13 de enero al 6 de febrero disfruta una experiencia artística con música, danza, teatro y artes plásticas.\n\n📍 Modalidades disponibles:\n🏫 En nuestra sede (Pasadena)\n🏠 A domicilio\n💻 Virtual en vivo\n\n👥 Grupos de 2 a 6 personas\n👤 Clases personalizadas\n🕐 Duración: 60 minutos\n⏰ Horarios flexibles\n\n🎟️ Cupos limitados\n👇 Cuéntanos la edad del estudiante y te damos la info ideal 😊",
+          "options": [
+            "1 a 3",
+            "4 a 6",
+            "7 a 11",
+            "12 a 15",
+            "16 a 40",
+            "40 en adelante",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+
+    {
+      "id": "vacacionales_age_filter",
+      "name": "Vacacionales - Guardar edad + Ruteo",
+      "type": "filter",
+      "position": [2380, 0],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "4 a 6",
+              "targetNodeId": "vacacionales_4a15_offer",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "7 a 11",
+              "targetNodeId": "vacacionales_4a15_offer",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "12 a 15",
+              "targetNodeId": "vacacionales_4a15_offer",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+
+            {
+              "operator": "contains",
+              "value": "1 a 3",
+              "targetNodeId": "vacacionales_intensivos_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "16 a 40",
+              "targetNodeId": "vacacionales_intensivos_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "40 en adelante",
+              "targetNodeId": "vacacionales_intensivos_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+
+            {
+              "operator": "contains",
+              "value": "volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": { "targetNodeId": "flow_vacacionales" }
+        }
+      }
+    },
+
+    {
+      "id": "vacacionales_4a15_offer",
+      "name": "Vacacionales (4-15) - Mostrar 2 opciones",
+      "type": "autobotAction",
+      "position": [2620, 0],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "📚✨ Para esta edad tenemos dos caminos buenísimos 😊\n\n👧🧒 *Vacaciones Artísticas*\n4 horas diarias de arte en la mañana (lun a vie), con actividades de música, danza, teatro y artes plásticas.\n\n🎯 *Cursos Intensivos*\nClases enfocadas en una disciplina (música, danza, teatro o artes plásticas), con horarios flexibles y descuentos de temporada 💸\n\n¿Cuál te interesa más?",
+          "options": [
+            "Vacaciones Artísticas",
+            "Cursos Intensivos",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+
+    {
+      "id": "vacacionales_4a15_offer_filter",
+      "name": "Vacacionales (4-15) - Guardar elección",
+      "type": "filter",
+      "position": [2860, 0],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "vacaciones",
+              "targetNodeId": "flow_vacaciones_artisticas",
+              "storeResponseInMemory": true,
+              "labelInMemory": "vacacionales_tipo"
+            },
+            {
+              "operator": "contains",
+              "value": "intensivos",
+              "targetNodeId": "intensivos_age_gate",
+              "storeResponseInMemory": true,
+              "labelInMemory": "vacacionales_tipo"
+            },
+            {
+              "operator": "contains",
+              "value": "volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": { "targetNodeId": "vacacionales_4a15_offer" }
+        }
+      }
+    },
+
+    {
+      "id": "flow_vacaciones_artisticas",
+      "name": "Vacaciones Artísticas - Placeholder",
+      "type": "autobotAction",
+      "position": [3100, -140],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "Listo 🌞🎨 Te comparto la info de *Vacaciones Artísticas* (4 a 15).\n\n¿Quieres que sigamos con:\n- Fechas y horario\n- Precios e inscripción",
+          "options": ["Fechas y horario", "Precios e inscripción", "Volver al menú"],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+
+    {
+      "id": "intensivos_age_gate",
+      "name": "Intensivos - Repreguntar edad (4-6/7-11/12-15)",
+      "type": "autobotAction",
+      "position": [3100, 0],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "Perfecto 🎯 Para darte la info más precisa de los Cursos Intensivos, ¿en cuál rango de edad está el estudiante?",
+          "options": ["4 a 6", "7 a 11", "12 a 15", "Volver al menú"],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "intensivos_age_gate_filter",
+      "name": "Intensivos - Guardar edad + Continuar a elegir ARTE",
+      "type": "filter",
+      "position": [3340, 0],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "4 a 6",
+              "targetNodeId": "vacacionales_intensivos_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "7 a 11",
+              "targetNodeId": "vacacionales_intensivos_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "12 a 15",
+              "targetNodeId": "vacacionales_intensivos_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": { "targetNodeId": "intensivos_age_gate" }
+        }
+      }
+    },
+
+    {
+      "id": "vacacionales_intensivos_msg",
+      "name": "Intensivos - Elegir ARTE",
+      "type": "autobotAction",
+      "position": [2620, 180],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "💥 Cursos Intensivos Musicala 🎶\n\nUna opción perfecta para aprender, avanzar o retomar lo que más te apasiona: música, danza, artes plásticas o teatro 🎭✨\n\nHorarios flexibles, clases personalizadas o en grupos pequeños, y descuentos de temporada 💸\n\n🎯 ¿Qué te gustaría aprender?",
+          "options": [
+            "🎶 Música",
+            "💃 Danza",
+            "🎭 Teatro",
+            "🖌️ Artes Plásticas",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+
+    {
+      "id": "vacacionales_intensivos_filter",
+      "name": "Intensivos - Guardar ARTE + ir a Modalidad (con imagen precios)",
+      "type": "filter",
+      "position": [2860, 180],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "música",
+              "targetNodeId": "intensivos_modalidad_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "danza",
+              "targetNodeId": "intensivos_modalidad_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "artes",
+              "targetNodeId": "intensivos_modalidad_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "teatro",
+              "targetNodeId": "intensivos_modalidad_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": { "targetNodeId": "vacacionales_intensivos_msg" }
+        }
+      }
+    },
+
+    {
+      "id": "intensivos_modalidad_msg",
+      "name": "Intensivos - Imagen precios + Elegir modalidad",
+      "type": "autobotAction",
+      "position": [3100, 180],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "media": [{ "type": "image", "url": "assets/intensivos.png" }],
+          "textMessage": "🌟 Perfecto. ¿En cuál modalidad te gustaría tomar las clases?\n\n🏫 En nuestra sede (Pasadena, Bogotá)\n🏠 Musicala Hogar (clases personalizadas en tu casa)\n💻 Virtual en tiempo real (desde cualquier lugar)",
+          "options": ["🏫 En sede", "🏠 Musicala Hogar", "💻 Virtual", "Volver al menú"],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+
+    {
+      "id": "intensivos_modalidad_filter",
+      "name": "Intensivos - Guardar modalidad + ruteo",
+      "type": "filter",
+      "position": [3340, 180],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "sede",
+              "targetNodeId": "flow_intensivos_sede",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "hogar",
+              "targetNodeId": "flow_intensivos_hogar",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "virtual",
+              "targetNodeId": "flow_intensivos_virtual",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": { "targetNodeId": "intensivos_modalidad_msg" }
+        }
+      }
+    },
+
+    {
+      "id": "flow_intensivos_sede",
+      "name": "Intensivos - Sede (FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [3580, 120],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "💬 ¡Súper! Ya estás a un pasito de vivir una experiencia llena de arte y diversión con Musicala 🎨🎭🎶\n\nAntes de hablar con nuestro equipo humano 🎧✨, te invitamos a explorar nuestras Preguntas Frecuentes. Allí encontrarás información clave sobre horarios, precios, modalidades y mucho más.\n\n🧐 Revisa todo con calma, y cuando estés listo para dar el siguiente paso, solo tienes que dar clic en el botón de WhatsApp de arriba ☝️📲 ¡Estaremos felices de ayudarte personalmente!\n\n🌟 ¡Gracias por confiar en Musicala! Aquí empieza una aventura artística inolvidable 💃🎹🎨",
+          "options": ["Volver al menú"],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "flow_intensivos_hogar",
+      "name": "Intensivos - Hogar (placeholder)",
+      "type": "autobotAction",
+      "position": [3580, 180],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "Listo 🏠 Te comparto la info de *Musicala Hogar* según el arte que elegiste. ¿Quieres que sigamos con zonas/cobertura o inscripción?",
+          "options": ["Zonas y cobertura", "Inscripción", "Volver al menú"],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "flow_intensivos_virtual",
+      "name": "Intensivos - Virtual (placeholder)",
+      "type": "autobotAction",
+      "position": [3580, 240],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "Listo 💻 Te comparto la info de *Intensivos Virtuales en vivo* según el arte que elegiste. ¿Quieres que sigamos con horarios o inscripción?",
+          "options": ["Horarios", "Inscripción", "Volver al menú"],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+
+    {
+      "id": "flow_presencial",
+      "name": "Presencial (placeholder)",
+      "type": "autobotAction",
+      "position": [2140, 140],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "Listo 👌 Elige una opción para seguir:",
+          "options": ["Volver al menú"],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "flow_virtual",
+      "name": "Virtual (placeholder)",
+      "type": "autobotAction",
+      "position": [2140, 280],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "De una 💻🎶 Elige una opción para seguir:",
+          "options": ["Volver al menú"],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "flow_domicilio",
+      "name": "Domicilio (placeholder)",
+      "type": "autobotAction",
+      "position": [2140, 420],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "Súper 🏠 Elige una opción para seguir:",
+          "options": ["Volver al menú"],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "flow_otros_servicios",
+      "name": "Otros servicios (placeholder)",
+      "type": "autobotAction",
+      "position": [2140, 560],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "_flow": { "allowFreeText": false },
+          "textMessage": "Genial ✨ Elige una opción para seguir:",
+          "options": ["Volver al menú"],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+
+    {
+      "id": "return_to_menu_filter",
+      "name": "Return to menu (simple filter)",
+      "type": "filter",
+      "position": [2380, 280],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            { "operator": "contains", "value": "volver", "targetNodeId": "show_program_options" }
+          ],
+          "filterDefaultCondition": { "targetNodeId": "show_program_options" }
+        }
+      }
+    }
+  ],
+  "connections": [
+    { "source": "webhook", "target": "ask_name" },
+    { "source": "ask_name", "target": "ask_name_filter" },
+    { "source": "ask_name_filter", "target": "ask_phone" },
+    { "source": "ask_phone", "target": "ask_phone_filter" },
+    { "source": "ask_phone_filter", "target": "show_program_options" },
+
+    { "source": "show_program_options", "target": "show_program_options_filter" },
+    { "source": "show_program_options_filter", "target": "menu_fallback" },
+    { "source": "menu_fallback", "target": "show_program_options_filter" },
+
+    { "source": "show_program_options_filter", "target": "flow_vacacionales" },
+    { "source": "flow_vacacionales", "target": "vacacionales_age_filter" },
+
+    { "source": "vacacionales_age_filter", "target": "vacacionales_4a15_offer" },
+    { "source": "vacacionales_age_filter", "target": "vacacionales_intensivos_msg" },
+    { "source": "vacacionales_age_filter", "target": "show_program_options" },
+
+    { "source": "vacacionales_4a15_offer", "target": "vacacionales_4a15_offer_filter" },
+    { "source": "vacacionales_4a15_offer_filter", "target": "flow_vacaciones_artisticas" },
+    { "source": "vacacionales_4a15_offer_filter", "target": "intensivos_age_gate" },
+    { "source": "vacacionales_4a15_offer_filter", "target": "show_program_options" },
+
+    { "source": "intensivos_age_gate", "target": "intensivos_age_gate_filter" },
+    { "source": "intensivos_age_gate_filter", "target": "vacacionales_intensivos_msg" },
+    { "source": "intensivos_age_gate_filter", "target": "show_program_options" },
+
+    { "source": "vacacionales_intensivos_msg", "target": "vacacionales_intensivos_filter" },
+    { "source": "vacacionales_intensivos_filter", "target": "intensivos_modalidad_msg" },
+
+    { "source": "intensivos_modalidad_msg", "target": "intensivos_modalidad_filter" },
+    { "source": "intensivos_modalidad_filter", "target": "flow_intensivos_sede" },
+    { "source": "intensivos_modalidad_filter", "target": "flow_intensivos_hogar" },
+    { "source": "intensivos_modalidad_filter", "target": "flow_intensivos_virtual" },
+    { "source": "intensivos_modalidad_filter", "target": "show_program_options" },
+
+    { "source": "show_program_options_filter", "target": "flow_presencial" },
+    { "source": "flow_presencial", "target": "return_to_menu_filter" },
+
+    { "source": "show_program_options_filter", "target": "flow_virtual" },
+    { "source": "flow_virtual", "target": "return_to_menu_filter" },
+
+    { "source": "show_program_options_filter", "target": "flow_domicilio" },
+    { "source": "flow_domicilio", "target": "return_to_menu_filter" },
+
+    { "source": "show_program_options_filter", "target": "flow_otros_servicios" },
+    { "source": "flow_otros_servicios", "target": "return_to_menu_filter" }
+  ]
+}

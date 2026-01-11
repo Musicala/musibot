@@ -1,0 +1,256 @@
+{
+  "meta": {
+    "name": "Musicala Knowledge Base",
+    "version": "1.3",
+    "language": ["es", "en"],
+    "notes": [
+      "FAQ ampliada + intents mejorados.",
+      "Textos con markdown simple (**negritas**, _cursivas_, listas) para render UI.",
+      "Datos clave: dirección, teléfono, horarios atención, horarios clases, matrícula, rangos edad."
+    ]
+  },
+  "fallback": {
+    "es": "Puedo ayudarte con info sobre Musicala: ubicación, horarios, modalidades, edades, precios, inscripción, docentes y metodología. ¿Qué te gustaría saber?",
+    "en": "I can help with Musicala info: location, schedules, modalities, ages, pricing, enrollment, teachers and methodology. What would you like to know?"
+  },
+  "faq": {
+    "es": [
+      {
+        "q": "Ubicación",
+        "a": "📍 Estamos en la **Carrera 45A #103B-34, Barrio Pasadena**.\n🗺️ Búscanos en Maps como _MUSICALA ESCUELA DE MÚSICA, DANZA Y ARTE_.\n📞 Agenda tu clase al **319 3529475**.\n🚗 A 5 minutos de TransMilenio calle 106. ¡Con parqueo para moto y bici!\n\n¡Te esperamos para comenzar tu aventura artística en Musicala! 🏡🎶"
+      },
+      {
+        "q": "Horarios",
+        "a": "🌟 En Musicala estamos felices de ayudarte.\n\n**Horario de atención (clientes):**\n- Lunes a viernes: **8:00 a.m. a 6:00 p.m.**\n- Sábados: **9:00 a.m. a 1:00 p.m.**\n\nSi escribes fuera de ese horario, deja tu mensaje y te contactamos lo más pronto posible.\n\n**Horarios de clases:**\n- **Clases Personalizadas:** lunes a viernes **11:00 a.m. a 8:00 p.m.**; sábados **8:00 a.m. a 5:00 p.m.**\n- **Clases Grupales:** lunes a sábado, ajustando los horarios grupales según edad y nivel.\n\n🎨🎵 ¿Quieres que te recomiende la mejor opción según la edad y los días que tienes disponibles?"
+      },
+      {
+        "q": "Modalidades",
+        "a": "Puedes vivir Musicala en tres modalidades:\n- **En sede** 🏫\n- **A domicilio** 🏡\n- **Virtual** 💻\n\nTodas incluyen acompañamiento cercano y una experiencia artística cuidada."
+      },
+      {
+        "q": "Edades",
+        "a": "En Musicala celebramos cada etapa de la vida con programas por edades:\n\n- 🧒 **Musibabies (0 a 3 años):** exploración sensorial con música y arte.\n- 👦 **Musicalitos (4 a 6 años):** creatividad y diversión en el mundo del arte.\n- 👧 **Musikids (7 a 11 años):** bases artísticas y confianza.\n- 🧑‍🎤 **Musiteens (12 a 15 años):** técnica y expresión.\n- 🧑‍🎨 **Musigrandes (16 a 40 años):** cursos según objetivos y nivel.\n- 👴 **Musiadultos (+40 años):** aprender y crear valorando la experiencia.\n\nNuestro enfoque se adapta a edad, nivel y propósito 🌟"
+      },
+      {
+        "q": "Precios",
+        "a": "En Musicala ofrecemos cursos y modalidades para distintos presupuestos, con opciones desde **$80.000**.\n\nLa **matrícula anual** cuesta **$55.000**, y asegura el acceso a educación artística de calidad todo el año.\n\n**Paquetes (desde):**\n- **Automusicala y Clases Virtuales:** desde **$80.000** 💻\n- **Musicala Hogar y Plan Musifamiliar:** desde **$288.000** 🏡\n- **Clases Grupales en Sede y Personalizadas:** desde **$280.000** 🏫\n- **Preuniversitario y Taller Creativo:** desde **$150.000** 📚\n\n¿Quieres que te diga el plan más lógico según modalidad, edad y objetivo? 😊🎵"
+      },
+      {
+        "q": "Docentes",
+        "a": "En Musicala nos enorgullece tener un equipo de docentes apasionados por la música, la danza, el teatro y las artes plásticas.\n\n- **Expertos y profesionales:** experiencia práctica y académica.\n- 🎓 **Apasionados por enseñar:** acompañan con energía y empatía.\n- ❤️ **Enfoque personalizado:** ajustan el proceso a cada estudiante.\n- 🌟 **Compromiso con la excelencia:** mejoran e innovan constantemente.\n\nNuestra promesa: cada clase es una experiencia enriquecedora, diseñada para cultivar habilidades y confianza 🎨🎵"
+      },
+      {
+        "q": "Trayectoria / Experiencia",
+        "a": "En Musicala nos enorgullecemos de nuestra trayectoria y compromiso con la educación artística.\n\n_✨ Nuestra historia:_\n- **Fundación y evolución:** nacimos como un espacio inclusivo y creativo y hemos expandido oferta e instalaciones.\n- 🏫 **Expansión y reconocimiento:** hemos tenido experiencias y reconocimientos en distintos espacios.\n- 🏆 **Impacto comunitario:** colaboramos con organizaciones para promover acceso al arte y la cultura.\n\n_🌍 Experiencia educativa:_\n- **Docentes de calidad** 👩‍🏫👨‍🏫\n- **Metodología innovadora** 🎨\n- **Exploración de tecnología y enfoques pedagógicos**\n\n💡 Creemos que el arte es clave para el desarrollo integral. 🌟🎵"
+      },
+      {
+        "q": "Metodología",
+        "a": "En Musicala trabajamos con la **Metodología CREA**:\n\n- 🎯 **Concentración:** técnicas para minimizar distracciones y aumentar atención.\n- ⏩ **Rapidez:** ritmo de aprendizaje ajustado para avanzar con fluidez.\n- 📈 **Eficacia:** objetivos claros y métodos probados.\n- 🌟 **Adaptabilidad:** personalizamos la enseñanza según necesidades.\n\n**Beneficios:** técnica + creatividad + pensamiento crítico + confianza, en un proceso humano y disfrutable 🎵"
+      },
+      {
+        "q": "Métodos de pago",
+        "a": "En Musicala buscamos que todo sea fácil y transparente. Métodos de pago:\n\n- 💵 **Efectivo:** en nuestras instalaciones.\n- 💳 **Tarjetas crédito/débito:** presencial y/o en línea.\n- 🏦 **Transferencia bancaria:** a cuenta corporativa.\n- 🌐 **Pagos online:** por nuestra plataforma web.\n- 📱 **Apps móviles:** pagos por aplicaciones.\n\n_Facilidades:_\n- ✅ Pago único\n- 💸 Pagos fraccionados\n\nSi tienes dudas con pagos, te ayudamos por este medio o por WhatsApp."
+      },
+      {
+        "q": "Fechas de inscripción",
+        "a": "**Inscripción abierta todo el año** 📅🎨\n\n_Cursos con fechas específicas:_\n- ❄️ **Primer semestre:** inscripciones en enero y febrero.\n- ☀️ **Segundo semestre:** inscripciones en julio y agosto.\n- 📚 **Preuniversitarios y talleres especiales:** inscripciones dos meses antes.\n\n_Proceso:_\n1) Conocer oferta 🌐\n2) Completar formulario 📝\n3) Realizar pago 💳\n4) Confirmación ✅\n\nTambién hacemos jornadas informativas y talleres introductorios según temporada."
+      },
+      {
+        "q": "Clase de prueba / cortesía",
+        "a": "Queremos que vivas la experiencia desde el primer momento 🌟. Tenemos dos opciones:\n\n1️⃣ **Clase de prueba con valor**\n- Disponible todo el año.\n- Sesión de **60 minutos** en sede, con docentes expertos.\n\n2️⃣ **Clase de cortesía gratis**\n- Disponible en días especiales, promos o eventos.\n- Sesión de **60 minutos** sin costo.\n\n👉 Escríbenos y te decimos si hoy aplica cortesía o agendamos tu clase de prueba."
+      },
+      {
+        "q": "Otros servicios",
+        "a": "🎨🎶 En Musicala no solo damos clases. También tenemos:\n\n**Formación artística:** personalizados, grupales, vacacionales, preuniversitarios, talleres, Musigym, educación para familias.\n\n**Tienda Musicala:** instrumentos, accesorios, kits de arte, gift cards, merchandising, Musicambio.\n\n**Espacios:** alquiler de salones, estudio de grabación, foto, set para podcast, y café/pintura ☕🎨.\n\n**Eventos:** cumpleaños, bodas/15 años, recitales, conciertos, exposiciones, festivales, talleres.\n\n**Empresas:** convenios, talleres, capacitación docente, experiencias para equipos.\n\nSi me dices qué necesitas, te digo cuál opción encaja mejor 💛"
+      },
+      {
+        "q": "¿Entregan certificados o constancias?",
+        "a": "En procesos formativos podemos emitir **constancias de participación** según el programa y el tiempo cursado.\n\nDime para qué lo necesitas (colegio, universidad, empresa, etc.) y te digo la mejor forma de manejarlo."
+      },
+      {
+        "q": "¿Cómo me inscribo?",
+        "a": "Te guiamos rápido:\n1) Elegimos **arte + modalidad + edad**.\n2) Te proponemos horarios.\n3) Confirmas cupo y haces el pago.\n\nSi me dices **para quién es**, **qué arte**, y **qué días te sirven**, te lo dejo clarito."
+      }
+    ],
+    "en": [
+      {
+        "q": "Location",
+        "a": "📍 We are located at **Carrera 45A #103B-34, Pasadena (Bogotá)**.\n🗺️ Find us on Maps as _MUSICALA ESCUELA DE MÚSICA, DANZA Y ARTE_.\n📞 Book your class: **+57 319 3529475**.\n🚗 About 5 minutes from Calle 106 TransMilenio. Motorcycle & bike parking available.\n\nWe’d love to welcome you to your artistic journey 🏡🎶"
+      },
+      {
+        "q": "Schedules",
+        "a": "🌟 We’re happy to help.\n\n**Customer support hours:**\n- Mon–Fri: **8:00 a.m. to 6:00 p.m.**\n- Sat: **9:00 a.m. to 1:00 p.m.**\n\n**Class schedules:**\n- **Personalized classes:** Mon–Fri **11:00 a.m. to 8:00 p.m.**; Sat **8:00 a.m. to 5:00 p.m.**\n- **Group classes:** scheduled Mon–Sat depending on age and level.\n\nTell me the age range and the days that work for you and I’ll guide you."
+      },
+      {
+        "q": "Modalities",
+        "a": "You can experience Musicala in three ways:\n- **On-site** 🏫\n- **At home** 🏡\n- **Online** 💻\n\nAll options include close guidance and a caring artistic experience."
+      },
+      {
+        "q": "Ages",
+        "a": "We offer programs for different life stages:\n- **0–3** sensory exploration\n- **4–6** playful creativity\n- **7–11** foundations & confidence\n- **12–15** technique & expression\n- **16–40** goal-based training\n- **40+** learning with enjoyment and care\n\nWe adapt to age, level and goals 🌟"
+      },
+      {
+        "q": "Pricing",
+        "a": "Pricing depends on modality and program. Options start from **COP $80,000**.\n\n**Annual enrollment fee:** **COP $55,000**.\n\nStarting points:\n- **Online / Automusicala:** from **$80,000** 💻\n- **At home / Family plans:** from **$288,000** 🏡\n- **On-site group & personalized:** from **$280,000** 🏫\n- **Pre-university & creative workshops:** from **$150,000** 📚\n\nTell me the modality + age + goal and I’ll recommend the best plan."
+      },
+      {
+        "q": "Teachers",
+        "a": "Our teachers are passionate artists and educators.\n- Professional experience\n- Personalized approach\n- Constant improvement\n\nEach class is designed to build skills and confidence 🎨🎵"
+      },
+      {
+        "q": "Methodology",
+        "a": "We use our **CREA methodology**:\n- **Focus** 🎯\n- **Fast progress** ⏩\n- **Effective goals** 📈\n- **Adaptability** 🌟\n\nWe combine technique + creativity + confidence."
+      },
+      {
+        "q": "Payment methods",
+        "a": "We offer flexible payment methods:\n- Cash 💵\n- Cards 💳\n- Bank transfer 🏦\n- Online payments 🌐\n- Mobile apps 📱\n\nWe can also guide you through split payments when available."
+      },
+      {
+        "q": "Enrollment dates",
+        "a": "Enrollment is open year-round 📅.\n\nSome programs may have seasonal intakes (early year / mid-year). Ask us what’s currently open and we’ll guide you."
+      },
+      {
+        "q": "Trial / courtesy class",
+        "a": "We offer:\n1) **Paid trial class** (60 minutes) available year-round.\n2) **Free courtesy class** on special dates, promos or events.\n\nAsk us if a courtesy class is available today."
+      },
+      {
+        "q": "Other services",
+        "a": "Beyond classes, we offer:\n- Workshops & seasonal programs\n- Store (instruments & accessories)\n- Space rentals (studios/rooms)\n- Events (birthdays, shows)\n- Corporate experiences\n\nTell me what you’re looking for and I’ll point you to the best fit."
+      }
+    ]
+  },
+  "intents": [
+    {
+      "id": "location",
+      "patterns": {
+        "es": ["ubicación", "ubicacion", "dónde quedan", "donde quedan", "direccion", "dirección", "cómo llegar", "como llegar", "pasadena", "carrera 45a", "maps", "google maps"],
+        "en": ["location", "address", "where are you", "where are you located", "how to get there", "maps", "google maps"]
+      },
+      "response": {
+        "es": "📍 **Carrera 45A #103B-34, Barrio Pasadena**.\n🗺️ En Maps: _MUSICALA ESCUELA DE MÚSICA, DANZA Y ARTE_.\n📞 **319 3529475**.\n🚗 A 5 minutos de TransMilenio calle 106. Parqueo para moto y bici.",
+        "en": "📍 **Carrera 45A #103B-34, Pasadena (Bogotá)**.\n🗺️ Maps: _MUSICALA ESCUELA DE MÚSICA, DANZA Y ARTE_.\n📞 **+57 319 3529475**.\n🚗 Near Calle 106 TransMilenio. Motorcycle & bike parking."
+      }
+    },
+    {
+      "id": "schedules",
+      "patterns": {
+        "es": ["horarios", "horario", "a qué horas", "a que horas", "atención", "atencion", "horario de atención", "horario de atencion", "horario de clases", "disponibilidad", "disponibles"],
+        "en": ["schedule", "schedules", "hours", "support hours", "class hours", "availability", "available times"]
+      },
+      "response": {
+        "es": "🌟 **Atención (clientes):** lunes a viernes 8:00 a.m. a 6:00 p.m.; sábados 9:00 a.m. a 1:00 p.m.\n\n🎨 **Clases personalizadas:** lunes a viernes 11:00 a.m. a 8:00 p.m.; sábados 8:00 a.m. a 5:00 p.m.\n👥 **Clases grupales:** lunes a sábado según edad y nivel.\n\nSi me dices para quién es y qué días te sirven, te recomiendo el mejor horario.",
+        "en": "🌟 **Support hours:** Mon–Fri 8:00 a.m.–6:00 p.m.; Sat 9:00 a.m.–1:00 p.m.\n\n🎨 **Personalized classes:** Mon–Fri 11:00 a.m.–8:00 p.m.; Sat 8:00 a.m.–5:00 p.m.\n👥 **Group classes:** scheduled Mon–Sat based on age and level.\n\nTell me the age range and days available and I’ll recommend the best schedule."
+      }
+    },
+    {
+      "id": "modalities",
+      "patterns": {
+        "es": ["modalidades", "virtual", "domicilio", "a domicilio", "sede", "en sede", "cómo son las clases", "como son las clases", "presencial"],
+        "en": ["modalities", "online", "virtual", "home", "at home", "on site", "on-site", "in person", "how are the classes"]
+      },
+      "response": {
+        "es": "Modalidades Musicala:\n- **En sede** 🏫\n- **A domicilio** 🏡\n- **Virtual** 💻\n\nTodas con acompañamiento cercano y una experiencia artística cuidada.",
+        "en": "Musicala modalities:\n- **On-site** 🏫\n- **At home** 🏡\n- **Online** 💻\n\nAll include close guidance and a caring artistic experience."
+      }
+    },
+    {
+      "id": "ages_programs",
+      "patterns": {
+        "es": ["edades", "para qué edades", "para que edades", "para niños", "para ninos", "niños", "ninos", "jóvenes", "jovenes", "adultos", "musibabies", "musicalitos", "musikids", "musiteens", "musigrandes", "musiadultos"],
+        "en": ["ages", "what ages", "kids", "teens", "adults", "programs"]
+      },
+      "response": {
+        "es": "Programas por edades:\n- 🧒 **Musibabies (0–3)**\n- 👦 **Musicalitos (4–6)**\n- 👧 **Musikids (7–11)**\n- 🧑‍🎤 **Musiteens (12–15)**\n- 🧑‍🎨 **Musigrandes (16–40)**\n- 👴 **Musiadultos (+40)**\n\nDime la edad y el arte que te interesa y te digo cuál encaja mejor.",
+        "en": "Age-based programs:\n- **0–3**, **4–6**, **7–11**, **12–15**, **16–40**, **40+**\n\nTell me the age range and the art you’re interested in and I’ll guide you."
+      }
+    },
+    {
+      "id": "prices",
+      "patterns": {
+        "es": ["precios", "precio", "cuánto cuesta", "cuanto cuesta", "valor", "tarifa", "valores", "costos", "costo", "matrícula", "matricula"],
+        "en": ["prices", "price", "cost", "how much", "fees", "pricing", "enrollment fee"]
+      },
+      "response": {
+        "es": "Tenemos opciones desde **$80.000** y la **matrícula anual** cuesta **$55.000**.\n\nRangos (desde):\n- 💻 Virtual / Automusicala: **$80.000**\n- 🏡 Hogar / Musifamiliar: **$288.000**\n- 🏫 Grupales o personalizadas en sede: **$280.000**\n- 📚 Preuniversitario / Taller creativo: **$150.000**\n\nSi me dices modalidad + edad + objetivo, te recomiendo el plan más lógico.",
+        "en": "Options start from **COP $80,000**, and the **annual enrollment fee** is **COP $55,000**.\n\nTell me modality + age + goal and I’ll recommend the best plan."
+      }
+    },
+    {
+      "id": "teachers",
+      "patterns": {
+        "es": ["docentes", "profesores", "profe", "maestros", "equipo", "quién enseña", "quien ensena", "experiencia docentes"],
+        "en": ["teachers", "instructors", "professors", "team", "who teaches"]
+      },
+      "response": {
+        "es": "Nuestros docentes son el corazón de Musicala: profesionales, cercanos y con enfoque personalizado. Buscamos que cada clase sea técnica, creativa y humana 🎨🎵",
+        "en": "Our teachers are passionate professionals with a personalized approach. Each class blends technique, creativity and human guidance 🎨🎵"
+      }
+    },
+    {
+      "id": "methodology",
+      "patterns": {
+        "es": ["metodología", "metodologia", "crea", "método", "metodo", "cómo enseñan", "como ensenan", "enfoque", "ruta de aprendizaje"],
+        "en": ["method", "methodology", "crea", "how do you teach", "approach", "learning path"]
+      },
+      "response": {
+        "es": "Trabajamos con **Metodología CREA**: 🎯 Concentración, ⏩ Rapidez, 📈 Eficacia y 🌟 Adaptabilidad.\n\nLa idea es avanzar con técnica + creatividad + confianza, ajustado a cada estudiante.",
+        "en": "We use **CREA**: Focus 🎯, Fast progress ⏩, Effective goals 📈 and Adaptability 🌟.\n\nWe blend technique + creativity + confidence, tailored to each student."
+      }
+    },
+    {
+      "id": "payments",
+      "patterns": {
+        "es": ["pago", "pagos", "cómo pago", "como pago", "medios de pago", "formas de pago", "transferencia", "tarjeta", "nequi", "daviplata", "factura", "recibo"],
+        "en": ["payment", "payments", "how do I pay", "payment methods", "transfer", "card", "invoice", "receipt"]
+      },
+      "response": {
+        "es": "Métodos de pago:\n- 💵 Efectivo\n- 💳 Tarjeta\n- 🏦 Transferencia\n- 🌐 Pagos online\n- 📱 Apps móviles\n\nTambién podemos ver opciones de pago fraccionado según el plan.",
+        "en": "Payment methods:\n- Cash 💵\n- Card 💳\n- Bank transfer 🏦\n- Online payments 🌐\n- Mobile apps 📱\n\nWe can also discuss split payments depending on the plan."
+      }
+    },
+    {
+      "id": "enrollment_dates",
+      "patterns": {
+        "es": ["fechas de inscripción", "fechas de inscripcion", "inscripción", "inscripcion", "cuándo me inscribo", "cuando me inscribo", "inscribirme", "matricularme"],
+        "en": ["enrollment dates", "enrollment", "sign up", "signup", "register"]
+      },
+      "response": {
+        "es": "**Inscripción abierta todo el año** 📅.\n\nAlgunos programas tienen temporadas (inicio de año / mitad de año). Si me dices qué te interesa, te digo lo que está abierto y cómo entrar.",
+        "en": "Enrollment is open year-round 📅.\n\nSome programs have seasonal intakes. Tell me what you’re interested in and I’ll guide you."
+      }
+    },
+    {
+      "id": "trial_or_courtesy",
+      "patterns": {
+        "es": ["clase de prueba", "primera clase", "puedo probar", "cortesía", "cortesia", "clase gratis", "clase de cortesía", "sesión de prueba", "sesion de prueba"],
+        "en": ["trial class", "first class", "can I try", "courtesy class", "free class", "trial session"]
+      },
+      "response": {
+        "es": "Opciones:\n1️⃣ **Clase de prueba con valor** (60 min) todo el año.\n2️⃣ **Clase de cortesía gratis** (60 min) en días especiales/promos.\n\nPregúntame si hoy aplica cortesía o te ayudo a agendar la de prueba.",
+        "en": "Options:\n1) **Paid trial class** (60 min) year-round.\n2) **Free courtesy class** (60 min) on special dates/promos.\n\nAsk if a courtesy class is available today."
+      }
+    },
+    {
+      "id": "other_services",
+      "patterns": {
+        "es": ["otros servicios", "qué más ofrecen", "que mas ofrecen", "tienda", "alquiler", "alquilar salón", "alquilar salon", "estudio", "cumpleaños", "cumpleanos", "eventos", "empresas", "convenios"],
+        "en": ["other services", "what else", "store", "rent", "studio", "events", "companies", "corporate"]
+      },
+      "response": {
+        "es": "Además de clases, ofrecemos: tienda, alquiler de espacios/estudios, eventos (cumples, shows), y experiencias para empresas.\n\nDime qué estás buscando y te digo la mejor ruta.",
+        "en": "Beyond classes, we offer: store, rentals/studios, events, and corporate experiences.\n\nTell me what you’re looking for and I’ll guide you."
+      }
+    },
+    {
+      "id": "about_musicala",
+      "patterns": {
+        "es": ["qué es musicala", "que es musicala", "qué hacen", "que hacen", "de qué se trata", "de que se trata", "qué es esto", "que es esto", "musicala"],
+        "en": ["what is musicala", "what do you do", "what is this", "about musicala"]
+      },
+      "response": {
+        "es": "Musicala es una escuela de artes donde integramos música, danza, teatro y artes visuales desde una mirada humana, creativa y cercana. Acompañamos procesos, no solo “dictamos clase”.",
+        "en": "Musicala is an arts school integrating music, dance, theatre and visual arts with a human, creative approach. We guide processes, not just “teach classes”."
+      }
+    }
+  ]
+}

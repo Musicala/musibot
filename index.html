@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="es" data-lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0C41C4" />
+  <title>MusiBot — Musicala</title>
+
+  <!-- SEO / Share (light) -->
+  <meta name="description" content="MusiBot: asistente de Musicala para resolver dudas sobre clases, horarios, servicios y más." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="./styles.css" />
+
+  <!-- Performance hints -->
+  <link rel="preload" as="image" href="./assets/logo.png" />
+  <link rel="preload" as="video" href="./assets/saludo.mp4" type="video/mp4" />
+
+  <!-- Respect reduced motion (sin tocar JS) -->
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .intro-video { animation: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <noscript>
+    <div style="max-width:960px;margin:16px auto;padding:14px 16px;border:1px solid #e6e8f0;border-radius:12px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;">
+      <strong>Este sitio necesita JavaScript</strong>
+      <div style="margin-top:6px;">
+        Actívalo para usar MusiBot (chat, flujo y selector de idioma).
+      </div>
+    </div>
+  </noscript>
+
+  <!-- =========================
+       TOP BAR
+  ========================== -->
+  <header class="topbar" role="banner">
+    <div class="brand" aria-label="Marca MusiBot Musicala">
+      <img src="./assets/logo.png" alt="Musicala" class="brand-logo" />
+      <div class="brand-meta">
+        <div class="brand-title">MusiBot</div>
+        <div class="brand-sub" data-i18n="brandSub">Asistente • Musicala</div>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <!-- Language switch (se oculta al inicio: idioma se elige en intro) -->
+      <div class="lang-switch is-hidden" id="langSwitchTop" aria-label="Selector de idioma">
+        <span class="lang-label" data-i18n="language">Idioma</span>
+        <button class="lang-btn" id="langBtnES" type="button" data-lang="es" aria-label="Cambiar a Español">
+          ES
+        </button>
+        <button class="lang-btn" id="langBtnEN" type="button" data-lang="en" aria-label="Switch to English">
+          EN
+        </button>
+      </div>
+
+      <a class="wa-btn" id="waBtn" href="#" target="_blank" rel="noopener" aria-label="Abrir WhatsApp">
+        <span class="wa-ic" aria-hidden="true">💬</span>
+        <span class="wa-tx">WhatsApp</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- =========================
+       APP LAYOUT
+  ========================== -->
+  <main class="shell" role="main">
+    <!-- ===== CHAT PANEL ===== -->
+    <section class="panel chat-panel" aria-label="Panel de chat">
+      <div class="panel-head">
+        <div class="panel-title" data-i18n="chatTitle">Chat</div>
+        <div class="panel-actions">
+          <button class="btn ghost" id="btnReset" type="button" data-i18n="reset" aria-label="Reiniciar conversación">
+            Reiniciar
+          </button>
+        </div>
+      </div>
+
+      <!-- Chat history -->
+      <div
+        class="chat"
+        id="chat"
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions text"
+        aria-label="Historial del chat"
+      ></div>
+
+      <!-- Composer -->
+      <div class="composer" aria-label="Escritura de mensajes">
+        <!-- Quick chips -->
+        <div class="chips" id="quick" aria-label="Opciones rápidas"></div>
+
+        <!-- Input -->
+        <form class="inputbar" id="form" autocomplete="off" aria-label="Enviar mensaje">
+          <input
+            id="input"
+            type="text"
+            class="input"
+            data-i18n-placeholder="inputPlaceholder"
+            placeholder="Escribe aquí..."
+            autocomplete="off"
+            autocapitalize="sentences"
+            spellcheck="true"
+            inputmode="text"
+            enterkeyhint="send"
+            aria-label="Escribe tu mensaje"
+          />
+          <button class="btn primary" type="submit" data-i18n="send" aria-label="Enviar">
+            Enviar
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===== SIDE PANEL ===== -->
+    <aside class="panel side-panel" aria-label="Panel de ayuda y preguntas frecuentes">
+      <div class="panel-head">
+        <div class="panel-title" data-i18n="helpTitle">Ayuda</div>
+      </div>
+
+      <div class="side-content">
+        <!-- Sección AYUDA (minimizable) -->
+        <details class="help-collapsible" id="helpDetails">
+          <summary data-i18n="helpQuick">Ayuda rápida</summary>
+
+          <div class="help-body">
+            <div class="card">
+              <div class="card-title" data-i18n="helpWhatIsTitle">¿Qué es esto?</div>
+              <div class="card-text" data-i18n="helpWhatIsText">
+                MusiBot es el asistente de Musicala para resolver dudas sobre clases, horarios y servicios.
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title" data-i18n="helpHowTitle">¿Cómo funciona?</div>
+              <div class="card-text" data-i18n="helpHowText">
+                Escribe tu pregunta o usa los botones rápidos. MusiBot te guía paso a paso.
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title" data-i18n="helpAskTitle">¿Qué puedo preguntarle a MusiBot?</div>
+              <div class="card-text" data-i18n="helpAskText">
+                Horarios, modalidades (sede/hogar/virtual), precios, metodología, clase de prueba, constancias,
+                empresas/grupos, eventos/presentaciones y pagos.
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title" data-i18n="helpExactTitle">¿Cómo consigo una recomendación exacta?</div>
+              <div class="card-text" data-i18n="helpExactText">
+                Dime 3 cosas: 1) para quién es (niño/joven/adulto), 2) modalidad (sede/hogar/virtual),
+                3) tu horario ideal. Si ya estás listo, te paso con una persona por WhatsApp.
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title" data-i18n="helpWhatsappTitle">¿Cuándo debo irme a WhatsApp?</div>
+              <div class="card-text" data-i18n="helpWhatsappText">
+                Cuando quieras cerrar inscripción/pago, confirmar cupos o pedir una cotización exacta (empresas o grupos).
+                El botón de WhatsApp está arriba a la derecha 👆
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <!-- Sección FAQ -->
+        <details class="help-collapsible faq-collapsible" id="faqDetails">
+          <summary data-i18n="faqTitle">Preguntas frecuentes</summary>
+
+          <!-- Nota: esto lo traduces con ui.js (o lo dejas ES por ahora) -->
+          <div class="faq-body" id="faqBody">
+            <div class="faq-item">
+              <strong>¿Qué horarios manejan?</strong>
+              <div>
+                Depende de la modalidad:
+                <br>• Personalizado: lunes a viernes 10:00 a.m. – 8:00 p.m.; sábados 8:00 a.m. – 5:00 p.m.
+                <br>• Grupales (en sede): entre semana desde las 5:00 p.m.; sábados jornada mañana y tarde.
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <strong>¿Qué modalidades tienen?</strong>
+              <div>En sede, a domicilio o virtual.</div>
+            </div>
+
+            <div class="faq-item">
+              <strong>¿Cómo es la metodología?</strong>
+              <div>Ruta clara según tu nivel + práctica guiada + creatividad, con acompañamiento cercano.</div>
+            </div>
+
+            <div class="faq-item">
+              <strong>¿Hay clase de prueba?</strong>
+              <div>Sí, puedes empezar con una primera experiencia para conocer la metodología.</div>
+            </div>
+
+            <div class="faq-item">
+              <strong>¿Entregan certificados o constancias?</strong>
+              <div>En procesos formativos podemos emitir constancias de participación según el programa.</div>
+            </div>
+
+            <div class="faq-item">
+              <strong>¿Manejan clases para empresas o grupos?</strong>
+              <div>Sí: experiencias creativas para equipos con objetivos de bienestar, integración o creatividad.</div>
+            </div>
+
+            <div class="faq-item">
+              <strong>¿Me pueden preparar para una presentación o evento?</strong>
+              <div>Claro. Armamos una ruta enfocada en montaje, técnica y preparación escénica.</div>
+            </div>
+
+            <div class="faq-item">
+              <strong>¿Cómo funcionan los pagos?</strong>
+              <div>Para confirmar cupo y pago normalmente se gestiona por WhatsApp (valor, modalidad y horario).</div>
+            </div>
+
+            <div class="faq-item">
+              <strong>¿De qué depende el precio?</strong>
+              <div>Modalidad, edad, nivel y tipo de experiencia (grupal o personalizado).</div>
+            </div>
+
+            <div class="faq-item">
+              <strong>¿Cómo me inscribo?</strong>
+              <div>Te guío aquí y cuando estés listo te paso con una persona para confirmar cupo, horario y pago.</div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </aside>
+  </main>
+
+  <!-- =========================
+       INTRO / VIDEO
+  ========================== -->
+  <div id="introOverlay" class="intro-overlay" role="dialog" aria-modal="true" aria-label="Intro MusiBot">
+    <div class="intro-box">
+      <video
+        id="introVideo"
+        class="intro-video"
+        playsinline
+        muted
+        autoplay
+        preload="auto"
+      >
+        <source src="./assets/saludo.mp4" type="video/mp4">
+        <span data-i18n="videoNotSupported">Tu navegador no soporta video.</span>
+      </video>
+
+      <div id="introText" class="intro-text hidden" aria-live="polite">
+        <!-- =========================
+             LANGUAGE GATE (FIRST STEP)
+        ========================== -->
+        <div class="lang-gate" id="langGate">
+          <h2 class="lang-gate-title">Elige tu idioma</h2>
+          <p class="lang-gate-sub">Choose your language</p>
+
+          <div class="lang-gate-actions" role="group" aria-label="Language selection">
+            <button class="lang-gate-btn" id="gateES" type="button" data-lang="es">
+              Español
+            </button>
+            <button class="lang-gate-btn" id="gateEN" type="button" data-lang="en">
+              English
+            </button>
+          </div>
+
+          <p class="lang-gate-note">(Luego puedes cambiarlo arriba a la derecha.)</p>
+        </div>
+
+        <!-- =========================
+             WELCOME (SECOND STEP)
+        ========================== -->
+        <div class="intro-welcome is-hidden" id="introWelcome">
+          <h2 data-i18n="introTitle">Bienvenido a MusiBot 🎵</h2>
+          <p data-i18n="introP1">
+            Soy tu asistente de Musicala. Aquí puedes conocer nuestros servicios,
+            horarios y resolver tus dudas de forma rápida.
+          </p>
+          <p data-i18n="introP2">
+            Escribe tu pregunta o usa los botones para comenzar.
+          </p>
+          <button id="startBot" class="intro-btn" type="button" data-i18n="start">
+            Empezar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       SCRIPTS (ES MODULES)
+  ========================== -->
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
