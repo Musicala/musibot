@@ -37,6 +37,7 @@ export const CONFIG = Object.freeze({
   ],
 
   KB_URL: "./kb.json",
+  SEASONAL_WORKSHOPS_URL: "./talleres_temporada.json",
 
   /* =========================
      STORAGE

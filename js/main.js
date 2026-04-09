@@ -57,6 +57,7 @@ let uiLang = "es";
 
 // Cache kb.json para FAQ bilingüe
 let kbCache = null;
+let seasonalWorkshopsCache = null;
 
 /* =========================
    DEBUG HELPERS
@@ -770,6 +771,292 @@ function getLocalizedKBText(value, lang = getLang()) {
   return "";
 }
 
+function getLocalizedStringArray(value, lang = getLang()) {
+  if (!value) return [];
+
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item || "").trim()).filter(Boolean);
+  }
+
+  if (typeof value === "object") {
+    const localized = value?.[lang] ?? value?.es ?? value?.en;
+    if (Array.isArray(localized)) {
+      return localized.map((item) => String(item || "").trim()).filter(Boolean);
+    }
+    if (typeof localized === "string") {
+      const single = localized.trim();
+      return single ? [single] : [];
+    }
+  }
+
+  if (typeof value === "string") {
+    const single = value.trim();
+    return single ? [single] : [];
+  }
+
+  return [];
+}
+
+function getSeasonalWorkshopItems() {
+  const items = seasonalWorkshopsCache?.workshops;
+  return Array.isArray(items) ? items.filter((item) => item && typeof item === "object") : [];
+}
+
+function getActiveSeasonalWorkshops() {
+  return getSeasonalWorkshopItems().filter((item) => item.active !== false);
+}
+
+function getSeasonalWorkshopGenericPatterns(lang = getLang()) {
+  const configured = getLocalizedStringArray(seasonalWorkshopsCache?.genericPatterns, lang);
+  if (configured.length) return configured;
+
+  return lang === "en"
+    ? ["workshop", "workshops", "seasonal workshop", "seasonal workshops", "monthly workshop"]
+    : ["taller", "talleres", "taller de temporada", "talleres de temporada", "taller del mes"];
+}
+
+function getSeasonalWorkshopSuggestionLabel(workshop, lang = getLang()) {
+  return (
+    getLocalizedKBText(workshop?.suggestionLabel, lang) ||
+    getLocalizedKBText(workshop?.shortName, lang) ||
+    getLocalizedKBText(workshop?.name, lang)
+  );
+}
+
+function getSeasonalWorkshopPatterns(workshop, lang = getLang()) {
+  const raw = [
+    ...getLocalizedStringArray(workshop?.patterns, lang),
+    getLocalizedKBText(workshop?.name, lang),
+    getLocalizedKBText(workshop?.shortName, lang),
+    getSeasonalWorkshopSuggestionLabel(workshop, lang)
+  ].filter(Boolean);
+
+  return raw.filter(
+    (item, idx, arr) =>
+      arr.findIndex((candidate) => normalizeLite(candidate) === normalizeLite(item)) === idx
+  );
+}
+
+function buildSeasonalWorkshopFacts(workshop, lang = getLang()) {
+  const lines = [];
+  const date = getLocalizedKBText(workshop?.date, lang);
+  const time = getLocalizedKBText(workshop?.time, lang);
+  const price = getLocalizedKBText(workshop?.price, lang);
+  const location = getLocalizedKBText(workshop?.location, lang);
+
+  if (date) lines.push(lang === "en" ? `Date: *${date}*` : `Fecha: *${date}*`);
+  if (time) lines.push(lang === "en" ? `Time: *${time}*` : `Horario: *${time}*`);
+  if (price) lines.push(lang === "en" ? `Price: *${price}*` : `Valor: *${price}*`);
+  if (location) lines.push(lang === "en" ? `Location: *${location}*` : `Lugar: *${location}*`);
+
+  getLocalizedStringArray(workshop?.highlights, lang).forEach((item) => {
+    lines.push(`- ${item}`);
+  });
+
+  getLocalizedStringArray(workshop?.links, lang).forEach((item) => {
+    lines.push(`- ${item}`);
+  });
+
+  return lines;
+}
+
+function buildSeasonalWorkshopResponse(workshop, lang = getLang()) {
+  const custom = getLocalizedKBText(workshop?.response, lang);
+  if (custom) return custom;
+
+  const label = getSeasonalWorkshopSuggestionLabel(workshop, lang);
+  if (!label) return "";
+
+  const intro =
+    lang === "en"
+      ? `Yes. Right now we have *${label}* available.`
+      : `Si. En este momento tenemos disponible *${label}*.`;
+
+  return [intro, ...buildSeasonalWorkshopFacts(workshop, lang)]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function buildSeasonalWorkshopsListResponse(workshops = [], lang = getLang()) {
+  const active = Array.isArray(workshops) ? workshops.filter(Boolean) : [];
+  if (!active.length) return "";
+
+  const intro =
+    lang === "en"
+      ? "Yes. These are the seasonal workshops we currently have active:"
+      : "Si. En este momento estos son los talleres de temporada que tenemos activos:";
+
+  const lines = active.map((workshop, index) => {
+    const label = getSeasonalWorkshopSuggestionLabel(workshop, lang) || `Workshop ${index + 1}`;
+    const date = getLocalizedKBText(workshop?.date, lang);
+    const time = getLocalizedKBText(workshop?.time, lang);
+    const extra = [date, time].filter(Boolean).join(" | ");
+    return extra ? `${index + 1}. *${label}* - ${extra}` : `${index + 1}. *${label}*`;
+  });
+
+  const outro =
+    lang === "en"
+      ? "Tell me the workshop name and I will share the details, or you can go straight to WhatsApp to reserve."
+      : "Dime el nombre del taller y te comparto los detalles, o si prefieres puedes ir directo a WhatsApp para reservar.";
+
+  return [intro, ...lines, outro].filter(Boolean).join("\n");
+}
+
+function buildSeasonalWorkshopFAQItems(lang = getLang()) {
+  const active = getActiveSeasonalWorkshops();
+  if (!active.length) return [];
+
+  if (active.length === 1) {
+    const workshop = active[0];
+    const label = getSeasonalWorkshopSuggestionLabel(workshop, lang);
+    const title =
+      getLocalizedKBText(workshop?.faqTitle, lang) ||
+      (lang === "en" ? `Seasonal workshop: ${label}` : `Taller de temporada: ${label}`);
+    const answer = [
+      buildSeasonalWorkshopResponse(workshop, lang),
+      getLocalizedKBText(workshop?.advisorPrompt, lang)
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+
+    return [{ q: title, a: answer }];
+  }
+
+  return [
+    {
+      q: lang === "en" ? "Seasonal workshops" : "Talleres de temporada",
+      a: buildSeasonalWorkshopsListResponse(active, lang)
+    }
+  ];
+}
+
+function makeSeasonalWorkshopHit(workshop, lang = getLang(), score = 0) {
+  const label = getSeasonalWorkshopSuggestionLabel(workshop, lang);
+
+  return {
+    id: `seasonal_workshop_${String(workshop?.id || label || "active").trim()}`,
+    category: "seasonal_workshop",
+    score,
+    response: buildSeasonalWorkshopResponse(workshop, lang),
+    advisorPrompt: getLocalizedKBText(workshop?.advisorPrompt, lang),
+    suggestionLabel: label,
+    faqTitle: getLocalizedKBText(workshop?.faqTitle, lang),
+    serviceName: workshop?.serviceName,
+    workshopName: workshop?.name
+  };
+}
+
+function makeSeasonalWorkshopListHit(workshops = [], lang = getLang(), score = 0) {
+  const first = Array.isArray(workshops) ? workshops[0] : null;
+
+  return {
+    id: "seasonal_workshops_active",
+    category: "seasonal_workshop",
+    score,
+    response: buildSeasonalWorkshopsListResponse(workshops, lang),
+    advisorPrompt:
+      lang === "en"
+        ? "If you want to reserve or confirm spots, an advisor can help you on WhatsApp."
+        : "Si quieres reservar o confirmar cupos, un asesor puede ayudarte por WhatsApp.",
+    suggestionLabel: lang === "en" ? "Seasonal workshops" : "Talleres de temporada",
+    faqTitle: lang === "en" ? "Seasonal workshops" : "Talleres de temporada",
+    serviceName: first?.serviceName || { es: "talleres de temporada", en: "seasonal workshops" }
+  };
+}
+
+function findInlineSeasonalWorkshopIntent(text = "") {
+  if (shouldBypassKnowledgeInterrupt(text)) return null;
+
+  const lang = getLang();
+  const active = getActiveSeasonalWorkshops();
+  if (!active.length) return null;
+
+  let best = null;
+
+  active.forEach((workshop) => {
+    const patterns = getSeasonalWorkshopPatterns(workshop, lang);
+    patterns.forEach((pattern) => {
+      const score = Math.max(
+        scoreIntentPattern(text, pattern),
+        scoreIntentPatternLoose(text, pattern)
+      );
+      if (!score) return;
+
+      const boosted = score + (workshop?.featured ? 20 : 0);
+      if (!best || boosted > best.score) {
+        best = { workshop, score: boosted };
+      }
+    });
+  });
+
+  if (best && best.score >= 160) {
+    return makeSeasonalWorkshopHit(best.workshop, lang, best.score);
+  }
+
+  const genericScore = getSeasonalWorkshopGenericPatterns(lang).reduce((max, pattern) => {
+    return Math.max(max, scoreIntentPattern(text, pattern), scoreIntentPatternLoose(text, pattern));
+  }, 0);
+
+  if (genericScore >= 160) {
+    if (active.length === 1) return makeSeasonalWorkshopHit(active[0], lang, genericScore);
+    return makeSeasonalWorkshopListHit(active, lang, genericScore);
+  }
+
+  return null;
+}
+
+function findNearbySeasonalWorkshopTopics(text = "", limit = 2) {
+  if (shouldBypassKnowledgeInterrupt(text)) return [];
+
+  const lang = getLang();
+
+  return getActiveSeasonalWorkshops()
+    .map((workshop) => {
+      const score = getSeasonalWorkshopPatterns(workshop, lang).reduce((max, pattern) => {
+        return Math.max(max, scoreIntentPatternLoose(text, pattern));
+      }, 0);
+
+      return {
+        label: getSeasonalWorkshopSuggestionLabel(workshop, lang),
+        score
+      };
+    })
+    .filter((item) => item.score > 0 && item.label)
+    .sort((a, b) => b.score - a.score)
+    .filter(
+      (item, idx, arr) =>
+        arr.findIndex((candidate) => normalizeLite(candidate.label) === normalizeLite(item.label)) === idx
+    )
+    .slice(0, limit);
+}
+
+function applyInlineKnowledgeLeadHint(hit) {
+  if (!hit || !state) return;
+  if (String(hit?.category || "") !== "seasonal_workshop") return;
+
+  state.memory = state.memory || {};
+  state.memory.lead = state.memory.lead || {};
+
+  const lang = getLang();
+  const serviceName =
+    getLocalizedKBText(hit?.serviceName, lang) ||
+    (lang === "en" ? "seasonal workshops" : "talleres de temporada");
+  const workshopName = getLocalizedKBText(hit?.workshopName, lang);
+
+  if (serviceName && !normalizeServicioValue(state.memory.lead.servicio)) {
+    state.memory.lead.servicio = serviceName;
+  }
+  if (serviceName && !normalizeServicioValue(state.memory.servicio)) {
+    state.memory.servicio = serviceName;
+  }
+  if (workshopName && !String(state.memory.workshop_name || "").trim()) {
+    state.memory.workshop_name = workshopName;
+  }
+  if (workshopName && !String(state.memory.lead.workshopName || "").trim()) {
+    state.memory.lead.workshopName = workshopName;
+  }
+}
+
 function getFAQTitleForIntent(intentOrId, lang = getLang()) {
   const intentId =
     typeof intentOrId === "object"
@@ -1034,8 +1321,10 @@ function buildInlineKnowledgeReply(hit) {
 }
 
 function handleInlineKnowledgeInterrupt(text = "") {
-  const hit = findInlineKnowledgeIntent(text);
+  const hit = findInlineSeasonalWorkshopIntent(text) || findInlineKnowledgeIntent(text);
   if (!hit) return null;
+
+  applyInlineKnowledgeLeadHint(hit);
 
   return {
     hit,
@@ -1064,11 +1353,12 @@ function buildKnowledgeFallbackReply(userText = "", seedReply = null) {
   const lang = getLang();
   const cfg = getSmartFallbackConfig(lang);
   const nearby = findNearbyKnowledgeTopics(userText, 3).map((item) => item.label).filter(Boolean);
+  const nearbyWorkshops = findNearbySeasonalWorkshopTopics(userText, 2).map((item) => item.label).filter(Boolean);
   const defaults = Array.isArray(cfg?.defaultSuggestions)
     ? cfg.defaultSuggestions.map((item) => String(item || "").trim()).filter(Boolean)
     : [];
 
-  const suggestions = [...nearby, ...defaults]
+  const suggestions = [...nearbyWorkshops, ...nearby, ...defaults]
     .filter(Boolean)
     .filter((item, idx, arr) => arr.findIndex((candidate) => normalizeLite(candidate) === normalizeLite(item)) === idx)
     .slice(0, 4);
@@ -1552,29 +1842,55 @@ function openWhatsAppFinal() {
 ========================= */
 
 function renderFAQFromKB() {
-  if (!kbCache) return;
-
   const lang = getLang();
-  const faq = kbCache.faq;
-
   let items = [];
+  const faq = kbCache?.faq;
+
   if (Array.isArray(faq)) items = faq;
   else if (faq && Array.isArray(faq[lang])) items = faq[lang];
+
+  const workshopItems = buildSeasonalWorkshopFAQItems(lang);
+  if (workshopItems.length) {
+    items = [...workshopItems, ...items];
+  }
 
   if (Array.isArray(items) && items.length) renderFAQ(items);
 }
 
 async function loadFAQ() {
-  try {
-    const kbUrl = String(CONFIG.KB_URL || "").trim();
-    if (!kbUrl) return;
+  const kbUrl = String(CONFIG.KB_URL || "").trim();
+  const workshopsUrl = String(CONFIG.SEASONAL_WORKSHOPS_URL || "").trim();
 
-    const res = await fetch(kbUrl, { cache: "no-store" });
-    if (!res.ok) return;
+  const tasks = [];
 
-    kbCache = await res.json();
-    renderFAQFromKB();
-  } catch (err) {
-    console.warn("No se pudo cargar kb.json:", err);
+  if (kbUrl) {
+    tasks.push(
+      fetch(kbUrl, { cache: "no-store" })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((json) => {
+          kbCache = json;
+        })
+        .catch((err) => {
+          console.warn("No se pudo cargar kb.json:", err);
+        })
+    );
   }
+
+  if (workshopsUrl) {
+    tasks.push(
+      fetch(workshopsUrl, { cache: "no-store" })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((json) => {
+          seasonalWorkshopsCache = json;
+        })
+        .catch((err) => {
+          console.warn("No se pudo cargar talleres_temporada.json:", err);
+        })
+    );
+  }
+
+  if (!tasks.length) return;
+
+  await Promise.allSettled(tasks);
+  renderFAQFromKB();
 }

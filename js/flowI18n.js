@@ -14,7 +14,7 @@ const FLOW_I18N = {
       "whatsappLater": "I'll take you to WhatsApp at the end so everything goes in order.\n\nLet's finish these 1-2 steps and the button will appear.",
       "whatsappReady": "All set. Tap the WhatsApp button and I'll take you there directly. I already have your info and where you are in the flow.",
       "defaultMenu": "Okay... menu?",
-      "buttonsOnly": "To continue, choose an option with the buttons.",
+      "buttonsOnly": "To continue, choose an option with the buttons, type its name, or send the number.",
       "transferDefault": "All set. I'll connect you with a person."
     },
     "nodes": {

@@ -1076,6 +1076,16 @@ function matchOptionsToTargets(cleanText, options, nextIds) {
     return null;
   }
 
+  // 1.5) Match por fragmento util del texto: "piano" -> "Piano/Teclado"
+  const idxFragment = findBestFragmentOptionIndex(clean, options);
+  if (idxFragment >= 0) {
+    const opt = options[idxFragment];
+    const ga = readGlobalActionFromOption(opt);
+    if (ga) return { type: "global", action: ga };
+    if (safeNext[idxFragment]) return { type: "node", targetNodeId: safeNext[idxFragment] };
+    return null;
+  }
+
   // 2) Contains match
   const idxContains = options.findIndex((o) => {
     const v = normalizeForMatch(o.value);
@@ -1155,6 +1165,80 @@ function readGlobalActionFromOption(opt) {
   return null;
 }
 
+function tokenizeOptionText(text = "") {
+  return normalizeForMatch(text)
+    .split(" ")
+    .map((token) => token.trim())
+    .filter((token) => token.length >= 3);
+}
+
+function scoreOptionFragmentAgainstText(cleanText, haystackText = "") {
+  const clean = normalizeForMatch(cleanText);
+  const haystack = normalizeForMatch(haystackText);
+  if (!clean || !haystack || clean.length < 3) return 0;
+
+  const cleanTokens = tokenizeOptionText(clean);
+  const hayTokens = tokenizeOptionText(haystack);
+  if (!cleanTokens.length || !hayTokens.length) return 0;
+
+  const shared = cleanTokens.filter((token) => hayTokens.includes(token));
+  const prefixShared = cleanTokens.filter((token) =>
+    hayTokens.some((hayToken) => hayToken.startsWith(token) || token.startsWith(hayToken))
+  );
+
+  let score = 0;
+
+  if (shared.length) {
+    const coverage = shared.length / cleanTokens.length;
+    const precision = shared.length / hayTokens.length;
+    score = Math.round((coverage * 100) + (precision * 30));
+    if (coverage === 1) score += 20;
+    if (clean.length >= 4 && haystack.includes(clean)) score += 20;
+  } else if (
+    prefixShared.length === cleanTokens.length &&
+    cleanTokens.every((token) => token.length >= 4)
+  ) {
+    const precision = prefixShared.length / hayTokens.length;
+    score = Math.round(88 + (precision * 18));
+  }
+
+  if (cleanTokens.length === 1 && cleanTokens[0].length >= 4) {
+    const token = cleanTokens[0];
+    if (hayTokens.includes(token)) score += 25;
+    else if (hayTokens.some((hayToken) => hayToken.startsWith(token))) score += 14;
+  }
+
+  return score;
+}
+
+function scoreOptionFragmentMatch(cleanText, option) {
+  return Math.max(
+    scoreOptionFragmentAgainstText(cleanText, option?.label || ""),
+    scoreOptionFragmentAgainstText(cleanText, option?.value || "")
+  );
+}
+
+function findBestFragmentOptionIndex(cleanText, options) {
+  if (!Array.isArray(options) || !options.length) return -1;
+
+  const ranked = options
+    .map((option, idx) => ({
+      idx,
+      score: scoreOptionFragmentMatch(cleanText, option)
+    }))
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  if (!ranked.length) return -1;
+
+  const best = ranked[0];
+  const second = ranked[1];
+  if (best.score < 88) return -1;
+  if (second && (best.score - second.score) < 18) return -1;
+
+  return best.idx;
+}
+
 function normalizeForMatch(s) {
   let t = normalize(s || "");
   t = t.replace(/^[^\p{L}\p{N}]+/gu, "").trim();
@@ -1162,30 +1246,55 @@ function normalizeForMatch(s) {
 }
 
 function parseChoiceNumber(cleanText) {
-  const m = cleanText.match(/^(\d{1,2})$/);
+  const numericText = String(cleanText || "").trim();
+  const m = numericText.match(/^(?:opcion|option|numero|number|respuesta)?\s*#?(\d{1,2})$/);
   if (m) {
     const n = Number(m[1]);
     if (Number.isFinite(n) && n > 0) return n;
   }
 
   const map = {
+    uno: 1,
+    one: 1,
     primera: 1,
     primero: 1,
+    dos: 2,
+    two: 2,
     segunda: 2,
     segundo: 2,
+    tres: 3,
+    three: 3,
     tercera: 3,
     tercero: 3,
+    cuatro: 4,
+    four: 4,
     cuarta: 4,
     cuarto: 4,
+    cinco: 5,
+    five: 5,
     quinta: 5,
     quinto: 5,
+    seis: 6,
+    six: 6,
     sexta: 6,
     sexto: 6,
+    siete: 7,
+    seven: 7,
     septima: 7,
     septimo: 7,
+    ocho: 8,
+    eight: 8,
+    novena: 9,
+    noveno: 9,
+    nueve: 9,
+    nine: 9,
+    decima: 10,
+    decimo: 10,
+    diez: 10,
+    ten: 10
   };
   for (const k in map) {
-    if (cleanText.includes(k)) return map[k];
+    if (numericText === k || wordBoundaryIncludes(numericText, k)) return map[k];
   }
   return null;
 }
@@ -1282,12 +1391,12 @@ function buildButtonsOnlyFallback(node, state, seed = null) {
 
   let fallbackText =
     String(p.buttonsOnlyMessage || "").trim() ||
-    "Para continuar, elige una opción con los botones 👇";
+    "Para continuar, elige una opcion con los botones, escribe el nombre o envia el numero.";
 
   // ✅ Aquí también preservamos options completas
   fallbackText =
     String(p.buttonsOnlyMessage || "").trim() ||
-    flowText(state, "buttonsOnly", "Para continuar, elige una opcion con los botones.");
+    flowText(state, "buttonsOnly", "Para continuar, elige una opcion con los botones, escribe el nombre o envia el numero.");
 
   const msg = seed
     ? { ...seed, text: fallbackText }
