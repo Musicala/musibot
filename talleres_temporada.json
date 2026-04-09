@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "name": "Talleres de temporada Musicala",
+    "version": "1.0",
+    "editingGuide": [
+      "Edita este archivo cuando cambie el taller del mes.",
+      "Si un taller ya no esta vigente, cambia \"active\" a false.",
+      "Para mejorar el reconocimiento, agrega variantes en patterns.es y patterns.en."
+    ]
+  },
+  "genericPatterns": {
+    "es": [
+      "taller",
+      "talleres",
+      "taller de temporada",
+      "talleres de temporada",
+      "taller del mes",
+      "vengo por el taller",
+      "vi el taller",
+      "publicidad del taller"
+    ],
+    "en": [
+      "workshop",
+      "workshops",
+      "seasonal workshop",
+      "seasonal workshops",
+      "monthly workshop",
+      "i saw the workshop ad"
+    ]
+  },
+  "workshops": [
+    {
+      "id": "origami_creativo_2026_04",
+      "active": true,
+      "featured": true,
+      "serviceName": {
+        "es": "talleres de temporada",
+        "en": "seasonal workshops"
+      },
+      "name": {
+        "es": "Taller de Origami Creativo",
+        "en": "Creative Origami Workshop"
+      },
+      "shortName": {
+        "es": "Origami",
+        "en": "Origami"
+      },
+      "suggestionLabel": {
+        "es": "Taller de Origami",
+        "en": "Origami workshop"
+      },
+      "faqTitle": {
+        "es": "Taller de temporada: Origami",
+        "en": "Seasonal workshop: Origami"
+      },
+      "patterns": {
+        "es": [
+          "origami",
+          "taller de origami",
+          "taller origami",
+          "origami creativo",
+          "taller creativo de origami",
+          "curso de origami"
+        ],
+        "en": [
+          "origami",
+          "origami workshop",
+          "creative origami",
+          "paper folding workshop"
+        ]
+      },
+      "date": {
+        "es": "25 de abril",
+        "en": "April 25"
+      },
+      "time": {
+        "es": "10:00 a.m. a 12:00 p.m.",
+        "en": "10:00 a.m. to 12:00 p.m."
+      },
+      "price": {
+        "es": "$25.000",
+        "en": "COP $25,000"
+      },
+      "location": {
+        "es": "Carrera 45A #103B-34, Pasadena, Bogota",
+        "en": "Carrera 45A #103B-34, Pasadena, Bogota"
+      },
+      "highlights": {
+        "es": [
+          "Materiales incluidos.",
+          "No necesitas experiencia previa.",
+          "Actividad guiada paso a paso.",
+          "Te llevas tus creaciones a casa.",
+          "Cupos limitados."
+        ],
+        "en": [
+          "Materials included.",
+          "No previous experience needed.",
+          "Guided step by step activity.",
+          "You take your creations home.",
+          "Limited spots."
+        ]
+      },
+      "links": {
+        "es": [
+          "Web: www.imusicala.com",
+          "WhatsApp: 3193529475"
+        ],
+        "en": [
+          "Website: www.imusicala.com",
+          "WhatsApp: 3193529475"
+        ]
+      },
+      "advisorPrompt": {
+        "es": "Si quieres reservar o confirmar disponibilidad, lo ideal es hablar con un asesor por WhatsApp.",
+        "en": "If you want to reserve or confirm availability, the best next step is to speak with an advisor on WhatsApp."
+      }
+    }
+  ]
+}
