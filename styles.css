@@ -29,7 +29,8 @@ body {
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   color: #101016;
   overflow: hidden;
-  min-height: 100dvh;
+  height: var(--app-height, 100dvh);
+  min-height: var(--app-height, 100dvh);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   padding-bottom: env(safe-area-inset-bottom);
@@ -45,6 +46,8 @@ body {
 
 /* ===== VARIABLES ===== */
 :root{
+  --app-height: 100dvh;
+  --keyboard-offset: 0px;
   --mozart:#0C41C4;
   --beethoven:#680DBF;
   --brahms:#CE0071;
@@ -229,13 +232,23 @@ body {
 .shell{
   display: grid;
   grid-template-columns: 1fr;
+  grid-template-areas:
+    "chat"
+    "side";
   gap: 12px;
   padding: var(--shell-pad);
   min-height: 0;
 }
 
+.chat-panel{ grid-area: chat; }
+
+.side-panel{ grid-area: side; }
+
 @media (min-width: 900px){
-  .shell{ grid-template-columns: 1.2fr .8fr; }
+  .shell{
+    grid-template-columns: 1.2fr .8fr;
+    grid-template-areas: "chat side";
+  }
 }
 
 /* =========================
@@ -453,6 +466,11 @@ body {
   background: linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.80));
 }
 
+.composer.is-typing .chips,
+.composer.is-typing .quick-picker{
+  display: none;
+}
+
 /* Sticky chips en móvil: quedan visibles mientras scrolleas */
 @media (max-width: 899px){
   .shell{
@@ -470,32 +488,50 @@ body {
 
   .side-panel{
     align-self: start;
+    max-height: min(36vh, 320px);
     min-height: auto;
-    overflow: visible;
+    overflow: hidden;
   }
 
   .side-content{
     flex: 0 0 auto;
     min-height: auto;
-    overflow: visible;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
     padding: 10px 12px 12px;
-  }
-
-  .chat{
-    padding: 12px 12px 18px;
-    scroll-padding-bottom: 18px;
   }
 
   .composer{
     position: sticky;
     bottom: 0;
     z-index: 5;
-    padding: 10px;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
     gap: 8px;
     background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.94) 20%, rgba(255,255,255,.98));
     box-shadow: 0 -10px 24px rgba(15,18,34,.08);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+  }
+
+  .is-input-active .shell{
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .is-input-active .side-panel{
+    display: none;
+  }
+
+  .is-input-active .composer{
+    gap: 0;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom) + var(--keyboard-offset));
+  }
+
+  .is-input-active .chat{
+    padding-bottom: 12px;
+    scroll-padding-bottom: calc(12px + var(--keyboard-offset));
   }
 
   .composer .chips{
@@ -505,7 +541,6 @@ body {
     padding: 2px 2px 4px;
     margin: 0 -2px;
     scroll-snap-type: x proximity;
-    scrollbar-width: none;
   }
 
   .composer .chips::-webkit-scrollbar{
@@ -535,6 +570,11 @@ body {
 
   .composer[data-quick-ui="select"] .chips{
     display: none;
+  }
+
+  .chat{
+    padding: 12px 12px 18px;
+    scroll-padding-bottom: calc(18px + var(--keyboard-offset));
   }
 }
 
@@ -633,6 +673,7 @@ body {
 
   .composer .input{
     padding: 10px 12px;
+    font-size: 16px;
   }
 
   .composer .inputbar .btn.primary{
