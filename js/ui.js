@@ -128,6 +128,47 @@ function blurInput() {
   try { $input?.blur(); } catch {}
 }
 
+function setInputActive(active) {
+  const isActive = Boolean(active && isMobileViewport());
+  const root = document.documentElement;
+  if (root) root.classList.toggle("is-input-active", isActive);
+  if ($composer) $composer.classList.toggle("is-typing", isActive);
+}
+
+function keepComposerVisible() {
+  if (!$composer) return;
+
+  requestAnimationFrame(() => {
+    try {
+      $composer.scrollIntoView({ block: "end", inline: "nearest" });
+    } catch {}
+    scrollToBottom(false);
+  });
+}
+
+function applyViewportMetrics() {
+  const root = document.documentElement;
+  if (!root) return;
+
+  const vv = window.visualViewport;
+  const visibleHeight = Math.round(vv?.height || window.innerHeight || root.clientHeight || 0);
+  const layoutHeight = Math.max(
+    window.innerHeight || 0,
+    root.clientHeight || 0
+  );
+  const keyboardInset = vv
+    ? Math.max(0, Math.round(layoutHeight - vv.height - vv.offsetTop))
+    : 0;
+
+  root.style.setProperty("--app-height", `${visibleHeight || 0}px`);
+  root.style.setProperty("--keyboard-offset", `${keyboardInset}px`);
+  root.classList.toggle("keyboard-open", isMobileViewport() && keyboardInset > 120);
+
+  if (document.activeElement === $input) {
+    keepComposerVisible();
+  }
+}
+
 function getLangFromDOM() {
   const root = document.documentElement;
   const lang = (root?.dataset?.lang || root?.lang || "es").toLowerCase();
@@ -639,18 +680,25 @@ function normalizeOptions(options) {
    EVENTOS
 ========================= */
 function bindViewportGuard() {
-  if (!("visualViewport" in window) || !window.visualViewport) return;
-
-  const vv = window.visualViewport;
   let tmr = null;
 
   const onChange = () => {
     clearTimeout(tmr);
-    tmr = setTimeout(() => scrollToBottom(false), 50);
+    tmr = setTimeout(() => {
+      applyViewportMetrics();
+      scrollToBottom(false);
+    }, 50);
   };
 
-  vv.addEventListener("resize", onChange, { passive: true });
-  vv.addEventListener("scroll", onChange, { passive: true });
+  applyViewportMetrics();
+
+  if ("visualViewport" in window && window.visualViewport) {
+    const vv = window.visualViewport;
+    vv.addEventListener("resize", onChange, { passive: true });
+    vv.addEventListener("scroll", onChange, { passive: true });
+  }
+
+  window.addEventListener("resize", onChange, { passive: true });
 }
 
 export function bindForm(onSubmit) {
@@ -669,12 +717,26 @@ export function bindForm(onSubmit) {
     onSubmit(value);
     $input.value = "";
 
+    setInputActive(false);
     blurInput();
     scrollToBottom(false);
   });
 
   $input.addEventListener("focus", () => {
-    setTimeout(() => scrollToBottom(false), 50);
+    setInputActive(true);
+    applyViewportMetrics();
+    setTimeout(() => keepComposerVisible(), 50);
+    setTimeout(() => keepComposerVisible(), 180);
+  });
+
+  $input.addEventListener("blur", () => {
+    setTimeout(() => {
+      if (document.activeElement !== $input) {
+        setInputActive(false);
+        applyViewportMetrics();
+        scrollToBottom(false);
+      }
+    }, 120);
   });
 }
 

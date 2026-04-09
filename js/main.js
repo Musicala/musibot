@@ -19,7 +19,7 @@ import {
   saveState,
   makeBotMessage,
   makeUserMessage,
-  resetState
+  resetConversationKeepMemory
 } from "./state.js";
 import {
   renderAll,
@@ -36,6 +36,7 @@ import {
 import {
   loadFlow,
   startFlow,
+  runNode,
   handleUserInput,
   relocalizeHistory
 } from "./flowEngine.js";
@@ -217,6 +218,142 @@ function readLeadFieldsFromState() {
   return { nombre, cel, servicio, edad, arte, modalidad };
 }
 
+function getLeadFirstMemory() {
+  state.memory = state.memory || {};
+  state.memory.leadFirst = state.memory.leadFirst || {
+    firstInquiryText: "",
+    firstService: "",
+    firstAge: "",
+    firstArt: "",
+    firstModality: "",
+    firstNodeId: "",
+    firstNodeName: "",
+    firstSource: ""
+  };
+
+  return state.memory.leadFirst;
+}
+
+function readFirstLeadFieldsFromState() {
+  const first = getLeadFirstMemory();
+
+  return {
+    firstInquiryText: pickFirstNonEmpty(first.firstInquiryText),
+    firstService: normalizeServicioValue(first.firstService),
+    firstAge: normalizeEdadValue(first.firstAge),
+    firstArt: normalizeArteValue(first.firstArt),
+    firstModality: normalizeModalidadValue(first.firstModality),
+    firstNodeId: pickFirstNonEmpty(first.firstNodeId),
+    firstNodeName: pickFirstNonEmpty(first.firstNodeName),
+    firstSource: pickFirstNonEmpty(first.firstSource)
+  };
+}
+
+function hasRememberedLeadPhone() {
+  const { cel } = readLeadFieldsFromState();
+  return Boolean(cel);
+}
+
+function hasRememberedLeadName() {
+  const { nombre } = readLeadFieldsFromState();
+  return Boolean(nombre);
+}
+
+function getPreferredFlowStartNodeId() {
+  if (hasRememberedLeadPhone()) return "show_program_options";
+  if (hasRememberedLeadName()) return "ask_phone";
+  return "";
+}
+
+function shouldFreezeInquiryText(text = "") {
+  const raw = String(text || "").trim();
+  const clean = normalizeLite(raw);
+  if (!clean) return false;
+  if (!hasRememberedLeadPhone()) return false;
+
+  const blocked = new Set([
+    "prefiero no dejarlo",
+    "prefer not to share",
+    "menu",
+    "menú",
+    "inicio",
+    "home",
+    "reiniciar",
+    "reset",
+    "faq"
+  ]);
+
+  return !blocked.has(clean);
+}
+
+function freezeFirstLeadSnapshot({ userText = "" } = {}) {
+  if (!state) return;
+
+  const first = getLeadFirstMemory();
+  const current = readLeadFieldsFromState();
+  const hasBusinessSignal = Boolean(
+    current.servicio ||
+    current.edad ||
+    current.arte ||
+    current.modalidad
+  );
+
+  if (!first.firstInquiryText && shouldFreezeInquiryText(userText)) {
+    first.firstInquiryText = String(userText || "").trim();
+  }
+
+  if (!first.firstService && current.servicio) first.firstService = current.servicio;
+  if (!first.firstAge && current.edad) first.firstAge = current.edad;
+  if (!first.firstArt && current.arte) first.firstArt = current.arte;
+  if (!first.firstModality && current.modalidad) first.firstModality = current.modalidad;
+
+  if (hasBusinessSignal) {
+    if (!first.firstNodeId && state?.progress?.lastNodeId) {
+      first.firstNodeId = String(state.progress.lastNodeId).trim();
+    }
+    if (!first.firstNodeName && state?.progress?.lastNodeName) {
+      first.firstNodeName = String(state.progress.lastNodeName).trim();
+    }
+    if (!first.firstSource && state?.progress?.lastSource) {
+      first.firstSource = String(state.progress.lastSource).trim();
+    }
+  }
+}
+
+function clearLeadExplorationMemory() {
+  state.memory = state.memory || {};
+  state.memory.lead = state.memory.lead || {};
+
+  Object.assign(state.memory.lead, {
+    edad: "",
+    arte: "",
+    modalidad: "",
+    servicio: ""
+  });
+
+  Object.assign(state.memory, {
+    edad: "",
+    age: "",
+    rangoEdad: "",
+    rango_edad: "",
+    rangoedad: "",
+    ageRange: "",
+    arte: "",
+    art: "",
+    disciplina: "",
+    discipline: "",
+    modalidad: "",
+    mode: "",
+    modalidad_clase: "",
+    classMode: "",
+    servicio: "",
+    service: "",
+    plan: "",
+    detalle_arte: "",
+    vacacionales_tipo: ""
+  });
+}
+
 // Dedupe extra en memoria para evitar llamadas repetidas en loops raros
 function getLeadSyncFlags() {
   if (!state) return {};
@@ -240,11 +377,31 @@ async function syncLeadFromState() {
   if (!leadSync || !state) return;
 
   const { nombre, cel, servicio, edad, arte, modalidad } = readLeadFieldsFromState();
+  const {
+    firstInquiryText,
+    firstService,
+    firstAge,
+    firstArt,
+    firstModality,
+    firstNodeId,
+    firstNodeName,
+    firstSource
+  } = readFirstLeadFieldsFromState();
   const flags = getLeadSyncFlags();
 
   if (isLeadDebug()) {
     console.log("[MusiBot] syncLeadFromState() ->", {
       read: { nombre, cel, servicio, edad, arte, modalidad },
+      frozen: {
+        firstInquiryText,
+        firstService,
+        firstAge,
+        firstArt,
+        firstModality,
+        firstNodeId,
+        firstNodeName,
+        firstSource
+      },
       memLead: state?.memory?.lead,
       memLegacy: {
         nombre: state?.memory?.nombre,
@@ -286,6 +443,38 @@ async function syncLeadFromState() {
     if (modalidad && flags.modalidad !== modalidad) {
       await leadSync.saveField("modalidad", modalidad);
       flags.modalidad = modalidad;
+    }
+    if (firstInquiryText && flags.primer_texto_usuario !== firstInquiryText) {
+      await leadSync.saveField("primer_texto_usuario", firstInquiryText, { maxLen: 500 });
+      flags.primer_texto_usuario = firstInquiryText;
+    }
+    if (firstService && flags.primer_servicio !== firstService) {
+      await leadSync.saveField("primer_servicio", firstService);
+      flags.primer_servicio = firstService;
+    }
+    if (firstAge && flags.primer_edad !== firstAge) {
+      await leadSync.saveField("primer_edad", firstAge);
+      flags.primer_edad = firstAge;
+    }
+    if (firstArt && flags.primer_arte !== firstArt) {
+      await leadSync.saveField("primer_arte", firstArt);
+      flags.primer_arte = firstArt;
+    }
+    if (firstModality && flags.primera_modalidad !== firstModality) {
+      await leadSync.saveField("primera_modalidad", firstModality);
+      flags.primera_modalidad = firstModality;
+    }
+    if (firstNodeId && flags.primer_node_id !== firstNodeId) {
+      await leadSync.saveField("primer_node_id", firstNodeId, { maxLen: 160 });
+      flags.primer_node_id = firstNodeId;
+    }
+    if (firstNodeName && flags.primer_node_name !== firstNodeName) {
+      await leadSync.saveField("primer_node_name", firstNodeName, { maxLen: 220 });
+      flags.primer_node_name = firstNodeName;
+    }
+    if (firstSource && flags.primer_origen !== firstSource) {
+      await leadSync.saveField("primer_origen", firstSource, { maxLen: 120 });
+      flags.primer_origen = firstSource;
     }
   } catch (e) {
     console.warn("[MusiBot] No se pudo sincronizar lead:", e?.message || e);
@@ -957,6 +1146,17 @@ function normalizeStateShape(s) {
     servicio: ""
   };
 
+  s.memory.leadFirst = s.memory.leadFirst || {
+    firstInquiryText: "",
+    firstService: "",
+    firstAge: "",
+    firstArt: "",
+    firstModality: "",
+    firstNodeId: "",
+    firstNodeName: "",
+    firstSource: ""
+  };
+
   s.memory.capture = s.memory.capture || { stage: null };
   s.memory.flags = s.memory.flags || { flowStarted: false, hydrated: false };
 
@@ -1013,7 +1213,11 @@ function startFlowIfNeeded() {
     return;
   }
 
-  const firstMsg = startFlow(state);
+  const preferredStartNodeId = getPreferredFlowStartNodeId();
+  const firstMsg = preferredStartNodeId
+    ? runNode(preferredStartNodeId, state)
+    : startFlow(state);
+
   state.memory.flags.flowStarted = true;
 
   if (firstMsg) {
@@ -1107,6 +1311,7 @@ function onUserSubmit(text) {
   if (knowledgeInterrupt?.botReply) {
     state.history.push(knowledgeInterrupt.botReply);
     appendMessage(knowledgeInterrupt.botReply);
+    freezeFirstLeadSnapshot({ userText: value });
 
     if (knowledgeInterrupt.hit?.category === "faq" && knowledgeInterrupt.hit?.faqTitle) {
       openFAQQuestionContains(knowledgeInterrupt.hit.faqTitle);
@@ -1128,6 +1333,7 @@ function onUserSubmit(text) {
     state.history.push(botReply);
     appendMessage(botReply);
     applyUIHintsAfterBotReply();
+    freezeFirstLeadSnapshot({ userText: value });
 
     // Acción global (defensivo)
     const action = botReply?._flow?.action;
@@ -1171,6 +1377,7 @@ function onChipClick(value, kind, label) {
     state.history.push(botReply);
     appendMessage(botReply);
     applyUIHintsAfterBotReply();
+    freezeFirstLeadSnapshot({ userText: visibleValue });
 
     const action = botReply?._flow?.action;
     if (action === "WHATSAPP") openWhatsAppFinal();
@@ -1186,14 +1393,18 @@ function onChipClick(value, kind, label) {
 }
 
 function onReset() {
-  state = normalizeStateShape(resetState());
+  state = normalizeStateShape(resetConversationKeepMemory(state));
   state.memory.ui = state.memory.ui || {};
   state.memory.ui.lang = getLang();
 
+  clearLeadExplorationMemory();
+  state.memory.capture = state.memory.capture || {};
+  state.memory.capture.stage = null;
   state.memory.flags.flowStarted = false;
-
-  // reset flags de sync
-  state.memory.flags.leadSync = {};
+  state.currentNodeId = null;
+  state.awaitingNodeId = null;
+  state.lastUserText = "";
+  state.progress = null;
 
   renderAll(state);
 
