@@ -1,0 +1,1343 @@
+{
+  "name": "Musicala - Domicilio (mdulo)",
+  "type": "botflow",
+  "version": "v3.13.0",
+  "notes": [
+    "Mdulo Musicala Hogar conectado desde el router (flow_domicilio).",
+    "Orden UX: Edades -> Arte -> detalle (si aplica) -> cierre personalizado hogar.",
+    "En hogar no se preguntan modalidades: todo el flujo es personalizado.",
+    "Se conserva la salida global a WhatsApp y el retorno al men.",
+    "service llega desde el router; modalidad se infiere como Musicala Hogar cuando haga falta."
+  ],
+  "nodes": [
+    {
+      "id": "flow_domicilio",
+      "name": "Hogar - Info + Elegir edad",
+      "type": "autobotAction",
+      "position": [
+        2140,
+        420
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "Musicala Hogar lleva el arte hasta tu casa con clases personalizadas, cercanas y pensadas para avanzar a tu ritmo.\n\nTrabajamos Musica, Danza, Teatro y Artes Plasticas con acompanamiento docente y una experiencia hecha a la medida del estudiante y su familia.\n\nPara orientarte mejor, cuentanos la edad del estudiante:",
+          "options": [
+            "1 a 3",
+            "4 a 6",
+            "7 a 11",
+            "12 a 15",
+            "16 a 50",
+            "50 en adelante",
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "domicilio_age_filter",
+      "name": "Hogar - Guardar edad + Continuar",
+      "type": "filter",
+      "position": [
+        2380,
+        420
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "1 a 3",
+              "targetNodeId": "domicilio_age_info_1a3",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "4 a 6",
+              "targetNodeId": "domicilio_age_info_4a6",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "7 a 11",
+              "targetNodeId": "domicilio_age_info_7a11",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "12 a 15",
+              "targetNodeId": "domicilio_age_info_12a15",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "16 a 50",
+              "targetNodeId": "domicilio_age_info_16a50",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "50 en adelante",
+              "targetNodeId": "domicilio_age_info_50plus",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "flow_domicilio"
+          }
+        }
+      }
+    },
+    {
+      "id": "domicilio_age_info_1a3",
+      "name": "Hogar - Musibabies + planes",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        240
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "Musibabies Hogar es nuestro plan de estimulacion artistica personalizada para peques de 1 a 3 anos.\n\nTrabajamos musica, danza, teatro desde el cuerpo y artes plasticas en una experiencia amorosa, sensorial y creativa dentro de casa.\n\nEs ideal para fortalecer vinculo, exploracion y desarrollo integral desde los primeros anos.\n\nSi quieres conocer mas sobre lo que hacemos en estas edades, puedes verlo aqui:\nhttps://musicala.github.io/musiedades/\n\nQue plan te gustaria tomar en Musicala Hogar?",
+          "options": [
+            "Paquete de 4 clases",
+            "Paquete de 8 clases",
+            "Paquete de 12 clases",
+            "Paquete de 24 clases",
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text",
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planeshogar.png"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "domicilio_musibabies_plan_filter",
+      "name": "Hogar - Musibabies plan + cierre",
+      "type": "filter",
+      "position": [
+        2860,
+        240
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "4 clases",
+              "targetNodeId": "domicilio_home_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "plan"
+            },
+            {
+              "operator": "contains",
+              "value": "8 clases",
+              "targetNodeId": "domicilio_home_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "plan"
+            },
+            {
+              "operator": "contains",
+              "value": "12 clases",
+              "targetNodeId": "domicilio_home_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "plan"
+            },
+            {
+              "operator": "contains",
+              "value": "24 clases",
+              "targetNodeId": "domicilio_home_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "plan"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "domicilio_age_info_1a3"
+          }
+        }
+      }
+    },
+    {
+      "id": "domicilio_age_info_4a6",
+      "name": "Hogar - Musicalitos elegir arte",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        420
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "Musicalitos Hogar lleva la exploracion artistica a casa para peques de 4 a 6 anos.\n\nEn estas clases viven experiencias llenas de juego, imaginacion y descubrimiento en Musica, Danza, Teatro y Artes Plasticas.\n\nQue area te gustaria conocer mejor?",
+          "options": [
+            {
+              "label": "Musica",
+              "value": "musica"
+            },
+            {
+              "label": "Danza",
+              "value": "danza"
+            },
+            {
+              "label": "Teatro",
+              "value": "teatro"
+            },
+            {
+              "label": "Artes Plasticas",
+              "value": "artes plasticas"
+            },
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "domicilio_age_info_7a11",
+      "name": "Hogar - Musikids elegir arte",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        620
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "Musikids Hogar esta pensado para ninas y ninos de 7 a 11 anos que quieren aprender arte desde casa con mas profundidad.\n\nAqui pueden explorar Musica, Danza, Teatro y Artes Plasticas con clases personalizadas que combinan tecnica, creatividad y disfrute.\n\nQue area artistica te gustaria explorar?",
+          "options": [
+            {
+              "label": "Musica",
+              "value": "musica"
+            },
+            {
+              "label": "Danza",
+              "value": "danza"
+            },
+            {
+              "label": "Teatro",
+              "value": "teatro"
+            },
+            {
+              "label": "Artes Plasticas",
+              "value": "artes plasticas"
+            },
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "domicilio_age_info_12a15",
+      "name": "Hogar - Musiteens elegir arte",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        820
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "Musiteens Hogar acompana a adolescentes de 12 a 15 anos en procesos artisticos mas conscientes, creativos y expresivos.\n\nTrabajamos Musica, Danza, Teatro y Artes Plasticas en casa con metas claras, flexibilidad y acompanamiento cercano.\n\nQue area artistica te gustaria explorar?",
+          "options": [
+            {
+              "label": "Musica",
+              "value": "musica"
+            },
+            {
+              "label": "Danza",
+              "value": "danza"
+            },
+            {
+              "label": "Teatro",
+              "value": "teatro"
+            },
+            {
+              "label": "Artes Plasticas",
+              "value": "artes plasticas"
+            },
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "domicilio_age_info_16a50",
+      "name": "Hogar - Musigrandes elegir arte",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        1020
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "Musigrandes Hogar es nuestra ruta para jovenes y adultos de 16 a 50 anos que quieren aprender arte desde casa, a su ritmo y con acompanamiento personalizado.\n\nPuedes explorar Musica, Danza, Teatro y Artes Plasticas en un proceso disenado para potenciar tecnica, expresion y bienestar.\n\nQue area artistica te gustaria explorar?",
+          "options": [
+            {
+              "label": "Musica",
+              "value": "musica"
+            },
+            {
+              "label": "Danza",
+              "value": "danza"
+            },
+            {
+              "label": "Teatro",
+              "value": "teatro"
+            },
+            {
+              "label": "Artes Plasticas",
+              "value": "artes plasticas"
+            },
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "domicilio_age_info_50plus",
+      "name": "Hogar - Musiadultos elegir arte",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        1220
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "Musiadultos Hogar esta pensado para personas de 50 anos en adelante que desean aprender, retomar o disfrutar el arte con calma y confianza.\n\nDesde casa, trabajamos Musica, Danza, Teatro y Artes Plasticas con experiencias cercanas, retadoras y muy humanas.\n\nQue area artistica te gustaria explorar?",
+          "options": [
+            {
+              "label": "Musica",
+              "value": "musica"
+            },
+            {
+              "label": "Danza",
+              "value": "danza"
+            },
+            {
+              "label": "Teatro",
+              "value": "teatro"
+            },
+            {
+              "label": "Artes Plasticas",
+              "value": "artes plasticas"
+            },
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "domicilio_arte_filter_4a6",
+      "name": "Hogar - Musicalitos guardar arte",
+      "type": "filter",
+      "position": [
+        2860,
+        420
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "musica",
+              "targetNodeId": "domicilio_musicalitos_musica",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "danza",
+              "targetNodeId": "domicilio_musicalitos_danza",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "teatro",
+              "targetNodeId": "domicilio_musicalitos_teatro",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "artes plasticas",
+              "targetNodeId": "domicilio_musicalitos_artes",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "contains",
+              "value": "volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "domicilio_age_info_4a6"
+          }
+        }
+      }
+    },
+    {
+      "id": "domicilio_arte_filter_7plus",
+      "name": "Hogar - Guardar arte 7+",
+      "type": "filter",
+      "position": [
+        2860,
+        920
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "musica",
+              "targetNodeId": "domicilio_home_musica",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "danza",
+              "targetNodeId": "domicilio_home_danza",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "teatro",
+              "targetNodeId": "domicilio_home_teatro",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "artes plasticas",
+              "targetNodeId": "domicilio_home_artes",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "contains",
+              "value": "volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "flow_domicilio"
+          }
+        }
+      }
+    },
+    {
+      "id": "domicilio_musicalitos_musica",
+      "name": "Hogar - Musicalitos msica",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        260
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "En Musicalitos Hogar, la musica se vive con cuerpo, voz e instrumentos adaptados a esta etapa.\n\nLos peques fortalecen ritmo, escucha, coordinacion y creatividad en una experiencia divertida y cercana.\n\nAqui te compartimos los planes de Musicala Hogar para seguir este proceso desde casa.",
+          "options": [
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text",
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planeshogar.png"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "domicilio_musicalitos_danza",
+      "name": "Hogar - Musicalitos danza",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        420
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "En Musicalitos Hogar, la danza se explora a traves del movimiento, la expresion corporal y juegos ritmicos pensados para esta edad.\n\nEs un espacio para desarrollar coordinacion, seguridad y disfrute artistico desde casa.\n\nAqui te compartimos los planes de Musicala Hogar para seguir este proceso desde casa.",
+          "options": [
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text",
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planeshogar.png"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "domicilio_musicalitos_teatro",
+      "name": "Hogar - Musicalitos teatro",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        580
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "En Musicalitos Hogar, el teatro invita a imaginar, jugar y contar historias con el cuerpo, la voz y las emociones.\n\nFortalecemos comunicacion, creatividad y confianza en un proceso artistico lleno de juego.\n\nAqui te compartimos los planes de Musicala Hogar para seguir este proceso desde casa.",
+          "options": [
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text",
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planeshogar.png"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "domicilio_musicalitos_artes",
+      "name": "Hogar - Musicalitos artes",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        740
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "En Musicalitos Hogar, las artes plasticas abren un espacio para crear, experimentar con materiales y expresar ideas con libertad.\n\nAcompanamos el desarrollo de motricidad fina, percepcion y creatividad en una experiencia cercana y amorosa.\n\nAqui te compartimos los planes de Musicala Hogar para seguir este proceso desde casa.",
+          "options": [
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text",
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planeshogar.png"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "domicilio_home_musica",
+      "name": "Hogar - Msica general + instrumento",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        980
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "En Musicala Hogar, la musica se trabaja de manera personalizada con canto, instrumento, tecnica y disfrute del proceso.\n\nCada clase se adapta al ritmo, experiencia e intereses del estudiante para avanzar con claridad y motivacion.\n\nEscoge el instrumento que deseas aprender:",
+          "options": [
+            "Piano/Teclado",
+            "Guitarra",
+            "Canto/Tecnica vocal",
+            "Violin",
+            "Bateria",
+            "Cello",
+            "Bajo electrico",
+            "Ukelele",
+            "Instrumentos de viento",
+            "Otro",
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "domicilio_home_instrumento_filter",
+      "name": "Hogar - Guardar instrumento + cierre",
+      "type": "filter",
+      "position": [
+        3340,
+        980
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "domicilio_home_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "detalle_arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "domicilio_home_final",
+            "storeResponseInMemory": true,
+            "labelInMemory": "detalle_arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "domicilio_home_danza",
+      "name": "Hogar - Danza general + estilo",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        1160
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "En Musicala Hogar, la danza se vive desde la tecnica, la musicalidad, la expresion y el disfrute del movimiento.\n\nTrabajamos procesos personalizados para que cada estudiante avance con seguridad y conexion corporal.\n\nEscoge el estilo de baile que mas te llama la atencion:",
+          "options": [
+            "Bailes Latinos",
+            "Danza clasica/Ballet",
+            "Bailes Urbanos",
+            "Danzas folcloricas",
+            "Otros",
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "domicilio_home_estilo_filter",
+      "name": "Hogar - Guardar estilo + cierre",
+      "type": "filter",
+      "position": [
+        3340,
+        1160
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "domicilio_home_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "detalle_arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "domicilio_home_final",
+            "storeResponseInMemory": true,
+            "labelInMemory": "detalle_arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "domicilio_home_artes",
+      "name": "Hogar - Artes general + tcnica",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        1340
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "En Musicala Hogar, las artes plasticas se trabajan con procesos personalizados que combinan observacion, tecnica, creatividad y estilo propio.\n\nLas clases se adaptan a los intereses del estudiante para que cada creacion tenga sentido y disfrute.\n\nQue tecnica te gustaria aprender?",
+          "options": [
+            "Dibujo",
+            "Pintura",
+            "Manualidades",
+            "Tecnicas mixtas",
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "domicilio_home_tecnica_filter",
+      "name": "Hogar - Guardar tcnica + cierre",
+      "type": "filter",
+      "position": [
+        3340,
+        1340
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "domicilio_home_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "detalle_arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "domicilio_home_final",
+            "storeResponseInMemory": true,
+            "labelInMemory": "detalle_arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "domicilio_home_teatro",
+      "name": "Hogar - Teatro general",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        1520
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "En Musicala Hogar, el teatro se vive desde la actuacion, la voz, la improvisacion y la expresion corporal.\n\nEs una ruta personalizada para fortalecer presencia, comunicacion, creatividad y confianza desde casa.\n\nAqui te compartimos los planes de Musicala Hogar para continuar este proceso.",
+          "options": [
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text",
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planeshogar.png"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "domicilio_home_final",
+      "name": "Hogar - Final personalizado",
+      "type": "autobotAction",
+      "position": [
+        3580,
+        1120
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "Aqui te compartimos los planes de Musicala Hogar Personalizado.\n\nAntes de hablar con nuestro equipo, te invitamos a explorar nuestras Preguntas Frecuentes. Alli encontraras informacion clave sobre horarios, cobertura, precios y metodologia.\n\nSi quieres conocer otras opciones, puedes volver al menu. Y si prefieres continuar ya mismo, tambien puedes escribirnos por WhatsApp.",
+          "options": [
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text",
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planeshogar.png"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": [
+    {
+      "source": "flow_domicilio",
+      "target": "domicilio_age_filter"
+    },
+    {
+      "source": "flow_domicilio",
+      "target": "domicilio_age_filter"
+    },
+    {
+      "source": "flow_domicilio",
+      "target": "domicilio_age_filter"
+    },
+    {
+      "source": "flow_domicilio",
+      "target": "domicilio_age_filter"
+    },
+    {
+      "source": "flow_domicilio",
+      "target": "domicilio_age_filter"
+    },
+    {
+      "source": "flow_domicilio",
+      "target": "domicilio_age_filter"
+    },
+    {
+      "source": "flow_domicilio",
+      "target": "show_program_options"
+    },
+    {
+      "source": "flow_domicilio",
+      "target": "domicilio_age_filter"
+    },
+    {
+      "source": "domicilio_age_filter",
+      "target": "domicilio_age_info_1a3"
+    },
+    {
+      "source": "domicilio_age_filter",
+      "target": "domicilio_age_info_4a6"
+    },
+    {
+      "source": "domicilio_age_filter",
+      "target": "domicilio_age_info_7a11"
+    },
+    {
+      "source": "domicilio_age_filter",
+      "target": "domicilio_age_info_12a15"
+    },
+    {
+      "source": "domicilio_age_filter",
+      "target": "domicilio_age_info_16a50"
+    },
+    {
+      "source": "domicilio_age_filter",
+      "target": "domicilio_age_info_50plus"
+    },
+    {
+      "source": "domicilio_age_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_age_filter",
+      "target": "flow_domicilio"
+    },
+    {
+      "source": "domicilio_age_info_1a3",
+      "target": "domicilio_musibabies_plan_filter"
+    },
+    {
+      "source": "domicilio_age_info_1a3",
+      "target": "domicilio_musibabies_plan_filter"
+    },
+    {
+      "source": "domicilio_age_info_1a3",
+      "target": "domicilio_musibabies_plan_filter"
+    },
+    {
+      "source": "domicilio_age_info_1a3",
+      "target": "domicilio_musibabies_plan_filter"
+    },
+    {
+      "source": "domicilio_age_info_1a3",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_age_info_1a3",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_age_info_4a6",
+      "target": "domicilio_arte_filter_4a6"
+    },
+    {
+      "source": "domicilio_age_info_4a6",
+      "target": "domicilio_arte_filter_4a6"
+    },
+    {
+      "source": "domicilio_age_info_4a6",
+      "target": "domicilio_arte_filter_4a6"
+    },
+    {
+      "source": "domicilio_age_info_4a6",
+      "target": "domicilio_arte_filter_4a6"
+    },
+    {
+      "source": "domicilio_age_info_4a6",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_age_info_4a6",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_age_info_7a11",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_7a11",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_7a11",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_7a11",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_7a11",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_age_info_7a11",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_age_info_12a15",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_12a15",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_12a15",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_12a15",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_12a15",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_age_info_12a15",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_age_info_16a50",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_16a50",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_16a50",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_16a50",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_16a50",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_age_info_16a50",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_age_info_50plus",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_50plus",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_50plus",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_50plus",
+      "target": "domicilio_arte_filter_7plus"
+    },
+    {
+      "source": "domicilio_age_info_50plus",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_age_info_50plus",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_arte_filter_4a6",
+      "target": "domicilio_musicalitos_musica"
+    },
+    {
+      "source": "domicilio_arte_filter_4a6",
+      "target": "domicilio_musicalitos_danza"
+    },
+    {
+      "source": "domicilio_arte_filter_4a6",
+      "target": "domicilio_musicalitos_teatro"
+    },
+    {
+      "source": "domicilio_arte_filter_4a6",
+      "target": "domicilio_musicalitos_artes"
+    },
+    {
+      "source": "domicilio_arte_filter_4a6",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_arte_filter_4a6",
+      "target": "domicilio_age_info_4a6"
+    },
+    {
+      "source": "domicilio_arte_filter_7plus",
+      "target": "domicilio_home_musica"
+    },
+    {
+      "source": "domicilio_arte_filter_7plus",
+      "target": "domicilio_home_danza"
+    },
+    {
+      "source": "domicilio_arte_filter_7plus",
+      "target": "domicilio_home_teatro"
+    },
+    {
+      "source": "domicilio_arte_filter_7plus",
+      "target": "domicilio_home_artes"
+    },
+    {
+      "source": "domicilio_arte_filter_7plus",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_arte_filter_7plus",
+      "target": "flow_domicilio"
+    },
+    {
+      "source": "domicilio_musicalitos_musica",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "domicilio_musicalitos_musica",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_musicalitos_danza",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "domicilio_musicalitos_danza",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_musicalitos_teatro",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "domicilio_musicalitos_teatro",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_musicalitos_artes",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "domicilio_musicalitos_artes",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_home_teatro",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "domicilio_home_teatro",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_home_final",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "domicilio_home_final",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_home_musica",
+      "target": "domicilio_home_instrumento_filter"
+    },
+    {
+      "source": "domicilio_home_musica",
+      "target": "domicilio_home_instrumento_filter"
+    },
+    {
+      "source": "domicilio_home_musica",
+      "target": "domicilio_home_instrumento_filter"
+    },
+    {
+      "source": "domicilio_home_musica",
+      "target": "domicilio_home_instrumento_filter"
+    },
+    {
+      "source": "domicilio_home_musica",
+      "target": "domicilio_home_instrumento_filter"
+    },
+    {
+      "source": "domicilio_home_musica",
+      "target": "domicilio_home_instrumento_filter"
+    },
+    {
+      "source": "domicilio_home_musica",
+      "target": "domicilio_home_instrumento_filter"
+    },
+    {
+      "source": "domicilio_home_musica",
+      "target": "domicilio_home_instrumento_filter"
+    },
+    {
+      "source": "domicilio_home_musica",
+      "target": "domicilio_home_instrumento_filter"
+    },
+    {
+      "source": "domicilio_home_musica",
+      "target": "domicilio_home_instrumento_filter"
+    },
+    {
+      "source": "domicilio_home_musica",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_home_musica",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_home_danza",
+      "target": "domicilio_home_estilo_filter"
+    },
+    {
+      "source": "domicilio_home_danza",
+      "target": "domicilio_home_estilo_filter"
+    },
+    {
+      "source": "domicilio_home_danza",
+      "target": "domicilio_home_estilo_filter"
+    },
+    {
+      "source": "domicilio_home_danza",
+      "target": "domicilio_home_estilo_filter"
+    },
+    {
+      "source": "domicilio_home_danza",
+      "target": "domicilio_home_estilo_filter"
+    },
+    {
+      "source": "domicilio_home_danza",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_home_danza",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_home_artes",
+      "target": "domicilio_home_tecnica_filter"
+    },
+    {
+      "source": "domicilio_home_artes",
+      "target": "domicilio_home_tecnica_filter"
+    },
+    {
+      "source": "domicilio_home_artes",
+      "target": "domicilio_home_tecnica_filter"
+    },
+    {
+      "source": "domicilio_home_artes",
+      "target": "domicilio_home_tecnica_filter"
+    },
+    {
+      "source": "domicilio_home_artes",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_home_artes",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_home_instrumento_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_home_instrumento_filter",
+      "target": "domicilio_home_final"
+    },
+    {
+      "source": "domicilio_home_estilo_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_home_estilo_filter",
+      "target": "domicilio_home_final"
+    },
+    {
+      "source": "domicilio_home_tecnica_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_home_tecnica_filter",
+      "target": "domicilio_home_final"
+    },
+    {
+      "source": "domicilio_musibabies_plan_filter",
+      "target": "domicilio_home_final"
+    },
+    {
+      "source": "domicilio_musibabies_plan_filter",
+      "target": "domicilio_home_final"
+    },
+    {
+      "source": "domicilio_musibabies_plan_filter",
+      "target": "domicilio_home_final"
+    },
+    {
+      "source": "domicilio_musibabies_plan_filter",
+      "target": "domicilio_home_final"
+    },
+    {
+      "source": "domicilio_musibabies_plan_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "domicilio_musibabies_plan_filter",
+      "target": "domicilio_age_info_1a3"
+    }
+  ]
+}

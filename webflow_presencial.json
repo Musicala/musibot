@@ -1,0 +1,3158 @@
+{
+  "name": "Musicala - Presencial (módulo)",
+  "type": "botflow",
+  "version": "v3.10.7",
+  "notes": [
+    "Módulo Presencial conectado desde el router (flow_presencial).",
+    "Objetivo: respetar el orden Edades -> Arte -> Modalidad -> (Grupal/Personal) -> Cierre.",
+    "Multi-flow safe: se mantienen conexiones duplicadas intencionales en nodos con botones (1 opción = 1 edge).",
+    "Se guarda únicamente lo necesario: edad, arte, modalidad (service viene del router).",
+    "Referencias al router: show_program_options y return_to_menu_filter existen en webflow_router.json.",
+    "Mejora UX: Se agrega opción 💬 Hablar por WhatsApp (chip global) dentro del flujo en puntos clave.",
+    "Hardening: Conexiones 1:1 por opción en todos los nodos con botones para evitar mismatch por índice."
+  ],
+  "nodes": [
+    {
+      "id": "flow_presencial",
+      "name": "Presencial - Info + Elegir edad",
+      "type": "autobotAction",
+      "position": [
+        2140,
+        140
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🌟 Conoce nuestras opciones de *Clases Presenciales* en nuestra sede 🎨🎶💃\n\n*🌱 Arte como Cambio Social:* Creemos en el poder del arte para impactar vidas y apoyar causas sociales.\n\n*👩‍🎓 Docentes Expertos y Clases Personalizadas:* Nuestro equipo está dedicado a tu desarrollo artístico con una educación de calidad.\n\n*🎯 Metodología CREA:* Adaptamos nuestras enseñanzas a tus habilidades con herramientas tecnológicas avanzadas para una experiencia única.\n\n💬 Para orientarte mejor, cuéntanos la edad del estudiante:",
+          "options": [
+            "1 a 3",
+            "4 a 6",
+            "7 a 11",
+            "12 a 15",
+            "16 a 50",
+            "50 en adelante",
+            {
+              "label": "Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_age_filter",
+      "name": "Presencial - Guardar edad + Continuar",
+      "type": "filter",
+      "position": [
+        2380,
+        140
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "1 a 3",
+              "targetNodeId": "presencial_age_info_1a3",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "4 a 6",
+              "targetNodeId": "presencial_age_info_4a6",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "7 a 11",
+              "targetNodeId": "presencial_age_info_7a11",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "12 a 15",
+              "targetNodeId": "presencial_age_info_12a15",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "16 a 50",
+              "targetNodeId": "presencial_age_info_16a40",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "50 en adelante",
+              "targetNodeId": "presencial_age_info_40plus",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "flow_presencial"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_age_info",
+      "name": "Presencial - Elegir ARTE",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        140
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "Perfecto 😊 Ahora elige el área artística que te interesa para clases presenciales:",
+          "options": [
+            "🎶 Música",
+            "💃 Danza",
+            "🎭 Teatro",
+            "🖌️ Artes Plásticas",
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_age_info_1a3",
+      "name": "Presencial - Musibabies info + planes",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        340
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planespersonalizados.png"
+            }
+          ],
+          "textMessage": "👶🎨 *Musibabies* es nuestro plan de *estimulación artística* para peques de *1 a 3 años*.\n\nAquí viven una experiencia amorosa y creativa en la que trabajamos *todas las artes* desde temprana edad:\n\n🎶 *Música*\n💃 *Danza*\n🎭 *Teatro desde el cuerpo*\n🖌️ *Artes plásticas*\n\n👩‍👦 En sede, para Musibabies manejamos *clases personalizadas*, pensadas para fortalecer el vínculo, la exploración y el desarrollo integral a través del arte.\n\n🔎 Si quieres conocer más sobre todo lo que hacemos en estas edades, puedes verlo aquí:\nhttps://musicala.github.io/musiedades/\n\n💜 ¿Qué plan te gustaría tomar?",
+          "options": [
+            "Paquete de 4 clases",
+            "Paquete de 8 clases",
+            "Paquete de 12 clases",
+            "Paquete de 24 clases",
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_age_info_4a6",
+      "name": "Presencial - Musicalitos (4 a 6) elegir arte",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        520
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🌟🎨🎶 En nuestros cursos de *Exploración de Música, Baile, Teatro y Artes Plásticas*, cada día es una oportunidad para descubrir la magia del arte. Con instrumentos a su medida, movimientos que cuentan historias y pinceladas llenas de imaginación, sus pequeños se sumergirán en un mundo de creatividad y diversión.\n\n🎵 Música para sentir y crear ritmos, 💃 baile para expresar y moverse libremente, 🎭 teatro para jugar, imaginar y contar historias con el cuerpo y la voz, y 🖌️ artes plásticas para pintar sueños. Aquí, cada Musicalito brilla, explorando y disfrutando del arte.\n\n✨ ¿Qué área te gustaría conocer mejor para tu Musicalito?",
+          "options": [
+            "🎶 Música",
+            "💃 Danza",
+            "🎭 Teatro",
+            "🖌️ Artes Plásticas",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_arte_filter",
+      "name": "Presencial - Guardar ARTE + ir a tipo de clase",
+      "type": "filter",
+      "position": [
+        2860,
+        140
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "presencial_tipo_clase",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_tipo_clase",
+            "storeResponseInMemory": true,
+            "labelInMemory": "arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_arte_filter_4a6",
+      "name": "Presencial - Musicalitos guardar ARTE + rutear",
+      "type": "filter",
+      "position": [
+        2860,
+        520
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "música",
+              "targetNodeId": "presencial_musicalitos_musica",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "danza",
+              "targetNodeId": "presencial_musicalitos_danza",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "teatro",
+              "targetNodeId": "presencial_musicalitos_teatro",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "artes",
+              "targetNodeId": "presencial_musicalitos_artes",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_age_info_4a6"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_musicalitos_musica",
+      "name": "Presencial - Musicalitos música + modalidades",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        440
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🎶 En el plan de exploración musical, tu peque aprenderá música con el cuerpo, la voz y divertidos instrumentos como el ukelele, huevitos, panderetas y xilófono.\n🎨✨ Usamos colores y números para que las notas sean fáciles y súper divertidas de entender.\n💕 Lo mejor: ¡desarrollará amor por el arte desde pequeñito! 🌈🥁\n\n👉 Conoce la ruta para nuestros Musicalitos aquí: https://drive.google.com/file/d/15DsuCeVW0p_8vNi0TI7m8_by9VpB0A4e/view\n\n🌟 En Musicala, hemos creado con mucho amor experiencias presenciales diseñadas especialmente para nuestros jóvenes artistas y sus maravillosas familias: 🌈👪\n\n*🎨 Musicalitos Personalizadas:* Estas son sesiones únicas donde tu pequeño artista recibirá toda la atención de nuestro docente especializado. Perfectas para un aprendizaje personalizado, estas clases están enfocadas en estimular el desarrollo creativo y emocional de tu Musicalito, proporcionando una experiencia de conexión y descubrimiento sin igual. 🌟👶\n\n*🎶 Musicalitos en Grupo:* Invitamos a tu Musicalito a formar parte de un cálido grupo de 2 a 6 niños, acompañados siempre por sus familias. Concebidas para promover la interacción, el juego colectivo y el desarrollo de habilidades sociales, estas clases representan una excelente oportunidad para que los niños aprendan y crezcan juntos en un ambiente lleno de amor y seguridad. 🧩👨‍👩‍👧‍👦\n\nCada modalidad está pensada para ofrecer una introducción maravillosa al mundo del arte, asegurando que tanto los niños como sus familias disfruten de una experiencia memorable y profundamente enriquecedora. 🌈🎭\n\n✨ ¿Qué modalidad te gustaría conocer mejor?",
+          "options": [
+            "Clases personalizadas",
+            "Clases grupales",
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musicalitos_danza",
+      "name": "Presencial - Musicalitos danza + modalidades",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        620
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🌟🎉 En este mágico viaje, la danza se explora a través del movimiento, la expresión corporal y, por supuesto, pasos básicos de baile adaptados especialmente para sus pequeñas edades. Imagina a tu peque moviéndose al ritmo de la música, descubriendo el espacio con giros y saltos, y expresando historias con su cuerpo al son de melodías cautivadoras 🌈🎶\n\n🎨🔢 Pero nuestra aventura va más allá de simplemente bailar; es un aprendizaje lleno de creatividad y diversión. Utilizamos colores y formas para enseñar conceptos de espacio y ritmo, haciendo que cada paso y movimiento sean fáciles y divertidos de seguir. Tu pequeño bailarín desarrollará su coordinación y ritmo mientras asocia el movimiento con los elementos visuales y táctiles que ya conoce.\n\n💕 Lo más emocionante es ver cómo tu hijo o hija empieza a expresarse y a encontrar su pasión por el baile desde una edad temprana, cultivando un amor duradero por las artes.\n\n🌈✨ Para más información sobre nuestra ruta para Musicalitos, sigue este link: https://drive.google.com/file/d/1_Hhs0IDTih9cJbHfgeieQvlDg_YV3SeN/view\n\n🌟 En Musicala, hemos creado con mucho amor experiencias presenciales diseñadas especialmente para nuestros jóvenes artistas y sus maravillosas familias: 🌈👪\n\n*🎨 Musicalitos Personalizadas:* Estas son sesiones únicas donde tu pequeño artista recibirá toda la atención de nuestro docente especializado. Perfectas para un aprendizaje personalizado, estas clases están enfocadas en estimular el desarrollo creativo y emocional de tu Musicalito, proporcionando una experiencia de conexión y descubrimiento sin igual. 🌟👶\n\n*🎶 Musicalitos en Grupo:* Invitamos a tu Musicalito a formar parte de un cálido grupo de 2 a 6 niños, acompañados siempre por sus familias. Concebidas para promover la interacción, el juego colectivo y el desarrollo de habilidades sociales, estas clases representan una excelente oportunidad para que los niños aprendan y crezcan juntos en un ambiente lleno de amor y seguridad. 🧩👨‍👩‍👧‍👦\n\nCada modalidad está pensada para ofrecer una introducción maravillosa al mundo del arte, asegurando que tanto los niños como sus familias disfruten de una experiencia memorable y profundamente enriquecedora. 🌈🎭\n\n✨ ¿Qué modalidad te gustaría conocer mejor?",
+          "options": [
+            "Clases personalizadas",
+            "Clases grupales",
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musicalitos_teatro",
+      "name": "Presencial - Musicalitos teatro + modalidades",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        800
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🎭🌟 En esta aventura, el teatro se descubre a través del juego, la expresión corporal, la voz y la imaginación, todo adaptado especialmente a sus pequeñas edades. Imagina a tu peque creando personajes, representando emociones y contando historias con su cuerpo, sus gestos y su voz, mientras vive escenas llenas de magia y diversión 🌈✨\n\n🧩🎶 Pero nuestra exploración va mucho más allá de actuar; también usamos dinámicas, música, secuencias y juegos teatrales para fortalecer la atención, la memoria, la seguridad y la comunicación. Cada experiencia les ayuda a reconocer emociones, relacionarse con otros y disfrutar del arte desde el juego y el movimiento.\n\n💕 Lo más hermoso es ver cómo tu hijo o hija gana confianza para expresarse, compartir lo que siente y enamorarse del teatro desde una edad temprana.\n\n🌈✨ Para más información sobre nuestra ruta para Musicalitos, sigue este link: https://musicala.github.io/musiedades/\n\n🌟 En Musicala, hemos creado con mucho amor experiencias presenciales diseñadas especialmente para nuestros jóvenes artistas y sus maravillosas familias: 🌈👪\n\n*🎨 Musicalitos Personalizadas:* Estas son sesiones únicas donde tu pequeño artista recibirá toda la atención de nuestro docente especializado. Perfectas para un aprendizaje personalizado, estas clases están enfocadas en estimular el desarrollo creativo y emocional de tu Musicalito, proporcionando una experiencia de conexión y descubrimiento sin igual. 🌟👶\n\n*🎶 Musicalitos en Grupo:* Invitamos a tu Musicalito a formar parte de un cálido grupo de 2 a 6 niños, acompañados siempre por sus familias. Concebidas para promover la interacción, el juego colectivo y el desarrollo de habilidades sociales, estas clases representan una excelente oportunidad para que los niños aprendan y crezcan juntos en un ambiente lleno de amor y seguridad. 🧩👨‍👩‍👧‍👦\n\nCada modalidad está pensada para ofrecer una introducción maravillosa al mundo del arte, asegurando que tanto los niños como sus familias disfruten de una experiencia memorable y profundamente enriquecedora. 🌈🎭\n\n✨ ¿Qué modalidad te gustaría conocer mejor?",
+          "options": [
+            "Clases personalizadas",
+            "Clases grupales",
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musicalitos_artes",
+      "name": "Presencial - Musicalitos artes plásticas + modalidades",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        980
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🌈🎨 En esta encantadora aventura, las artes plásticas se descubren a través del color, la forma y, por supuesto, técnicas adaptadas a sus jóvenes edades. Imagina a tu peque creando, pintando y modelando, transformando simples materiales en obras de arte. Con pinceles, colores y arcilla en manos, cada niño explorará su creatividad al máximo 🌟\n\n🖌️🌈 Pero nuestra exploración va mucho más allá de pintar y modelar; es un proceso de aprendizaje rico en imaginación y diversión. Usamos colores vivos y formas variadas para enseñar conceptos básicos del arte, haciendo que el descubrimiento y la expresión artística sean algo natural y emocionante. Tu pequeño artista desarrollará su percepción visual y habilidades motrices finas mientras asocia cada experiencia artística con el juego y el descubrimiento que ya disfruta.\n\n💕 Lo verdaderamente mágico es presenciar cómo tu hijo o hija comienza a expresar su mundo interior y a desarrollar una pasión por las artes plásticas desde una temprana edad, sembrando así el amor por la creatividad y el arte que durará toda la vida.\n\n🌈✨ Para más información sobre nuestra ruta para Musicalitos, sigue este link: https://drive.google.com/file/d/1q7-rZy8irU2hO5CADtNZCc-TmtT_7heP/view\n\n🌟 En Musicala, hemos creado con mucho amor experiencias presenciales diseñadas especialmente para nuestros jóvenes artistas y sus maravillosas familias: 🌈👪\n\n*🎨 Musicalitos Personalizadas:* Estas son sesiones únicas donde tu pequeño artista recibirá toda la atención de nuestro docente especializado. Perfectas para un aprendizaje personalizado, estas clases están enfocadas en estimular el desarrollo creativo y emocional de tu Musicalito, proporcionando una experiencia de conexión y descubrimiento sin igual. 🌟👶\n\n*🎶 Musicalitos en Grupo:* Invitamos a tu Musicalito a formar parte de un cálido grupo de 2 a 6 niños, acompañados siempre por sus familias. Concebidas para promover la interacción, el juego colectivo y el desarrollo de habilidades sociales, estas clases representan una excelente oportunidad para que los niños aprendan y crezcan juntos en un ambiente lleno de amor y seguridad. 🧩👨‍👩‍👧‍👦\n\nCada modalidad está pensada para ofrecer una introducción maravillosa al mundo del arte, asegurando que tanto los niños como sus familias disfruten de una experiencia memorable y profundamente enriquecedora. 🌈🎭\n\n✨ ¿Qué modalidad te gustaría conocer mejor?",
+          "options": [
+            "Clases personalizadas",
+            "Clases grupales",
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musicalitos_modalidad_filter",
+      "name": "Presencial - Musicalitos modalidad + planes",
+      "type": "filter",
+      "position": [
+        3580,
+        710
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "personal",
+              "targetNodeId": "presencial_musicalitos_personalizado_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "grupal",
+              "targetNodeId": "presencial_musicalitos_grupal_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_age_info_4a6"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_musicalitos_personalizado_final",
+      "name": "Presencial - Musicalitos personalizadas (Final FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [
+        3820,
+        620
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planespersonalizados.png"
+            }
+          ],
+          "textMessage": "✨ Aquí te compartimos los planes de *Musicalitos Personalizadas*.\n\n💬 Antes de hablar con nuestro equipo, te invitamos a explorar nuestras *Preguntas Frecuentes*. Allí encontrarás información clave sobre horarios, precios, metodología y mucho más.\n\nSi quieres conocer otras opciones, puedes volver al menú. Y si prefieres hablar con un asesor, también puedes escribirnos por WhatsApp.",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musicalitos_grupal_final",
+      "name": "Presencial - Musicalitos grupales (Final FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [
+        3820,
+        800
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planesgrupales.png"
+            }
+          ],
+          "textMessage": "✨ Aquí te compartimos los planes de *Musicalitos en Grupo*.\n\n💬 Antes de hablar con nuestro equipo, te invitamos a explorar nuestras *Preguntas Frecuentes*. Allí encontrarás información clave sobre horarios, precios, metodología y mucho más.\n\nSi quieres conocer otras opciones, puedes volver al menú. Y si prefieres hablar con un asesor, también puedes escribirnos por WhatsApp.",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_arte_filter_1a3",
+      "name": "Presencial - Musibabies guardar ARTE + ir a planes",
+      "type": "filter",
+      "position": [
+        2860,
+        340
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "presencial_arte_info",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_arte_info",
+            "storeResponseInMemory": true,
+            "labelInMemory": "arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_arte_info",
+      "name": "Presencial - Musibabies modalidades + planes",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        340
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planespersonalizados.png"
+            }
+          ],
+          "textMessage": "👶🎨 *Modalidades de Musibabies* – Clases presenciales llenas de amor y arte:\n\n👩‍👦 *Personalizadas:* Sesiones íntimas entre tu bebé, tú y un docente experto. Estimulación temprana y conexión a través del arte. 🌈🎵\n\n📲 *Conoce la ruta completa para Musibabies aquí:* https://s.kbe.ai/s/PDDLV7\n\n💜 ¿Qué plan te gustaría tomar?",
+          "options": [
+            "Paquete de 4 clases",
+            "Paquete de 8 clases",
+            "Paquete de 12 clases",
+            "Paquete de 24 clases",
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_modalidad_filter",
+      "name": "Presencial - Musibabies plan + cierre",
+      "type": "filter",
+      "position": [
+        3340,
+        340
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "4 clases",
+              "targetNodeId": "presencial_info_modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "8 clases",
+              "targetNodeId": "presencial_info_modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "12 clases",
+              "targetNodeId": "presencial_info_modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "24 clases",
+              "targetNodeId": "presencial_info_modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "asesor",
+              "targetNodeId": "presencial_info_modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_arte_info"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_tipo_clase",
+      "name": "Presencial - Grupal o personalizada",
+      "type": "autobotAction",
+      "position": [
+        3580,
+        140
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "Genial. ¿Qué tipo de clases te interesan?",
+          "options": [
+            "Clases grupales",
+            "Clases personalizadas",
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_tipo_clase_filter",
+      "name": "Presencial - Ruteo tipo de clase + guardar modalidad",
+      "type": "filter",
+      "position": [
+        3820,
+        140
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "grupal",
+              "targetNodeId": "presencial_info_modalidad",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "personal",
+              "targetNodeId": "presencial_info_modalidad",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_tipo_clase"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_info_modalidad",
+      "name": "Presencial - Cierre final (FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [
+        4060,
+        140
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "💬 ¡Súper! Ya estás más cerca de vivir una experiencia artística con Musicala.\n\nAntes de hablar con nuestro equipo, te invitamos a explorar nuestras *Preguntas Frecuentes*. Allí encontrarás información clave sobre horarios, precios, metodología y mucho más.\n\nSi quieres conocer otras opciones, puedes volver al menú. Y si prefieres hablar con un asesor, también puedes escribirnos por WhatsApp.",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_age_info_7a11",
+      "name": "Presencial - Musikids (7 a 11) elegir arte",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        1180
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🌈🎹🎨 Nuestros cursos de *Inmersión en Música, Baile, Teatro y Artes Plásticas* están diseñados para despertar la pasión y la creatividad en cada niño. Con instrumentos adaptados a sus habilidades, coreografías que narran aventuras, juegos teatrales llenos de imaginación y técnicas artísticas para crear, los *Musikids* se embarcan en un viaje por el universo del arte.\n\n🎶 Música para crear melodías, 🕺 baile para expresar emociones con energía, 🎭 teatro para comunicar, imaginar y ganar confianza, y 🎨 artes plásticas para dar forma a sus ideas.\n\n💬 ¿Qué área del arte te gustaría explorar con nosotros?",
+          "options": [
+            {
+              "label": "🎶 Música",
+              "value": "musica"
+            },
+            {
+              "label": "💃 Danza",
+              "value": "danza"
+            },
+            {
+              "label": "🎭 Teatro",
+              "value": "teatro"
+            },
+            {
+              "label": "🖌️ Artes Plásticas",
+              "value": "artes plasticas"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_arte_filter_7a11",
+      "name": "Presencial - Musikids guardar ARTE + rutear",
+      "type": "filter",
+      "position": [
+        2860,
+        1180
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "musica",
+              "targetNodeId": "presencial_musikids_musica",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "danza",
+              "targetNodeId": "presencial_musikids_danza",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "teatro",
+              "targetNodeId": "presencial_musikids_teatro",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "artes plasticas",
+              "targetNodeId": "presencial_musikids_artes",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_age_info_7a11"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_musikids_musica",
+      "name": "Presencial - Musikids música + instrumento",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        1080
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🌈🎵 En *Musikids*, la música se vive desde el canto, la práctica instrumental y la comprensión de la teoría musical, todo adaptado a su edad.\n\n🎹 Aquí fortalecen escucha, ritmo, técnica y creatividad mientras improvisan, exploran y construyen una relación cercana con la música.\n\n🌈✨ Conoce la ruta para nuestros Musikids aquí:\nhttps://drive.google.com/file/d/1YGYRjhaFADSoIgQbQaL09M4BnO0gKsTz/view\n\n🎼 *Escoge el instrumento que deseas aprender:*",
+          "options": [
+            {
+              "label": "Piano/Teclado",
+              "value": "piano teclado"
+            },
+            {
+              "label": "Guitarra",
+              "value": "guitarra"
+            },
+            {
+              "label": "Canto/Técnica vocal",
+              "value": "canto tecnica vocal"
+            },
+            {
+              "label": "Violín",
+              "value": "violin"
+            },
+            {
+              "label": "Batería",
+              "value": "bateria"
+            },
+            {
+              "label": "Cello",
+              "value": "cello"
+            },
+            {
+              "label": "Bajo eléctrico",
+              "value": "bajo electrico"
+            },
+            {
+              "label": "Ukelele",
+              "value": "ukelele"
+            },
+            {
+              "label": "Instrumentos de viento",
+              "value": "instrumentos de viento"
+            },
+            {
+              "label": "Otro",
+              "value": "otro"
+            },
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musikids_instrumento_filter",
+      "name": "Presencial - Musikids guardar instrumento + modalidades",
+      "type": "filter",
+      "position": [
+        3340,
+        1080
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "presencial_musikids_modalidades",
+              "storeResponseInMemory": true,
+              "labelInMemory": "detalle_arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_musikids_modalidades",
+            "storeResponseInMemory": true,
+            "labelInMemory": "detalle_arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_musikids_danza",
+      "name": "Presencial - Musikids danza + estilo",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        1260
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🕺🌈 En *Musikids*, la danza se vive como un espacio para explorar el movimiento, la expresión corporal y distintos estilos en clases dinámicas y divertidas.\n\n🎵 Trabajamos coordinación, técnica, disciplina y trabajo en equipo mientras cada niño descubre cómo expresarse a través del baile.\n\n🌈✨ Conoce la ruta para nuestros Musikids aquí:\nhttps://drive.google.com/file/d/1CtS8mKx_H7GxcLJIHVGXRe1ofEQPiO1K/view\n\n🎉 *Estilos disponibles:*\n• Bailes Latinos\n• Danza clásica/Ballet\n• Bailes Urbanos\n• Danzas folclóricas\n• Otros\n\n💃 *Escoge el estilo de baile que más te llama la atención:*",
+          "options": [
+            {
+              "label": "Bailes Latinos",
+              "value": "bailes latinos"
+            },
+            {
+              "label": "Danza clásica/Ballet",
+              "value": "danza clasica ballet"
+            },
+            {
+              "label": "Bailes Urbanos",
+              "value": "bailes urbanos"
+            },
+            {
+              "label": "Danzas folclóricas",
+              "value": "danzas folcloricas"
+            },
+            {
+              "label": "Otros",
+              "value": "otros"
+            },
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musikids_estilo_filter",
+      "name": "Presencial - Musikids guardar estilo + modalidades",
+      "type": "filter",
+      "position": [
+        3340,
+        1260
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "presencial_musikids_modalidades",
+              "storeResponseInMemory": true,
+              "labelInMemory": "detalle_arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_musikids_modalidades",
+            "storeResponseInMemory": true,
+            "labelInMemory": "detalle_arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_musikids_artes",
+      "name": "Presencial - Musikids artes plásticas + técnica",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        1440
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🎨✨ En *Musikids*, las artes plásticas abren la puerta al dibujo, la pintura, las manualidades y las técnicas mixtas, siempre con actividades adaptadas a su edad.\n\n🖌️ Aquí exploran materiales, fortalecen motricidad fina y aprenden a expresar ideas, emociones e imaginación a través de sus creaciones.\n\n🌈✨ Conoce la ruta para nuestros Musikids aquí:\nhttps://drive.google.com/file/d/1B_uppIIZTZK6j-q7y9ZgF82a4rLu2sSG/view\n\n🎨 *Técnicas disponibles:*\n• Dibujo\n• Pintura\n• Manualidades\n• Técnicas mixtas\n\n✨ *¿Qué técnica te gustaría aprender?*",
+          "options": [
+            {
+              "label": "Dibujo",
+              "value": "dibujo"
+            },
+            {
+              "label": "Pintura",
+              "value": "pintura"
+            },
+            {
+              "label": "Manualidades",
+              "value": "manualidades"
+            },
+            {
+              "label": "Técnicas mixtas",
+              "value": "tecnicas mixtas"
+            },
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musikids_teatro",
+      "name": "Presencial - Musikids teatro + modalidades",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        1620
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🎭✨ En *Musikids*, el teatro es un espacio para jugar, imaginar, crear personajes y contar historias con el cuerpo, la voz y las emociones.\n\n🌟 A través de dinámicas teatrales, improvisación y expresión corporal, fortalecen seguridad, comunicación, creatividad y trabajo en equipo mientras disfrutan del arte de una forma cercana y divertida.\n\n🌈 Si quieres saber más sobre nuestra propuesta para estas edades, también puedes explorar:\nhttps://musicala.github.io/musiedades/\n\n🏫 A continuación te contamos sobre nuestras *clases presenciales en sede para Musikids*:\n\n*Clases Personalizadas:* sesiones con atención cercana del docente, ideales para avanzar según el ritmo, intereses y objetivos del estudiante. 🎨🎶\n\n*Clases Grupales para Musikids:* grupos de hasta 6 estudiantes para aprender, compartir y fortalecer habilidades artísticas y sociales en un ambiente creativo y seguro. 👥✨\n\n💬 ¿Qué modalidad te gustaría conocer mejor?",
+          "options": [
+            "Clases personalizadas",
+            "Clases grupales",
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musikids_tecnica_filter",
+      "name": "Presencial - Musikids guardar técnica + modalidades",
+      "type": "filter",
+      "position": [
+        3340,
+        1540
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "presencial_musikids_modalidades",
+              "storeResponseInMemory": true,
+              "labelInMemory": "detalle_arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_musikids_modalidades",
+            "storeResponseInMemory": true,
+            "labelInMemory": "detalle_arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_musikids_modalidades",
+      "name": "Presencial - Musikids modalidades sede",
+      "type": "autobotAction",
+      "position": [
+        3580,
+        1260
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🏫 A continuación te contamos sobre nuestras *clases presenciales en sede para Musikids*:\n\n*Clases Personalizadas:* sesiones con atención cercana del docente, ideales para avanzar según el ritmo, intereses y objetivos del estudiante. 🎨🎶\n\n*Clases Grupales para Musikids:* grupos de hasta 6 estudiantes para aprender, compartir y fortalecer habilidades artísticas y sociales en un ambiente creativo y seguro. 👥✨\n\n💬 ¿Qué modalidad te gustaría conocer mejor?",
+          "options": [
+            "Clases personalizadas",
+            "Clases grupales",
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musikids_modalidad_filter",
+      "name": "Presencial - Musikids modalidad + planes",
+      "type": "filter",
+      "position": [
+        3820,
+        1260
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "personal",
+              "targetNodeId": "presencial_musikids_personalizado_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "grupal",
+              "targetNodeId": "presencial_musikids_grupal_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_musikids_modalidades"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_musikids_personalizado_final",
+      "name": "Presencial - Musikids personalizadas (Final FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [
+        4060,
+        1160
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planespersonalizados.png"
+            }
+          ],
+          "textMessage": "✨ Aquí te compartimos los planes de *Musikids Personalizadas*.\n\n💬 Antes de hablar con nuestro equipo, te invitamos a explorar nuestras *Preguntas Frecuentes*. Allí encontrarás información clave sobre horarios, precios, metodología y mucho más.\n\nSi quieres conocer otras opciones, puedes volver al menú. Y si prefieres hablar con un asesor, también puedes escribirnos por WhatsApp.",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musikids_grupal_final",
+      "name": "Presencial - Musikids grupales (Final FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [
+        4060,
+        1340
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planesgrupales.png"
+            }
+          ],
+          "textMessage": "✨ Aquí te compartimos los planes de *Musikids en Grupo*.\n\n💬 Antes de hablar con nuestro equipo, te invitamos a explorar nuestras *Preguntas Frecuentes*. Allí encontrarás información clave sobre horarios, precios, metodología y mucho más.\n\nSi quieres conocer otras opciones, puedes volver al menú. Y si prefieres hablar con un asesor, también puedes escribirnos por WhatsApp.",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_age_info_12a15",
+      "name": "Presencial - Musiteens (12 a 15) elegir arte",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        1760
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🚀🎸🖌️ *Musiteens de 12 a 15 años*, los esperamos para una aventura artística llena de creatividad y pasión.\n\nNuestros cursos de *Música, Danza, Teatro y Artes Plásticas* están pensados para canalizar su energía juvenil en procesos artísticos más profundos y expresivos. Aquí cada Musiteen crea, explora y fortalece su identidad a través del arte.\n\n🎵 Música para componer sus propias aventuras, 💃 danza para expresar emociones con fuerza, 🎭 teatro para comunicar, improvisar y construir escena, y 🖍️ artes plásticas para plasmar ideas audaces.\n\n💬 ¿Qué área del arte te gustaría explorar con nosotros?",
+          "options": [
+            {
+              "label": "🎶 Música",
+              "value": "musica"
+            },
+            {
+              "label": "💃 Danza",
+              "value": "danza"
+            },
+            {
+              "label": "🎭 Teatro",
+              "value": "teatro"
+            },
+            {
+              "label": "🖌️ Artes Plásticas",
+              "value": "artes plasticas"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_arte_filter_12a15",
+      "name": "Presencial - Musiteens guardar ARTE + rutear",
+      "type": "filter",
+      "position": [
+        2860,
+        1760
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "musica",
+              "targetNodeId": "presencial_musiteens_musica",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "danza",
+              "targetNodeId": "presencial_musiteens_danza",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "teatro",
+              "targetNodeId": "presencial_musiteens_teatro",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "artes plasticas",
+              "targetNodeId": "presencial_musiteens_artes",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_age_info_12a15"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_musiteens_musica",
+      "name": "Presencial - Musiteens música + instrumento",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        1660
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🎶 *Musiteens*: Aprende canto o instrumentos y disfruta la música.\n\nEste programa es ideal para adolescentes que quieren cantar o tocar instrumentos como teclado, guitarra o percusión. Las clases son creativas, prácticas y pensadas para que cada estudiante aprenda a su ritmo.\n\n🎤 Aprende a cantar con confianza\n🎸 Explora diferentes instrumentos\n🌈 Clases fáciles de entender y muy prácticas\n🚀 Desarrolla tu talento y amor por la música\n\n✨ Aquí puedes conocer más sobre cómo enseñamos:\nhttps://drive.google.com/file/d/1tuU_2OeY2zz9su9NNGGq71cLpU71HsT9/view\n\n🎼 *Escoge el instrumento que deseas aprender:*",
+          "options": [
+            {
+              "label": "Piano/Teclado",
+              "value": "piano teclado"
+            },
+            {
+              "label": "Guitarra",
+              "value": "guitarra"
+            },
+            {
+              "label": "Canto/Técnica vocal",
+              "value": "canto tecnica vocal"
+            },
+            {
+              "label": "Violín",
+              "value": "violin"
+            },
+            {
+              "label": "Batería",
+              "value": "bateria"
+            },
+            {
+              "label": "Cello",
+              "value": "cello"
+            },
+            {
+              "label": "Bajo eléctrico",
+              "value": "bajo electrico"
+            },
+            {
+              "label": "Ukelele",
+              "value": "ukelele"
+            },
+            {
+              "label": "Instrumentos de viento",
+              "value": "instrumentos de viento"
+            },
+            {
+              "label": "Otro",
+              "value": "otro"
+            },
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musiteens_instrumento_filter",
+      "name": "Presencial - Musiteens guardar instrumento + modalidades",
+      "type": "filter",
+      "position": [
+        3340,
+        1660
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "presencial_musiteens_modalidades",
+              "storeResponseInMemory": true,
+              "labelInMemory": "detalle_arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_musiteens_modalidades",
+            "storeResponseInMemory": true,
+            "labelInMemory": "detalle_arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_musiteens_danza",
+      "name": "Presencial - Musiteens danza + estilo",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        1840
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "💃 *Musiteens Danza*: baila, crea y disfruta.\n\nUn programa pensado para adolescentes llenos de energía y creatividad. Aquí aprenden diferentes estilos de baile mientras se divierten, mejoran su técnica y expresan su estilo único.\n\n🕺 Varios estilos para explorar y disfrutar\n🌈 Clases creativas para expresar su personalidad\n🎵 Método divertido, con ritmos que motivan\n💕 Fomentamos el amor por el baile como arte y forma de comunicación\n\n✨ Conoce más sobre cómo enseñamos aquí:\nhttps://drive.google.com/file/d/1p5WyQADZIXpjFmVSPjj9lL_QwLDF5f7F/view\n\n💃 *Escoge el estilo de baile que más te llama la atención:*",
+          "options": [
+            {
+              "label": "Bailes Latinos",
+              "value": "bailes latinos"
+            },
+            {
+              "label": "Danza clásica/Ballet",
+              "value": "danza clasica ballet"
+            },
+            {
+              "label": "Bailes Urbanos",
+              "value": "bailes urbanos"
+            },
+            {
+              "label": "Danzas folclóricas",
+              "value": "danzas folcloricas"
+            },
+            {
+              "label": "Otros",
+              "value": "otros"
+            },
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musiteens_estilo_filter",
+      "name": "Presencial - Musiteens guardar estilo + modalidades",
+      "type": "filter",
+      "position": [
+        3340,
+        1840
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "presencial_musiteens_modalidades",
+              "storeResponseInMemory": true,
+              "labelInMemory": "detalle_arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_musiteens_modalidades",
+            "storeResponseInMemory": true,
+            "labelInMemory": "detalle_arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_musiteens_artes",
+      "name": "Presencial - Musiteens artes plásticas + técnica",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        2020
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🖌️🌟 Este programa está diseñado para sumergir a los adolescentes en el universo de las *artes plásticas*, impulsándolos a desarrollar su creatividad a través de la pintura, el dibujo, la escultura y mucho más.\n\n🎨 Exploran técnicas tradicionales y contemporáneas\n🚀 Fortalecen creatividad, estilo personal y pensamiento visual\n🌈 Aprenden con actividades enriquecedoras y dinámicas\n❤️ Fomentamos una pasión duradera por el arte y la autoexpresión\n\n🌈✨ Para más información sobre nuestra metodología para Musiteens, sigue este link:\nhttps://drive.google.com/file/d/1UA2Ox8qFjQ6G1bqIZzbIcoINwshk90Xn/view\n\n🎨 *¿Qué técnica te gustaría aprender?*",
+          "options": [
+            {
+              "label": "Dibujo",
+              "value": "dibujo"
+            },
+            {
+              "label": "Pintura",
+              "value": "pintura"
+            },
+            {
+              "label": "Manualidades",
+              "value": "manualidades"
+            },
+            {
+              "label": "Técnicas mixtas",
+              "value": "tecnicas mixtas"
+            },
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musiteens_tecnica_filter",
+      "name": "Presencial - Musiteens guardar técnica + modalidades",
+      "type": "filter",
+      "position": [
+        3340,
+        2020
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "presencial_musiteens_modalidades",
+              "storeResponseInMemory": true,
+              "labelInMemory": "detalle_arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_musiteens_modalidades",
+            "storeResponseInMemory": true,
+            "labelInMemory": "detalle_arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_musiteens_teatro",
+      "name": "Presencial - Musiteens teatro + modalidades",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        2200
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🎭 *Musiteens Teatro*: crea, interpreta y expresa tu voz.\n\nUn espacio pensado para adolescentes que quieren explorar actuación, improvisación, expresión corporal y creación escénica. Aquí desarrollan seguridad, comunicación y presencia mientras construyen personajes, escenas e historias propias.\n\n🗣️ Trabajo de voz y expresión\n🎬 Improvisación y creación de personajes\n🌈 Clases creativas para comunicar ideas y emociones\n🚀 Fomentamos el teatro como arte, confianza y trabajo en equipo\n\n✨ Si quieres conocer más sobre cómo enseñamos, también puedes explorar:\nhttps://musicala.github.io/musiedades/\n\n🏫 A continuación te comentamos toda la información sobre nuestras clases en *Modalidad Sede*:\n\n*Clases Personalizadas:* sesiones con atención cercana del docente, ideales para avanzar según el ritmo, intereses y objetivos del estudiante. 🎨🎶\n\n*Clases Grupales para Musiteens:* grupos de hasta 6 estudiantes para aprender, compartir y fortalecer habilidades artísticas y sociales en un ambiente creativo y seguro. 👥✨\n\n💬 ¿Qué modalidad te gustaría conocer mejor?",
+          "options": [
+            "Clases personalizadas",
+            "Clases grupales",
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musiteens_modalidades",
+      "name": "Presencial - Musiteens modalidades sede",
+      "type": "autobotAction",
+      "position": [
+        3580,
+        1940
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🏫 A continuación te comentamos toda la información sobre nuestras clases en *Modalidad Sede*:\n\n*Clases Personalizadas:* sesiones con atención cercana del docente, ideales para avanzar según el ritmo, intereses y objetivos del estudiante. 🎨🎶\n\n*Clases Grupales para Musiteens:* grupos de hasta 6 estudiantes para aprender, compartir y fortalecer habilidades artísticas y sociales en un ambiente creativo y seguro. 👥✨\n\n💬 ¿Qué modalidad te gustaría conocer mejor?",
+          "options": [
+            "Clases personalizadas",
+            "Clases grupales",
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musiteens_modalidad_filter",
+      "name": "Presencial - Musiteens modalidad + planes",
+      "type": "filter",
+      "position": [
+        3820,
+        1940
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "personal",
+              "targetNodeId": "presencial_musiteens_personalizado_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "grupal",
+              "targetNodeId": "presencial_musiteens_grupal_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_musiteens_modalidades"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_musiteens_personalizado_final",
+      "name": "Presencial - Musiteens personalizadas (Final FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [
+        4060,
+        1840
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planespersonalizados.png"
+            }
+          ],
+          "textMessage": "✨ Aquí te compartimos los planes de *Musiteens Personalizadas*.\n\n💬 Antes de hablar con nuestro equipo, te invitamos a explorar nuestras *Preguntas Frecuentes*. Allí encontrarás información clave sobre horarios, precios, metodología y mucho más.\n\nSi quieres conocer otras opciones, puedes volver al menú. Y si prefieres hablar con un asesor, también puedes escribirnos por WhatsApp.",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_musiteens_grupal_final",
+      "name": "Presencial - Musiteens grupales (Final FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [
+        4060,
+        2020
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planesgrupales.png"
+            }
+          ],
+          "textMessage": "✨ Aquí te compartimos los planes de *Musiteens en Grupo*.\n\n💬 Antes de hablar con nuestro equipo, te invitamos a explorar nuestras *Preguntas Frecuentes*. Allí encontrarás información clave sobre horarios, precios, metodología y mucho más.\n\nSi quieres conocer otras opciones, puedes volver al menú. Y si prefieres hablar con un asesor, también puedes escribirnos por WhatsApp.",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_age_info_16a40",
+      "name": "Presencial - Musigrandes (16 a 40) elegir arte",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        2380
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "Musigrandes es nuestra ruta para jovenes y adultos de 16 a 50 anos que quieren vivir el arte con mas profundidad, libertad y proposito.\n\nAqui puedes explorar Musica, Danza, Teatro y Artes Plasticas en un proceso pensado para fortalecer tecnica, creatividad y expresion personal.\n\nMusica para interpretar, crear y conectar contigo.\nDanza para entrenar cuerpo, energia y presencia.\nTeatro para comunicar, improvisar y habitar personajes e ideas.\nArtes Plasticas para desarrollar mirada, tecnica y estilo propio.\n\nQue area artistica te gustaria explorar con nosotros?",
+          "options": [
+            {
+              "label": "Musica",
+              "value": "musica"
+            },
+            {
+              "label": "Danza",
+              "value": "danza"
+            },
+            {
+              "label": "Teatro",
+              "value": "teatro"
+            },
+            {
+              "label": "Artes Plasticas",
+              "value": "artes plasticas"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_age_info_40plus",
+      "name": "Presencial - Musiadultos (40+) elegir arte",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        2560
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "Musiadultos es nuestra ruta para personas de 50 anos en adelante que quieren aprender, retomar o disfrutar el arte a su ritmo.\n\nCreamos experiencias calidas y retadoras en Musica, Danza, Teatro y Artes Plasticas, cuidando el proceso, la confianza y el disfrute en cada clase.\n\nMusica para explorar nuevos sonidos y habilidades.\nDanza para activar el cuerpo, la coordinacion y la expresion.\nTeatro para fortalecer memoria, presencia y comunicacion.\nArtes Plasticas para crear con calma, sensibilidad y libertad.\n\nQue area artistica te gustaria explorar con nosotros?",
+          "options": [
+            {
+              "label": "Musica",
+              "value": "musica"
+            },
+            {
+              "label": "Danza",
+              "value": "danza"
+            },
+            {
+              "label": "Teatro",
+              "value": "teatro"
+            },
+            {
+              "label": "Artes Plasticas",
+              "value": "artes plasticas"
+            },
+            "Volver al menu"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_arte_filter_adultos",
+      "name": "Presencial - Adultos guardar ARTE + rutear",
+      "type": "filter",
+      "position": [
+        2860,
+        2470
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "musica",
+              "targetNodeId": "presencial_adultos_musica",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "danza",
+              "targetNodeId": "presencial_adultos_danza",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "teatro",
+              "targetNodeId": "presencial_adultos_teatro",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "artes plasticas",
+              "targetNodeId": "presencial_adultos_artes",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "contains",
+              "value": "volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "flow_presencial"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_adultos_musica",
+      "name": "Presencial - Adultos música + instrumento",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        2300
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🎶 En nuestras *clases presenciales de música para jóvenes y adultos*, puedes aprender canto o instrumento desde cero, retomar un proceso o fortalecer tu técnica con una ruta clara y práctica.\n\n🎤 Trabajamos interpretación, escucha, técnica y expresión musical según tus intereses.\n\n🎼 *Escoge el instrumento que deseas aprender:*",
+          "options": [
+            {
+              "label": "Piano/Teclado",
+              "value": "piano teclado"
+            },
+            {
+              "label": "Guitarra",
+              "value": "guitarra"
+            },
+            {
+              "label": "Canto/Técnica vocal",
+              "value": "canto tecnica vocal"
+            },
+            {
+              "label": "Violín",
+              "value": "violin"
+            },
+            {
+              "label": "Batería",
+              "value": "bateria"
+            },
+            {
+              "label": "Cello",
+              "value": "cello"
+            },
+            {
+              "label": "Bajo eléctrico",
+              "value": "bajo electrico"
+            },
+            {
+              "label": "Ukelele",
+              "value": "ukelele"
+            },
+            {
+              "label": "Instrumentos de viento",
+              "value": "instrumentos de viento"
+            },
+            {
+              "label": "Otro",
+              "value": "otro"
+            },
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_adultos_instrumento_filter",
+      "name": "Presencial - Adultos guardar instrumento + modalidades",
+      "type": "filter",
+      "position": [
+        3340,
+        2300
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "presencial_adultos_modalidades",
+              "storeResponseInMemory": true,
+              "labelInMemory": "detalle_arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_adultos_modalidades",
+            "storeResponseInMemory": true,
+            "labelInMemory": "detalle_arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_adultos_danza",
+      "name": "Presencial - Adultos danza + estilo",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        2480
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "💃 En nuestras *clases presenciales de danza para jóvenes y adultos* puedes explorar técnica, musicalidad, expresión corporal y bienestar, mientras descubres el estilo que más conecta contigo.\n\n🌈 Trabajamos desde el disfrute, la conciencia corporal y el crecimiento artístico.\n\n💃 *Escoge el estilo de baile que más te llama la atención:*",
+          "options": [
+            {
+              "label": "Bailes Latinos",
+              "value": "bailes latinos"
+            },
+            {
+              "label": "Danza clásica/Ballet",
+              "value": "danza clasica ballet"
+            },
+            {
+              "label": "Bailes Urbanos",
+              "value": "bailes urbanos"
+            },
+            {
+              "label": "Danzas folclóricas",
+              "value": "danzas folcloricas"
+            },
+            {
+              "label": "Otros",
+              "value": "otros"
+            },
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_adultos_estilo_filter",
+      "name": "Presencial - Adultos guardar estilo + modalidades",
+      "type": "filter",
+      "position": [
+        3340,
+        2480
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "presencial_adultos_modalidades",
+              "storeResponseInMemory": true,
+              "labelInMemory": "detalle_arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_adultos_modalidades",
+            "storeResponseInMemory": true,
+            "labelInMemory": "detalle_arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_adultos_artes",
+      "name": "Presencial - Adultos artes plásticas + técnica",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        2660
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🎨 En nuestras *clases presenciales de artes plásticas para jóvenes y adultos* trabajamos observación, técnica, creatividad y búsqueda de estilo propio.\n\n🖌️ Puedes explorar dibujo, pintura y otras técnicas en un proceso que combina sensibilidad artística y herramientas concretas.\n\n✨ *¿Qué técnica te gustaría aprender?*",
+          "options": [
+            {
+              "label": "Dibujo",
+              "value": "dibujo"
+            },
+            {
+              "label": "Pintura",
+              "value": "pintura"
+            },
+            {
+              "label": "Manualidades",
+              "value": "manualidades"
+            },
+            {
+              "label": "Técnicas mixtas",
+              "value": "tecnicas mixtas"
+            },
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_adultos_tecnica_filter",
+      "name": "Presencial - Adultos guardar técnica + modalidades",
+      "type": "filter",
+      "position": [
+        3340,
+        2660
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "presencial_adultos_modalidades",
+              "storeResponseInMemory": true,
+              "labelInMemory": "detalle_arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_adultos_modalidades",
+            "storeResponseInMemory": true,
+            "labelInMemory": "detalle_arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_adultos_teatro",
+      "name": "Presencial - Adultos teatro + modalidades",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        2840
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🎭 En nuestras *clases presenciales de teatro para jóvenes y adultos* trabajamos actuación, voz, improvisación, expresión corporal y construcción de escena.\n\n🌟 Es un espacio para desarrollar presencia, seguridad, creatividad y comunicación, ya sea que quieras iniciar, explorar o profundizar en lo escénico.\n\n🏫 A continuación te contamos sobre nuestras clases en sede:\n\n*Clases Personalizadas:* acompañamiento cercano para avanzar según tus objetivos, ritmo e intereses artísticos.\n\n*Clases Grupales:* grupos pequeños para aprender, compartir y crecer en comunidad en un ambiente creativo y cuidado.\n\n💬 ¿Qué modalidad te gustaría conocer mejor?",
+          "options": [
+            "Clases personalizadas",
+            "Clases grupales",
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_adultos_modalidades",
+      "name": "Presencial - Adultos modalidades sede",
+      "type": "autobotAction",
+      "position": [
+        3580,
+        2570
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🏫 A continuación te contamos sobre nuestras clases en sede para jóvenes y adultos:\n\n*Clases Personalizadas:* acompañamiento cercano para avanzar según tus objetivos, ritmo e intereses artísticos.\n\n*Clases Grupales:* grupos pequeños para aprender, compartir y crecer en comunidad en un ambiente creativo y cuidado.\n\n💬 ¿Qué modalidad te gustaría conocer mejor?",
+          "options": [
+            "Clases personalizadas",
+            "Clases grupales",
+            "Hablar con asesor",
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_adultos_modalidad_filter",
+      "name": "Presencial - Adultos modalidad + planes",
+      "type": "filter",
+      "position": [
+        3820,
+        2570
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "personal",
+              "targetNodeId": "presencial_adultos_personalizado_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "grupal",
+              "targetNodeId": "presencial_adultos_grupal_final",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "presencial_adultos_modalidades"
+          }
+        }
+      }
+    },
+    {
+      "id": "presencial_adultos_personalizado_final",
+      "name": "Presencial - Adultos personalizadas (Final FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [
+        4060,
+        2480
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planespersonalizados.png"
+            }
+          ],
+          "textMessage": "✨ Aquí te compartimos los planes de *Clases Presenciales Personalizadas*.\n\n💬 Antes de hablar con nuestro equipo, te invitamos a explorar nuestras *Preguntas Frecuentes*. Allí encontrarás información clave sobre horarios, precios, metodología y mucho más.\n\nSi quieres conocer otras opciones, puedes volver al menú. Y si prefieres hablar con un asesor, también puedes escribirnos por WhatsApp.",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "presencial_adultos_grupal_final",
+      "name": "Presencial - Adultos grupales (Final FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [
+        4060,
+        2660
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/planesgrupales.png"
+            }
+          ],
+          "textMessage": "✨ Aquí te compartimos los planes de *Clases Presenciales en Grupo*.\n\n💬 Antes de hablar con nuestro equipo, te invitamos a explorar nuestras *Preguntas Frecuentes*. Allí encontrarás información clave sobre horarios, precios, metodología y mucho más.\n\nSi quieres conocer otras opciones, puedes volver al menú. Y si prefieres hablar con un asesor, también puedes escribirnos por WhatsApp.",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    }
+  ],
+  "connections": [
+    {
+      "source": "presencial_age_info",
+      "target": "presencial_arte_filter"
+    },
+    {
+      "source": "presencial_age_info",
+      "target": "presencial_arte_filter"
+    },
+    {
+      "source": "presencial_age_info",
+      "target": "presencial_arte_filter"
+    },
+    {
+      "source": "presencial_age_info",
+      "target": "presencial_arte_filter"
+    },
+    {
+      "source": "presencial_age_info",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_age_info",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_age_info_1a3",
+      "target": "presencial_info_modalidad"
+    },
+    {
+      "source": "presencial_age_info_1a3",
+      "target": "presencial_info_modalidad"
+    },
+    {
+      "source": "presencial_age_info_1a3",
+      "target": "presencial_info_modalidad"
+    },
+    {
+      "source": "presencial_age_info_1a3",
+      "target": "presencial_info_modalidad"
+    },
+    {
+      "source": "presencial_age_info_1a3",
+      "target": "presencial_info_modalidad"
+    },
+    {
+      "source": "presencial_age_info_1a3",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_age_info_4a6",
+      "target": "presencial_arte_filter_4a6"
+    },
+    {
+      "source": "presencial_age_info_4a6",
+      "target": "presencial_arte_filter_4a6"
+    },
+    {
+      "source": "presencial_age_info_4a6",
+      "target": "presencial_arte_filter_4a6"
+    },
+    {
+      "source": "presencial_age_info_4a6",
+      "target": "presencial_arte_filter_4a6"
+    },
+    {
+      "source": "presencial_age_info_4a6",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_arte_filter",
+      "target": "presencial_tipo_clase"
+    },
+    {
+      "source": "presencial_arte_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_arte_filter_4a6",
+      "target": "presencial_musicalitos_musica"
+    },
+    {
+      "source": "presencial_arte_filter_4a6",
+      "target": "presencial_musicalitos_danza"
+    },
+    {
+      "source": "presencial_arte_filter_4a6",
+      "target": "presencial_musicalitos_teatro"
+    },
+    {
+      "source": "presencial_arte_filter_4a6",
+      "target": "presencial_musicalitos_artes"
+    },
+    {
+      "source": "presencial_arte_filter_4a6",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musicalitos_musica",
+      "target": "presencial_musicalitos_modalidad_filter"
+    },
+    {
+      "source": "presencial_musicalitos_musica",
+      "target": "presencial_musicalitos_modalidad_filter"
+    },
+    {
+      "source": "presencial_musicalitos_musica",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musicalitos_musica",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musicalitos_danza",
+      "target": "presencial_musicalitos_modalidad_filter"
+    },
+    {
+      "source": "presencial_musicalitos_danza",
+      "target": "presencial_musicalitos_modalidad_filter"
+    },
+    {
+      "source": "presencial_musicalitos_danza",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musicalitos_danza",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musicalitos_teatro",
+      "target": "presencial_musicalitos_modalidad_filter"
+    },
+    {
+      "source": "presencial_musicalitos_teatro",
+      "target": "presencial_musicalitos_modalidad_filter"
+    },
+    {
+      "source": "presencial_musicalitos_teatro",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musicalitos_teatro",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musicalitos_artes",
+      "target": "presencial_musicalitos_modalidad_filter"
+    },
+    {
+      "source": "presencial_musicalitos_artes",
+      "target": "presencial_musicalitos_modalidad_filter"
+    },
+    {
+      "source": "presencial_musicalitos_artes",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musicalitos_artes",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musicalitos_modalidad_filter",
+      "target": "presencial_musicalitos_personalizado_final"
+    },
+    {
+      "source": "presencial_musicalitos_modalidad_filter",
+      "target": "presencial_musicalitos_grupal_final"
+    },
+    {
+      "source": "presencial_musicalitos_modalidad_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musicalitos_personalizado_final",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "presencial_musicalitos_personalizado_final",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musicalitos_grupal_final",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "presencial_musicalitos_grupal_final",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_arte_filter_1a3",
+      "target": "presencial_arte_info"
+    },
+    {
+      "source": "presencial_arte_filter_1a3",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_arte_info",
+      "target": "presencial_modalidad_filter"
+    },
+    {
+      "source": "presencial_arte_info",
+      "target": "presencial_modalidad_filter"
+    },
+    {
+      "source": "presencial_arte_info",
+      "target": "presencial_modalidad_filter"
+    },
+    {
+      "source": "presencial_arte_info",
+      "target": "presencial_modalidad_filter"
+    },
+    {
+      "source": "presencial_arte_info",
+      "target": "presencial_modalidad_filter"
+    },
+    {
+      "source": "presencial_arte_info",
+      "target": "presencial_modalidad_filter"
+    },
+    {
+      "source": "presencial_modalidad_filter",
+      "target": "presencial_info_modalidad"
+    },
+    {
+      "source": "presencial_modalidad_filter",
+      "target": "presencial_info_modalidad"
+    },
+    {
+      "source": "presencial_modalidad_filter",
+      "target": "presencial_info_modalidad"
+    },
+    {
+      "source": "presencial_modalidad_filter",
+      "target": "presencial_info_modalidad"
+    },
+    {
+      "source": "presencial_modalidad_filter",
+      "target": "presencial_info_modalidad"
+    },
+    {
+      "source": "presencial_modalidad_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_modalidad_filter",
+      "target": "presencial_arte_info"
+    },
+    {
+      "source": "presencial_tipo_clase",
+      "target": "presencial_tipo_clase_filter"
+    },
+    {
+      "source": "presencial_tipo_clase",
+      "target": "presencial_tipo_clase_filter"
+    },
+    {
+      "source": "presencial_tipo_clase",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_tipo_clase",
+      "target": "presencial_tipo_clase_filter"
+    },
+    {
+      "source": "presencial_tipo_clase_filter",
+      "target": "presencial_info_modalidad"
+    },
+    {
+      "source": "presencial_tipo_clase_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_tipo_clase_filter",
+      "target": "presencial_tipo_clase"
+    },
+    {
+      "source": "presencial_info_modalidad",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "presencial_info_modalidad",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_age_info_7a11",
+      "target": "presencial_arte_filter_7a11"
+    },
+    {
+      "source": "presencial_age_info_7a11",
+      "target": "presencial_arte_filter_7a11"
+    },
+    {
+      "source": "presencial_age_info_7a11",
+      "target": "presencial_arte_filter_7a11"
+    },
+    {
+      "source": "presencial_age_info_7a11",
+      "target": "presencial_arte_filter_7a11"
+    },
+    {
+      "source": "presencial_age_info_7a11",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_arte_filter_7a11",
+      "target": "presencial_musikids_musica"
+    },
+    {
+      "source": "presencial_arte_filter_7a11",
+      "target": "presencial_musikids_danza"
+    },
+    {
+      "source": "presencial_arte_filter_7a11",
+      "target": "presencial_musikids_teatro"
+    },
+    {
+      "source": "presencial_arte_filter_7a11",
+      "target": "presencial_musikids_artes"
+    },
+    {
+      "source": "presencial_arte_filter_7a11",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_musica",
+      "target": "presencial_musikids_instrumento_filter"
+    },
+    {
+      "source": "presencial_musikids_musica",
+      "target": "presencial_musikids_instrumento_filter"
+    },
+    {
+      "source": "presencial_musikids_musica",
+      "target": "presencial_musikids_instrumento_filter"
+    },
+    {
+      "source": "presencial_musikids_musica",
+      "target": "presencial_musikids_instrumento_filter"
+    },
+    {
+      "source": "presencial_musikids_musica",
+      "target": "presencial_musikids_instrumento_filter"
+    },
+    {
+      "source": "presencial_musikids_musica",
+      "target": "presencial_musikids_instrumento_filter"
+    },
+    {
+      "source": "presencial_musikids_musica",
+      "target": "presencial_musikids_instrumento_filter"
+    },
+    {
+      "source": "presencial_musikids_musica",
+      "target": "presencial_musikids_instrumento_filter"
+    },
+    {
+      "source": "presencial_musikids_musica",
+      "target": "presencial_musikids_instrumento_filter"
+    },
+    {
+      "source": "presencial_musikids_musica",
+      "target": "presencial_musikids_instrumento_filter"
+    },
+    {
+      "source": "presencial_musikids_musica",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_musica",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_instrumento_filter",
+      "target": "presencial_musikids_modalidades"
+    },
+    {
+      "source": "presencial_musikids_instrumento_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_danza",
+      "target": "presencial_musikids_estilo_filter"
+    },
+    {
+      "source": "presencial_musikids_danza",
+      "target": "presencial_musikids_estilo_filter"
+    },
+    {
+      "source": "presencial_musikids_danza",
+      "target": "presencial_musikids_estilo_filter"
+    },
+    {
+      "source": "presencial_musikids_danza",
+      "target": "presencial_musikids_estilo_filter"
+    },
+    {
+      "source": "presencial_musikids_danza",
+      "target": "presencial_musikids_estilo_filter"
+    },
+    {
+      "source": "presencial_musikids_danza",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_danza",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_estilo_filter",
+      "target": "presencial_musikids_modalidades"
+    },
+    {
+      "source": "presencial_musikids_estilo_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_artes",
+      "target": "presencial_musikids_tecnica_filter"
+    },
+    {
+      "source": "presencial_musikids_artes",
+      "target": "presencial_musikids_tecnica_filter"
+    },
+    {
+      "source": "presencial_musikids_artes",
+      "target": "presencial_musikids_tecnica_filter"
+    },
+    {
+      "source": "presencial_musikids_artes",
+      "target": "presencial_musikids_tecnica_filter"
+    },
+    {
+      "source": "presencial_musikids_artes",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_artes",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_tecnica_filter",
+      "target": "presencial_musikids_modalidades"
+    },
+    {
+      "source": "presencial_musikids_tecnica_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_teatro",
+      "target": "presencial_musikids_modalidad_filter"
+    },
+    {
+      "source": "presencial_musikids_teatro",
+      "target": "presencial_musikids_modalidad_filter"
+    },
+    {
+      "source": "presencial_musikids_teatro",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_teatro",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_modalidades",
+      "target": "presencial_musikids_modalidad_filter"
+    },
+    {
+      "source": "presencial_musikids_modalidades",
+      "target": "presencial_musikids_modalidad_filter"
+    },
+    {
+      "source": "presencial_musikids_modalidades",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_modalidades",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_modalidad_filter",
+      "target": "presencial_musikids_personalizado_final"
+    },
+    {
+      "source": "presencial_musikids_modalidad_filter",
+      "target": "presencial_musikids_grupal_final"
+    },
+    {
+      "source": "presencial_musikids_modalidad_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_personalizado_final",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "presencial_musikids_personalizado_final",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musikids_grupal_final",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "presencial_musikids_grupal_final",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_age_info_12a15",
+      "target": "presencial_arte_filter_12a15"
+    },
+    {
+      "source": "presencial_age_info_12a15",
+      "target": "presencial_arte_filter_12a15"
+    },
+    {
+      "source": "presencial_age_info_12a15",
+      "target": "presencial_arte_filter_12a15"
+    },
+    {
+      "source": "presencial_age_info_12a15",
+      "target": "presencial_arte_filter_12a15"
+    },
+    {
+      "source": "presencial_age_info_12a15",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_arte_filter_12a15",
+      "target": "presencial_musiteens_musica"
+    },
+    {
+      "source": "presencial_arte_filter_12a15",
+      "target": "presencial_musiteens_danza"
+    },
+    {
+      "source": "presencial_arte_filter_12a15",
+      "target": "presencial_musiteens_teatro"
+    },
+    {
+      "source": "presencial_arte_filter_12a15",
+      "target": "presencial_musiteens_artes"
+    },
+    {
+      "source": "presencial_arte_filter_12a15",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_musica",
+      "target": "presencial_musiteens_instrumento_filter"
+    },
+    {
+      "source": "presencial_musiteens_musica",
+      "target": "presencial_musiteens_instrumento_filter"
+    },
+    {
+      "source": "presencial_musiteens_musica",
+      "target": "presencial_musiteens_instrumento_filter"
+    },
+    {
+      "source": "presencial_musiteens_musica",
+      "target": "presencial_musiteens_instrumento_filter"
+    },
+    {
+      "source": "presencial_musiteens_musica",
+      "target": "presencial_musiteens_instrumento_filter"
+    },
+    {
+      "source": "presencial_musiteens_musica",
+      "target": "presencial_musiteens_instrumento_filter"
+    },
+    {
+      "source": "presencial_musiteens_musica",
+      "target": "presencial_musiteens_instrumento_filter"
+    },
+    {
+      "source": "presencial_musiteens_musica",
+      "target": "presencial_musiteens_instrumento_filter"
+    },
+    {
+      "source": "presencial_musiteens_musica",
+      "target": "presencial_musiteens_instrumento_filter"
+    },
+    {
+      "source": "presencial_musiteens_musica",
+      "target": "presencial_musiteens_instrumento_filter"
+    },
+    {
+      "source": "presencial_musiteens_musica",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_musica",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_instrumento_filter",
+      "target": "presencial_musiteens_modalidades"
+    },
+    {
+      "source": "presencial_musiteens_instrumento_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_danza",
+      "target": "presencial_musiteens_estilo_filter"
+    },
+    {
+      "source": "presencial_musiteens_danza",
+      "target": "presencial_musiteens_estilo_filter"
+    },
+    {
+      "source": "presencial_musiteens_danza",
+      "target": "presencial_musiteens_estilo_filter"
+    },
+    {
+      "source": "presencial_musiteens_danza",
+      "target": "presencial_musiteens_estilo_filter"
+    },
+    {
+      "source": "presencial_musiteens_danza",
+      "target": "presencial_musiteens_estilo_filter"
+    },
+    {
+      "source": "presencial_musiteens_danza",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_danza",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_estilo_filter",
+      "target": "presencial_musiteens_modalidades"
+    },
+    {
+      "source": "presencial_musiteens_estilo_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_artes",
+      "target": "presencial_musiteens_tecnica_filter"
+    },
+    {
+      "source": "presencial_musiteens_artes",
+      "target": "presencial_musiteens_tecnica_filter"
+    },
+    {
+      "source": "presencial_musiteens_artes",
+      "target": "presencial_musiteens_tecnica_filter"
+    },
+    {
+      "source": "presencial_musiteens_artes",
+      "target": "presencial_musiteens_tecnica_filter"
+    },
+    {
+      "source": "presencial_musiteens_artes",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_artes",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_tecnica_filter",
+      "target": "presencial_musiteens_modalidades"
+    },
+    {
+      "source": "presencial_musiteens_tecnica_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_teatro",
+      "target": "presencial_musiteens_modalidad_filter"
+    },
+    {
+      "source": "presencial_musiteens_teatro",
+      "target": "presencial_musiteens_modalidad_filter"
+    },
+    {
+      "source": "presencial_musiteens_teatro",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_teatro",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_modalidades",
+      "target": "presencial_musiteens_modalidad_filter"
+    },
+    {
+      "source": "presencial_musiteens_modalidades",
+      "target": "presencial_musiteens_modalidad_filter"
+    },
+    {
+      "source": "presencial_musiteens_modalidades",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_modalidades",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_modalidad_filter",
+      "target": "presencial_musiteens_personalizado_final"
+    },
+    {
+      "source": "presencial_musiteens_modalidad_filter",
+      "target": "presencial_musiteens_grupal_final"
+    },
+    {
+      "source": "presencial_musiteens_modalidad_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_personalizado_final",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "presencial_musiteens_personalizado_final",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_musiteens_grupal_final",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "presencial_musiteens_grupal_final",
+      "target": "show_program_options"
+    },
+    {
+      "source": "flow_presencial",
+      "target": "presencial_age_filter"
+    },
+    {
+      "source": "flow_presencial",
+      "target": "presencial_age_filter"
+    },
+    {
+      "source": "flow_presencial",
+      "target": "presencial_age_filter"
+    },
+    {
+      "source": "flow_presencial",
+      "target": "presencial_age_filter"
+    },
+    {
+      "source": "flow_presencial",
+      "target": "presencial_age_filter"
+    },
+    {
+      "source": "flow_presencial",
+      "target": "presencial_age_filter"
+    },
+    {
+      "source": "flow_presencial",
+      "target": "show_program_options"
+    },
+    {
+      "source": "flow_presencial",
+      "target": "presencial_age_filter"
+    },
+    {
+      "source": "presencial_age_filter",
+      "target": "presencial_age_info_1a3"
+    },
+    {
+      "source": "presencial_age_filter",
+      "target": "presencial_age_info_4a6"
+    },
+    {
+      "source": "presencial_age_filter",
+      "target": "presencial_age_info_7a11"
+    },
+    {
+      "source": "presencial_age_filter",
+      "target": "presencial_age_info_12a15"
+    },
+    {
+      "source": "presencial_age_filter",
+      "target": "presencial_age_info_16a40"
+    },
+    {
+      "source": "presencial_age_filter",
+      "target": "presencial_age_info_40plus"
+    },
+    {
+      "source": "presencial_age_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_age_filter",
+      "target": "flow_presencial"
+    },
+    {
+      "source": "presencial_age_info_16a40",
+      "target": "presencial_arte_filter_adultos"
+    },
+    {
+      "source": "presencial_age_info_16a40",
+      "target": "presencial_arte_filter_adultos"
+    },
+    {
+      "source": "presencial_age_info_16a40",
+      "target": "presencial_arte_filter_adultos"
+    },
+    {
+      "source": "presencial_age_info_16a40",
+      "target": "presencial_arte_filter_adultos"
+    },
+    {
+      "source": "presencial_age_info_16a40",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_age_info_40plus",
+      "target": "presencial_arte_filter_adultos"
+    },
+    {
+      "source": "presencial_age_info_40plus",
+      "target": "presencial_arte_filter_adultos"
+    },
+    {
+      "source": "presencial_age_info_40plus",
+      "target": "presencial_arte_filter_adultos"
+    },
+    {
+      "source": "presencial_age_info_40plus",
+      "target": "presencial_arte_filter_adultos"
+    },
+    {
+      "source": "presencial_age_info_40plus",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_arte_filter_adultos",
+      "target": "presencial_adultos_musica"
+    },
+    {
+      "source": "presencial_arte_filter_adultos",
+      "target": "presencial_adultos_danza"
+    },
+    {
+      "source": "presencial_arte_filter_adultos",
+      "target": "presencial_adultos_teatro"
+    },
+    {
+      "source": "presencial_arte_filter_adultos",
+      "target": "presencial_adultos_artes"
+    },
+    {
+      "source": "presencial_arte_filter_adultos",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_musica",
+      "target": "presencial_adultos_instrumento_filter"
+    },
+    {
+      "source": "presencial_adultos_musica",
+      "target": "presencial_adultos_instrumento_filter"
+    },
+    {
+      "source": "presencial_adultos_musica",
+      "target": "presencial_adultos_instrumento_filter"
+    },
+    {
+      "source": "presencial_adultos_musica",
+      "target": "presencial_adultos_instrumento_filter"
+    },
+    {
+      "source": "presencial_adultos_musica",
+      "target": "presencial_adultos_instrumento_filter"
+    },
+    {
+      "source": "presencial_adultos_musica",
+      "target": "presencial_adultos_instrumento_filter"
+    },
+    {
+      "source": "presencial_adultos_musica",
+      "target": "presencial_adultos_instrumento_filter"
+    },
+    {
+      "source": "presencial_adultos_musica",
+      "target": "presencial_adultos_instrumento_filter"
+    },
+    {
+      "source": "presencial_adultos_musica",
+      "target": "presencial_adultos_instrumento_filter"
+    },
+    {
+      "source": "presencial_adultos_musica",
+      "target": "presencial_adultos_instrumento_filter"
+    },
+    {
+      "source": "presencial_adultos_musica",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_musica",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_danza",
+      "target": "presencial_adultos_estilo_filter"
+    },
+    {
+      "source": "presencial_adultos_danza",
+      "target": "presencial_adultos_estilo_filter"
+    },
+    {
+      "source": "presencial_adultos_danza",
+      "target": "presencial_adultos_estilo_filter"
+    },
+    {
+      "source": "presencial_adultos_danza",
+      "target": "presencial_adultos_estilo_filter"
+    },
+    {
+      "source": "presencial_adultos_danza",
+      "target": "presencial_adultos_estilo_filter"
+    },
+    {
+      "source": "presencial_adultos_danza",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_danza",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_artes",
+      "target": "presencial_adultos_tecnica_filter"
+    },
+    {
+      "source": "presencial_adultos_artes",
+      "target": "presencial_adultos_tecnica_filter"
+    },
+    {
+      "source": "presencial_adultos_artes",
+      "target": "presencial_adultos_tecnica_filter"
+    },
+    {
+      "source": "presencial_adultos_artes",
+      "target": "presencial_adultos_tecnica_filter"
+    },
+    {
+      "source": "presencial_adultos_artes",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_artes",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_instrumento_filter",
+      "target": "presencial_adultos_modalidades"
+    },
+    {
+      "source": "presencial_adultos_instrumento_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_estilo_filter",
+      "target": "presencial_adultos_modalidades"
+    },
+    {
+      "source": "presencial_adultos_estilo_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_tecnica_filter",
+      "target": "presencial_adultos_modalidades"
+    },
+    {
+      "source": "presencial_adultos_tecnica_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_teatro",
+      "target": "presencial_adultos_modalidad_filter"
+    },
+    {
+      "source": "presencial_adultos_teatro",
+      "target": "presencial_adultos_modalidad_filter"
+    },
+    {
+      "source": "presencial_adultos_teatro",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_teatro",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_modalidades",
+      "target": "presencial_adultos_modalidad_filter"
+    },
+    {
+      "source": "presencial_adultos_modalidades",
+      "target": "presencial_adultos_modalidad_filter"
+    },
+    {
+      "source": "presencial_adultos_modalidades",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_modalidades",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_modalidad_filter",
+      "target": "presencial_adultos_personalizado_final"
+    },
+    {
+      "source": "presencial_adultos_modalidad_filter",
+      "target": "presencial_adultos_grupal_final"
+    },
+    {
+      "source": "presencial_adultos_modalidad_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_modalidad_filter",
+      "target": "presencial_adultos_modalidades"
+    },
+    {
+      "source": "presencial_adultos_personalizado_final",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "presencial_adultos_personalizado_final",
+      "target": "show_program_options"
+    },
+    {
+      "source": "presencial_adultos_grupal_final",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "presencial_adultos_grupal_final",
+      "target": "show_program_options"
+    }
+  ]
+}

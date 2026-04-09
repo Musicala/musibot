@@ -1,97 +1,146 @@
 {
   "meta": {
     "name": "Musicala Knowledge Base",
-    "version": "1.3",
-    "language": ["es", "en"],
+    "version": "1.7",
+    "language": [
+      "es",
+      "en"
+    ],
     "notes": [
-      "FAQ ampliada + intents mejorados.",
-      "Textos con markdown simple (**negritas**, _cursivas_, listas) para render UI.",
-      "Datos clave: dirección, teléfono, horarios atención, horarios clases, matrícula, rangos edad."
+      "FAQ ampliada + intents mejorados (incluye 'trabajar con nosotros').",
+      "Agregado FAQ e intent de 'Artes que enseñamos / Arts we teach' con link a explicación.",
+      "Agregada FAQ 'Zonas de cobertura (Hogar)' + intent de cobertura hogar.",
+      "Actualizados horarios: programación Virtual y Hogar L-D 8:00 a.m. a 8:00 p.m.",
+      "Capa complementaria agregada para servicios adicionales, objeciones, FAQs complementarias, orientación y fallback más útil."
     ]
   },
   "fallback": {
-    "es": "Puedo ayudarte con info sobre Musicala: ubicación, horarios, modalidades, edades, precios, inscripción, docentes y metodología. ¿Qué te gustaría saber?",
-    "en": "I can help with Musicala info: location, schedules, modalities, ages, pricing, enrollment, teachers and methodology. What would you like to know?"
+    "es": "No te entendí del todo 😅\n\nPuedes elegir una opción del menú o decirme en una frase qué estás buscando (por ejemplo: *ubicación, horarios, precios, edades, modalidades*).",
+    "en": "I didn’t fully get that 😅\n\nYou can choose an option from the menu or tell me in one sentence what you need (for example: *location, schedules, prices, ages, modalities*)."
+  },
+  "smartFallback": {
+    "es": {
+      "message": "No lo ubiqué del todo, pero igual puedo ayudarte con programas, modalidades, servicios adicionales y orientación básica de Musicala.",
+      "advisorHint": "Si prefieres, también puedes hablar con un asesor por WhatsApp.",
+      "defaultSuggestions": [
+        "clases presenciales",
+        "clases virtuales",
+        "clases a domicilio",
+        "preuniversitario",
+        "talleres creativos",
+        "eventos o alquiler de espacios",
+        "edades y modalidades"
+      ]
+    },
+    "en": {
+      "message": "I didn’t fully place it, but I can still help with Musicala programs, modalities, extra services and basic guidance.",
+      "advisorHint": "If you prefer, you can also speak with an advisor on WhatsApp.",
+      "defaultSuggestions": [
+        "on-site classes",
+        "online classes",
+        "at-home classes",
+        "pre-university program",
+        "creative workshops",
+        "events or space rental",
+        "ages and modalities"
+      ]
+    }
   },
   "faq": {
     "es": [
       {
         "q": "Ubicación",
-        "a": "📍 Estamos en la **Carrera 45A #103B-34, Barrio Pasadena**.\n🗺️ Búscanos en Maps como _MUSICALA ESCUELA DE MÚSICA, DANZA Y ARTE_.\n📞 Agenda tu clase al **319 3529475**.\n🚗 A 5 minutos de TransMilenio calle 106. ¡Con parqueo para moto y bici!\n\n¡Te esperamos para comenzar tu aventura artística en Musicala! 🏡🎶"
+        "a": "@img:./assets/location.png"
+      },
+      {
+        "q": "Artes que enseñamos",
+        "a": "En Musicala enseñamos cuatro artes principales:\n- 🎶 *Música*\n- 💃 *Danza*\n- 🎭 *Teatro*\n- 🖌️ *Artes plásticas*\n\nSi quieres ahondar más (enfoques, ejemplos y cómo se viven en clase), mira esto: https://musicala.github.io/explicacionartes/"
       },
       {
         "q": "Horarios",
-        "a": "🌟 En Musicala estamos felices de ayudarte.\n\n**Horario de atención (clientes):**\n- Lunes a viernes: **8:00 a.m. a 6:00 p.m.**\n- Sábados: **9:00 a.m. a 1:00 p.m.**\n\nSi escribes fuera de ese horario, deja tu mensaje y te contactamos lo más pronto posible.\n\n**Horarios de clases:**\n- **Clases Personalizadas:** lunes a viernes **11:00 a.m. a 8:00 p.m.**; sábados **8:00 a.m. a 5:00 p.m.**\n- **Clases Grupales:** lunes a sábado, ajustando los horarios grupales según edad y nivel.\n\n🎨🎵 ¿Quieres que te recomiende la mejor opción según la edad y los días que tienes disponibles?"
+        "a": "🌟 *Atención (clientes):*\n- Lunes a viernes: *8:00 a.m. a 6:00 p.m.*\n- Sábados: *9:00 a.m. a 1:00 p.m.*\n\n🎨 *Programación de clases (Virtual y Hogar):*\n- Lunes a domingo: *8:00 a.m. a 8:00 p.m.*\n\n🏫 *Clases en sede (presencial):*\n- *Personalizadas:* lunes a viernes *11:00 a.m. a 8:00 p.m.*; sábados *8:00 a.m. a 5:00 p.m.*\n- *Grupales:* se programan de lunes a sábado según edad y nivel.\n\nDime la edad y los días que te sirven y te guío."
       },
       {
         "q": "Modalidades",
-        "a": "Puedes vivir Musicala en tres modalidades:\n- **En sede** 🏫\n- **A domicilio** 🏡\n- **Virtual** 💻\n\nTodas incluyen acompañamiento cercano y una experiencia artística cuidada."
+        "a": "Puedes vivir Musicala de tres formas:\n- *En sede* 🏫\n- *A domicilio* 🏡\n- *Virtual* 💻\n\nTodas incluyen acompañamiento cercano y una experiencia artística cuidada."
+      },
+      {
+        "q": "Zonas de cobertura (Hogar)",
+        "a": "📍 La cobertura de *Musicala Hogar* depende de la zona.\n\n✅ Atendemos *Bogotá y alrededores* (según disponibilidad de docentes y logística).\n💰 El valor final puede variar por desplazamiento.\n\nPara confirmarte rápido, en WhatsApp envíanos:\n1) Barrio o municipio\n2) Arte (música, danza, teatro o artes plásticas)\n3) 1 o 2 clases por semana\n\nY te respondemos con *disponibilidad + valor final* ✅"
       },
       {
         "q": "Edades",
-        "a": "En Musicala celebramos cada etapa de la vida con programas por edades:\n\n- 🧒 **Musibabies (0 a 3 años):** exploración sensorial con música y arte.\n- 👦 **Musicalitos (4 a 6 años):** creatividad y diversión en el mundo del arte.\n- 👧 **Musikids (7 a 11 años):** bases artísticas y confianza.\n- 🧑‍🎤 **Musiteens (12 a 15 años):** técnica y expresión.\n- 🧑‍🎨 **Musigrandes (16 a 40 años):** cursos según objetivos y nivel.\n- 👴 **Musiadultos (+40 años):** aprender y crear valorando la experiencia.\n\nNuestro enfoque se adapta a edad, nivel y propósito 🌟"
+        "a": "Tenemos programas por etapas:\n- *0–3* exploración sensorial\n- *4–6* creatividad + juego\n- *7–11* fundamentos + confianza\n- *12–15* técnica + expresión\n- *16–40* formación por objetivos\n- *40+* aprendizaje con disfrute y cuidado\n\nNos adaptamos a edad, nivel y meta 🌟"
       },
       {
         "q": "Precios",
-        "a": "En Musicala ofrecemos cursos y modalidades para distintos presupuestos, con opciones desde **$80.000**.\n\nLa **matrícula anual** cuesta **$55.000**, y asegura el acceso a educación artística de calidad todo el año.\n\n**Paquetes (desde):**\n- **Automusicala y Clases Virtuales:** desde **$80.000** 💻\n- **Musicala Hogar y Plan Musifamiliar:** desde **$288.000** 🏡\n- **Clases Grupales en Sede y Personalizadas:** desde **$280.000** 🏫\n- **Preuniversitario y Taller Creativo:** desde **$150.000** 📚\n\n¿Quieres que te diga el plan más lógico según modalidad, edad y objetivo? 😊🎵"
+        "a": "Los precios dependen de modalidad y programa. Tenemos opciones desde *$56.000 COP*.\n\n*Matrícula anual:* *$60.000 COP*.\n\nRangos (desde):\n- *Virtual / Automusicala:* *$56.000* 💻\n- *Hogar / Musifamiliar:* *$288.000* 🏡\n- *En sede grupales o personalizadas:* *$280.000* 🏫\n- *Preuniversitario y talleres creativos:* *$150.000* 📚\n\nDime modalidad + edad + objetivo y te recomiendo el plan ideal."
+      },
+      {
+        "q": "¿Hay matrícula?",
+        "a": "Sí ✅\n\nLa *matrícula anual* tiene un valor de *$60.000 COP* y se paga una vez al año.\n\nSi quieres, dime el programa que te interesa y te explico cómo funciona con tu caso."
       },
       {
         "q": "Docentes",
-        "a": "En Musicala nos enorgullece tener un equipo de docentes apasionados por la música, la danza, el teatro y las artes plásticas.\n\n- **Expertos y profesionales:** experiencia práctica y académica.\n- 🎓 **Apasionados por enseñar:** acompañan con energía y empatía.\n- ❤️ **Enfoque personalizado:** ajustan el proceso a cada estudiante.\n- 🌟 **Compromiso con la excelencia:** mejoran e innovan constantemente.\n\nNuestra promesa: cada clase es una experiencia enriquecedora, diseñada para cultivar habilidades y confianza 🎨🎵"
-      },
-      {
-        "q": "Trayectoria / Experiencia",
-        "a": "En Musicala nos enorgullecemos de nuestra trayectoria y compromiso con la educación artística.\n\n_✨ Nuestra historia:_\n- **Fundación y evolución:** nacimos como un espacio inclusivo y creativo y hemos expandido oferta e instalaciones.\n- 🏫 **Expansión y reconocimiento:** hemos tenido experiencias y reconocimientos en distintos espacios.\n- 🏆 **Impacto comunitario:** colaboramos con organizaciones para promover acceso al arte y la cultura.\n\n_🌍 Experiencia educativa:_\n- **Docentes de calidad** 👩‍🏫👨‍🏫\n- **Metodología innovadora** 🎨\n- **Exploración de tecnología y enfoques pedagógicos**\n\n💡 Creemos que el arte es clave para el desarrollo integral. 🌟🎵"
+        "a": "Nuestros docentes son artistas y educadores con corazón:\n- Experiencia profesional\n- Enfoque personalizado\n- Formación continua\n\nCada clase busca construir habilidades y confianza 🎨🎵"
       },
       {
         "q": "Metodología",
-        "a": "En Musicala trabajamos con la **Metodología CREA**:\n\n- 🎯 **Concentración:** técnicas para minimizar distracciones y aumentar atención.\n- ⏩ **Rapidez:** ritmo de aprendizaje ajustado para avanzar con fluidez.\n- 📈 **Eficacia:** objetivos claros y métodos probados.\n- 🌟 **Adaptabilidad:** personalizamos la enseñanza según necesidades.\n\n**Beneficios:** técnica + creatividad + pensamiento crítico + confianza, en un proceso humano y disfrutable 🎵"
+        "a": "Trabajamos con nuestra *Metodología CREA*:\n- *Concentración* 🎯\n- *Rapidez* ⏩\n- *Eficacia* 📈\n- *Adaptabilidad* 🌟\n\nCombinamos técnica + creatividad + confianza."
       },
       {
         "q": "Métodos de pago",
-        "a": "En Musicala buscamos que todo sea fácil y transparente. Métodos de pago:\n\n- 💵 **Efectivo:** en nuestras instalaciones.\n- 💳 **Tarjetas crédito/débito:** presencial y/o en línea.\n- 🏦 **Transferencia bancaria:** a cuenta corporativa.\n- 🌐 **Pagos online:** por nuestra plataforma web.\n- 📱 **Apps móviles:** pagos por aplicaciones.\n\n_Facilidades:_\n- ✅ Pago único\n- 💸 Pagos fraccionados\n\nSi tienes dudas con pagos, te ayudamos por este medio o por WhatsApp."
+        "a": "Tenemos métodos flexibles:\n- Efectivo 💵\n- Tarjetas 💳\n- Transferencia 🏦\n- Pagos online 🌐\n- Apps móviles 📱\n\nTambién te guiamos si necesitas pago fraccionado (según el plan)."
       },
       {
         "q": "Fechas de inscripción",
-        "a": "**Inscripción abierta todo el año** 📅🎨\n\n_Cursos con fechas específicas:_\n- ❄️ **Primer semestre:** inscripciones en enero y febrero.\n- ☀️ **Segundo semestre:** inscripciones en julio y agosto.\n- 📚 **Preuniversitarios y talleres especiales:** inscripciones dos meses antes.\n\n_Proceso:_\n1) Conocer oferta 🌐\n2) Completar formulario 📝\n3) Realizar pago 💳\n4) Confirmación ✅\n\nTambién hacemos jornadas informativas y talleres introductorios según temporada."
+        "a": "La inscripción está abierta todo el año 📅.\n\nAlgunos programas tienen cupos/fechas especiales. Pregúntanos qué está abierto y te guiamos."
       },
       {
         "q": "Clase de prueba / cortesía",
-        "a": "Queremos que vivas la experiencia desde el primer momento 🌟. Tenemos dos opciones:\n\n1️⃣ **Clase de prueba con valor**\n- Disponible todo el año.\n- Sesión de **60 minutos** en sede, con docentes expertos.\n\n2️⃣ **Clase de cortesía gratis**\n- Disponible en días especiales, promos o eventos.\n- Sesión de **60 minutos** sin costo.\n\n👉 Escríbenos y te decimos si hoy aplica cortesía o agendamos tu clase de prueba."
+        "a": "Tenemos:\n1) *Clase de prueba con valor* (60 min) todo el año.\n2) *Clase de cortesía gratis* en fechas o promos especiales.\n\nPregúntame si hoy aplica cortesía."
       },
       {
         "q": "Otros servicios",
-        "a": "🎨🎶 En Musicala no solo damos clases. También tenemos:\n\n**Formación artística:** personalizados, grupales, vacacionales, preuniversitarios, talleres, Musigym, educación para familias.\n\n**Tienda Musicala:** instrumentos, accesorios, kits de arte, gift cards, merchandising, Musicambio.\n\n**Espacios:** alquiler de salones, estudio de grabación, foto, set para podcast, y café/pintura ☕🎨.\n\n**Eventos:** cumpleaños, bodas/15 años, recitales, conciertos, exposiciones, festivales, talleres.\n\n**Empresas:** convenios, talleres, capacitación docente, experiencias para equipos.\n\nSi me dices qué necesitas, te digo cuál opción encaja mejor 💛"
+        "a": "Además de las clases principales, también podemos orientarte con:\n- Preuniversitario y talleres creativos\n- Tienda (instrumentos y accesorios)\n- Alquiler de espacios (salones/estudios)\n- Eventos y experiencias especiales\n- Convenios, alianzas y experiencias corporativas\n\nSi me dices qué buscas, te cuento la ruta más cercana y, si aplica, te paso con un asesor."
       },
       {
-        "q": "¿Entregan certificados o constancias?",
-        "a": "En procesos formativos podemos emitir **constancias de participación** según el programa y el tiempo cursado.\n\nDime para qué lo necesitas (colegio, universidad, empresa, etc.) y te digo la mejor forma de manejarlo."
+        "q": "¿Cómo hablo con un asesor humano?",
+        "a": "Cuando quieras, dale al botón de *WhatsApp* (arriba a la derecha) 📱\n\nAhí te atiende una persona del equipo con cupos, horarios, pagos e inscripción."
       },
       {
-        "q": "¿Cómo me inscribo?",
-        "a": "Te guiamos rápido:\n1) Elegimos **arte + modalidad + edad**.\n2) Te proponemos horarios.\n3) Confirmas cupo y haces el pago.\n\nSi me dices **para quién es**, **qué arte**, y **qué días te sirven**, te lo dejo clarito."
+        "q": "¿Quieres trabajar con nosotros?",
+        "a": "🎵 ¡Gracias por tu interés en ser parte de la familia Musicala 💫\n\nPor favor llena el formulario que mejor se ajuste a tu perfil:\n\n👩‍🏫 Si eres docente (*música, danza, teatro o artes plásticas*): https://forms.gle/376d62TuCmTM1KjN9\n\n📋 Para cualquier otro tipo de cargo dentro de nuestro equipo (*logística, comunicaciones, coordinación, ventas, administración*, etc.), este es el tuyo 👉 https://forms.gle/akPMNW87TUJpaL8z8\n\nNuestro equipo revisa cada aplicación con mucho cariño 💌 y, si hay una oportunidad que encaje contigo, te estaremos contactando.\n\n¡Gracias por soñar con nosotros! 🌈✨"
       }
     ],
     "en": [
       {
         "q": "Location",
-        "a": "📍 We are located at **Carrera 45A #103B-34, Pasadena (Bogotá)**.\n🗺️ Find us on Maps as _MUSICALA ESCUELA DE MÚSICA, DANZA Y ARTE_.\n📞 Book your class: **+57 319 3529475**.\n🚗 About 5 minutes from Calle 106 TransMilenio. Motorcycle & bike parking available.\n\nWe’d love to welcome you to your artistic journey 🏡🎶"
+        "a": "@img:./assets/location.png"
+      },
+      {
+        "q": "Arts we teach",
+        "a": "At Musicala we teach four main arts:\n- 🎶 *Music*\n- 💃 *Dance*\n- 🎭 *Theatre*\n- 🖌️ *Visual arts*\n\nIf you want a deeper explanation (approaches, examples and what classes feel like), check this: https://musicala.github.io/explicacionartes/"
       },
       {
         "q": "Schedules",
-        "a": "🌟 We’re happy to help.\n\n**Customer support hours:**\n- Mon–Fri: **8:00 a.m. to 6:00 p.m.**\n- Sat: **9:00 a.m. to 1:00 p.m.**\n\n**Class schedules:**\n- **Personalized classes:** Mon–Fri **11:00 a.m. to 8:00 p.m.**; Sat **8:00 a.m. to 5:00 p.m.**\n- **Group classes:** scheduled Mon–Sat depending on age and level.\n\nTell me the age range and the days that work for you and I’ll guide you."
+        "a": "🌟 *Customer support hours:*\n- Mon–Fri: *8:00 a.m. to 6:00 p.m.*\n- Sat: *9:00 a.m. to 1:00 p.m.*\n\n🎨 *Class scheduling (Online & At home):*\n- Mon–Sun: *8:00 a.m. to 8:00 p.m.*\n\n🏫 *On-site classes:*\n- *Personalized:* Mon–Fri *11:00 a.m. to 8:00 p.m.*; Sat *8:00 a.m. to 5:00 p.m.*\n- *Group classes:* scheduled Mon–Sat based on age and level.\n\nTell me the age range and the days that work for you and I’ll guide you."
       },
       {
         "q": "Modalities",
-        "a": "You can experience Musicala in three ways:\n- **On-site** 🏫\n- **At home** 🏡\n- **Online** 💻\n\nAll options include close guidance and a caring artistic experience."
+        "a": "You can experience Musicala in three ways:\n- *On-site* 🏫\n- *At home* 🏡\n- *Online* 💻\n\nAll options include close guidance and a caring artistic experience."
+      },
+      {
+        "q": "Coverage areas (At home)",
+        "a": "📍 *At home* coverage depends on your area.\n\n✅ We serve *Bogotá and nearby areas* (subject to teacher availability and logistics).\n💰 Final pricing may vary depending on travel.\n\nTo confirm quickly on WhatsApp, please share:\n1) Neighborhood / municipality\n2) Art (music, dance, theatre, visual arts)\n3) 1 or 2 classes per week\n\nWe’ll reply with *availability + final price* ✅"
       },
       {
         "q": "Ages",
-        "a": "We offer programs for different life stages:\n- **0–3** sensory exploration\n- **4–6** playful creativity\n- **7–11** foundations & confidence\n- **12–15** technique & expression\n- **16–40** goal-based training\n- **40+** learning with enjoyment and care\n\nWe adapt to age, level and goals 🌟"
+        "a": "We offer programs for different life stages:\n- *0–3* sensory exploration\n- *4–6* playful creativity + learning\n- *7–11* foundations & confidence\n- *12–15* technique & expression\n- *16–40* goal-based training\n- *40+* learning with enjoyment and care\n\nWe adapt to age, level and goals 🌟"
       },
       {
         "q": "Pricing",
-        "a": "Pricing depends on modality and program. Options start from **COP $80,000**.\n\n**Annual enrollment fee:** **COP $55,000**.\n\nStarting points:\n- **Online / Automusicala:** from **$80,000** 💻\n- **At home / Family plans:** from **$288,000** 🏡\n- **On-site group & personalized:** from **$280,000** 🏫\n- **Pre-university & creative workshops:** from **$150,000** 📚\n\nTell me the modality + age + goal and I’ll recommend the best plan."
+        "a": "Pricing depends on modality and program. Options start from *COP $56,000*.\n\n*Annual enrollment fee:* *COP $60,000*.\n\nStarting points:\n- *Online / Automusicala:* from *$56,000* 💻\n- *At home / Family plans:* from *$288,000* 🏡\n- *On-site group & personalized:* from *$280,000* 🏫\n- *Pre-university & creative workshops:* from *$150,000* 📚\n\nTell me the modality + age + goal and I’ll recommend the best plan."
       },
       {
         "q": "Teachers",
@@ -99,7 +148,7 @@
       },
       {
         "q": "Methodology",
-        "a": "We use our **CREA methodology**:\n- **Focus** 🎯\n- **Fast progress** ⏩\n- **Effective goals** 📈\n- **Adaptability** 🌟\n\nWe combine technique + creativity + confidence."
+        "a": "We use our *CREA methodology*:\n- *Focus* 🎯\n- *Fast progress* ⏩\n- *Effective goals* 📈\n- *Adaptability* 🌟\n\nWe combine technique + creativity + confidence."
       },
       {
         "q": "Payment methods",
@@ -107,15 +156,23 @@
       },
       {
         "q": "Enrollment dates",
-        "a": "Enrollment is open year-round 📅.\n\nSome programs may have seasonal intakes (early year / mid-year). Ask us what’s currently open and we’ll guide you."
+        "a": "Enrollment is open year-round 📅.\n\nSome programs may have seasonal intakes. Ask us what’s currently open and we’ll guide you."
       },
       {
         "q": "Trial / courtesy class",
-        "a": "We offer:\n1) **Paid trial class** (60 minutes) available year-round.\n2) **Free courtesy class** on special dates, promos or events.\n\nAsk us if a courtesy class is available today."
+        "a": "We offer:\n1) *Paid trial class* (60 minutes) available year-round.\n2) *Free courtesy class* on special dates, promos or events.\n\nAsk us if a courtesy class is available today."
       },
       {
         "q": "Other services",
-        "a": "Beyond classes, we offer:\n- Workshops & seasonal programs\n- Store (instruments & accessories)\n- Space rentals (studios/rooms)\n- Events (birthdays, shows)\n- Corporate experiences\n\nTell me what you’re looking for and I’ll point you to the best fit."
+        "a": "Beyond the main classes, we can also guide you with:\n- Pre-university processes and creative workshops\n- Store (instruments and accessories)\n- Space rentals (studios/rooms)\n- Events and special experiences\n- Partnerships, agreements and corporate experiences\n\nIf you tell me what you need, I’ll point you to the closest route and, if needed, connect you with an advisor."
+      },
+      {
+        "q": "How do I talk to a human advisor?",
+        "a": "When you’re ready, click the *WhatsApp* button (top-right) 📱\n\nA team member will help you with schedules, availability, payments and enrollment."
+      },
+      {
+        "q": "Do you want to work with us?",
+        "a": "🎵 Thanks for your interest in joining the Musicala family 💫\n\nPlease fill the form that matches your profile:\n\n👩‍🏫 If you are a teacher (*music, dance, theatre or visual arts*): https://forms.gle/376d62TuCmTM1KjN9\n\n📋 For other roles (*ops, communications, coordination, sales, admin*, etc.): https://forms.gle/akPMNW87TUJpaL8z8\n\nWe review every application with care 💌 and will reach out if there’s a good match.\n\nThank you for dreaming with us 🌈✨"
       }
     ]
   },
@@ -123,63 +180,218 @@
     {
       "id": "location",
       "patterns": {
-        "es": ["ubicación", "ubicacion", "dónde quedan", "donde quedan", "direccion", "dirección", "cómo llegar", "como llegar", "pasadena", "carrera 45a", "maps", "google maps"],
-        "en": ["location", "address", "where are you", "where are you located", "how to get there", "maps", "google maps"]
+        "es": [
+          "ubicación",
+          "ubicacion",
+          "dónde están ubicados",
+          "donde estan ubicados",
+          "dónde se ubican",
+          "donde se ubican",
+          "dónde quedan ubicados",
+          "donde quedan ubicados",
+          "dónde quedan",
+          "donde quedan",
+          "direccion",
+          "dirección",
+          "cómo llegar",
+          "como llegar",
+          "pasadena",
+          "carrera 45a",
+          "maps",
+          "google maps"
+        ],
+        "en": [
+          "location",
+          "address",
+          "where are you",
+          "where are you located",
+          "how to get there",
+          "maps",
+          "google maps"
+        ]
       },
       "response": {
-        "es": "📍 **Carrera 45A #103B-34, Barrio Pasadena**.\n🗺️ En Maps: _MUSICALA ESCUELA DE MÚSICA, DANZA Y ARTE_.\n📞 **319 3529475**.\n🚗 A 5 minutos de TransMilenio calle 106. Parqueo para moto y bici.",
-        "en": "📍 **Carrera 45A #103B-34, Pasadena (Bogotá)**.\n🗺️ Maps: _MUSICALA ESCUELA DE MÚSICA, DANZA Y ARTE_.\n📞 **+57 319 3529475**.\n🚗 Near Calle 106 TransMilenio. Motorcycle & bike parking."
+        "es": "📍 *Carrera 45A #103B-34, Barrio Pasadena*.\n🗺️ En Maps: _MUSICALA ESCUELA DE MÚSICA, DANZA Y ARTE_.\n📞 *319 3529475*.\n🚗 A 5 minutos de TransMilenio calle 106. Parqueo para moto y bici.",
+        "en": "📍 *Carrera 45A #103B-34, Pasadena (Bogotá)*.\n🗺️ Maps: _MUSICALA ESCUELA DE MÚSSICA, DANZA Y ARTE_.\n📞 *+57 319 3529475*.\n🚗 Near Calle 106 TransMilenio. Motorcycle & bike parking."
+      }
+    },
+    {
+      "id": "arts",
+      "patterns": {
+        "es": [
+          "artes",
+          "que artes enseñan",
+          "qué artes enseñan",
+          "que artes enseñamos",
+          "qué artes enseñamos",
+          "disciplinas",
+          "música danza teatro artes plásticas",
+          "musica danza teatro artes plasticas",
+          "areas artisticas",
+          "áreas artísticas"
+        ],
+        "en": [
+          "arts",
+          "what arts do you teach",
+          "what do you teach",
+          "disciplines",
+          "program areas",
+          "music dance theatre visual arts"
+        ]
+      },
+      "response": {
+        "es": "En Musicala trabajamos cuatro artes principales:\n- 🎶 *Música*\n- 💃 *Danza*\n- 🎭 *Teatro*\n- 🖌️ *Artes plásticas*\n\nSi quieres ver una explicación más completa (enfoques, ejemplos y cómo se viven en clase), mira esto: https://musicala.github.io/explicacionartes/",
+        "en": "At Musicala we teach four main arts:\n- 🎶 *Music*\n- 💃 *Dance*\n- 🎭 *Theatre*\n- 🖌️ *Visual arts*\n\nIf you want a deeper explanation (approaches, examples and what classes feel like), check this: https://musicala.github.io/explicacionartes/"
       }
     },
     {
       "id": "schedules",
       "patterns": {
-        "es": ["horarios", "horario", "a qué horas", "a que horas", "atención", "atencion", "horario de atención", "horario de atencion", "horario de clases", "disponibilidad", "disponibles"],
-        "en": ["schedule", "schedules", "hours", "support hours", "class hours", "availability", "available times"]
+        "es": [
+          "horarios",
+          "horario",
+          "a qué horas",
+          "a que horas",
+          "atención",
+          "atencion",
+          "horario de atención",
+          "horario de atencion",
+          "horario de clases",
+          "disponibilidad",
+          "disponibles"
+        ],
+        "en": [
+          "schedule",
+          "schedules",
+          "hours",
+          "support hours",
+          "class hours",
+          "availability",
+          "available times"
+        ]
       },
       "response": {
-        "es": "🌟 **Atención (clientes):** lunes a viernes 8:00 a.m. a 6:00 p.m.; sábados 9:00 a.m. a 1:00 p.m.\n\n🎨 **Clases personalizadas:** lunes a viernes 11:00 a.m. a 8:00 p.m.; sábados 8:00 a.m. a 5:00 p.m.\n👥 **Clases grupales:** lunes a sábado según edad y nivel.\n\nSi me dices para quién es y qué días te sirven, te recomiendo el mejor horario.",
-        "en": "🌟 **Support hours:** Mon–Fri 8:00 a.m.–6:00 p.m.; Sat 9:00 a.m.–1:00 p.m.\n\n🎨 **Personalized classes:** Mon–Fri 11:00 a.m.–8:00 p.m.; Sat 8:00 a.m.–5:00 p.m.\n👥 **Group classes:** scheduled Mon–Sat based on age and level.\n\nTell me the age range and days available and I’ll recommend the best schedule."
+        "es": "🌟 *Atención (clientes):* lunes a viernes 8:00 a.m. a 6:00 p.m.; sábados 9:00 a.m. a 1:00 p.m.\n\n🎨 *Programación de clases (Virtual y Hogar):* lunes a domingo 8:00 a.m. a 8:00 p.m.\n\n🏫 *Clases en sede (presencial):*\n• Personalizadas: lunes a viernes 11:00 a.m. a 8:00 p.m.; sábados 8:00 a.m. a 5:00 p.m.\n• Grupales: lunes a sábado según edad y nivel.\n\nSi me dices para quién es y qué días te sirven, te recomiendo el mejor horario.",
+        "en": "🌟 *Support hours:* Mon–Fri 8:00 a.m.–6:00 p.m.; Sat 9:00 a.m.–1:00 p.m.\n\n🎨 *Class scheduling (Online & At home):* Mon–Sun 8:00 a.m.–8:00 p.m.\n\n🏫 *On-site classes:*\n• Personalized: Mon–Fri 11:00 a.m.–8:00 p.m.; Sat 8:00 a.m.–5:00 p.m.\n• Group classes: Mon–Sat based on age and level.\n\nTell me the age range and days available and I’ll recommend the best schedule."
       }
     },
     {
       "id": "modalities",
       "patterns": {
-        "es": ["modalidades", "virtual", "domicilio", "a domicilio", "sede", "en sede", "cómo son las clases", "como son las clases", "presencial"],
-        "en": ["modalities", "online", "virtual", "home", "at home", "on site", "on-site", "in person", "how are the classes"]
+        "es": [
+          "modalidades",
+          "virtual",
+          "domicilio",
+          "a domicilio",
+          "sede",
+          "en sede",
+          "cómo son las clases",
+          "como son las clases",
+          "presencial"
+        ],
+        "en": [
+          "modalities",
+          "online",
+          "virtual",
+          "home",
+          "at home",
+          "on site",
+          "on-site",
+          "in person",
+          "how are the classes"
+        ]
       },
       "response": {
-        "es": "Modalidades Musicala:\n- **En sede** 🏫\n- **A domicilio** 🏡\n- **Virtual** 💻\n\nTodas con acompañamiento cercano y una experiencia artística cuidada.",
-        "en": "Musicala modalities:\n- **On-site** 🏫\n- **At home** 🏡\n- **Online** 💻\n\nAll include close guidance and a caring artistic experience."
+        "es": "Modalidades Musicala:\n- *En sede* 🏫\n- *A domicilio* 🏡\n- *Virtual* 💻\n\nTodas con acompañamiento cercano y una experiencia artística cuidada.",
+        "en": "Musicala modalities:\n- *On-site* 🏫\n- *At home* 🏡\n- *Online* 💻\n\nAll include close guidance and a caring artistic experience."
       }
     },
     {
       "id": "ages_programs",
       "patterns": {
-        "es": ["edades", "para qué edades", "para que edades", "para niños", "para ninos", "niños", "ninos", "jóvenes", "jovenes", "adultos", "musibabies", "musicalitos", "musikids", "musiteens", "musigrandes", "musiadultos"],
-        "en": ["ages", "what ages", "kids", "teens", "adults", "programs"]
+        "es": [
+          "edades",
+          "para qué edades",
+          "para que edades",
+          "para niños",
+          "para ninos",
+          "niños",
+          "ninos",
+          "jóvenes",
+          "jovenes",
+          "adultos",
+          "musibabies",
+          "musicalitos",
+          "musikids",
+          "musiteens",
+          "musigrandes",
+          "musiadultos"
+        ],
+        "en": [
+          "ages",
+          "what ages",
+          "kids",
+          "teens",
+          "adults",
+          "programs"
+        ]
       },
       "response": {
-        "es": "Programas por edades:\n- 🧒 **Musibabies (0–3)**\n- 👦 **Musicalitos (4–6)**\n- 👧 **Musikids (7–11)**\n- 🧑‍🎤 **Musiteens (12–15)**\n- 🧑‍🎨 **Musigrandes (16–40)**\n- 👴 **Musiadultos (+40)**\n\nDime la edad y el arte que te interesa y te digo cuál encaja mejor.",
-        "en": "Age-based programs:\n- **0–3**, **4–6**, **7–11**, **12–15**, **16–40**, **40+**\n\nTell me the age range and the art you’re interested in and I’ll guide you."
+        "es": "Programas por edades:\n- 🧒 *Musibabies (0–3)*\n- 👦 *Musicalitos (4–6)*\n- 👧 *Musikids (7–11)*\n- 🧑‍🎤 *Musiteens (12–15)*\n- 🧑‍🎨 *Musigrandes (16–40)*\n- 👴 *Musiadultos (+40)*\n\nDime la edad y el arte que te interesa y te digo cuál encaja mejor.",
+        "en": "Age-based programs:\n- *0–3*, *4–6*, *7–11*, *12–15*, *16–40*, *40+*\n\nTell me the age range and the art you’re interested in and I’ll guide you."
       }
     },
     {
       "id": "prices",
       "patterns": {
-        "es": ["precios", "precio", "cuánto cuesta", "cuanto cuesta", "valor", "tarifa", "valores", "costos", "costo", "matrícula", "matricula"],
-        "en": ["prices", "price", "cost", "how much", "fees", "pricing", "enrollment fee"]
+        "es": [
+          "precios",
+          "precio",
+          "cuánto cuesta",
+          "cuanto cuesta",
+          "valor",
+          "tarifa",
+          "valores",
+          "costos",
+          "costo",
+          "matrícula",
+          "matricula"
+        ],
+        "en": [
+          "prices",
+          "price",
+          "cost",
+          "how much",
+          "fees",
+          "pricing",
+          "enrollment fee"
+        ]
       },
       "response": {
-        "es": "Tenemos opciones desde **$80.000** y la **matrícula anual** cuesta **$55.000**.\n\nRangos (desde):\n- 💻 Virtual / Automusicala: **$80.000**\n- 🏡 Hogar / Musifamiliar: **$288.000**\n- 🏫 Grupales o personalizadas en sede: **$280.000**\n- 📚 Preuniversitario / Taller creativo: **$150.000**\n\nSi me dices modalidad + edad + objetivo, te recomiendo el plan más lógico.",
-        "en": "Options start from **COP $80,000**, and the **annual enrollment fee** is **COP $55,000**.\n\nTell me modality + age + goal and I’ll recommend the best plan."
+        "es": "Tenemos opciones desde *$56.000* y la *matrícula anual* cuesta *$60.000*.\n\nRangos (desde):\n- 💻 Virtual / Automusicala: *$56.000*\n- 🏡 Hogar / Musifamiliar: *$288.000*\n- 🏫 Grupales o personalizadas en sede: *$280.000*\n- 📚 Preuniversitario / Taller creativo: *$150.000*\n\nSi me dices modalidad + edad + objetivo, te recomiendo el plan más lógico.",
+        "en": "Options start from *COP $56,000*, and the *annual enrollment fee* is *COP $60,000*.\n\nTell me modality + age + goal and I’ll recommend the best plan."
       }
     },
     {
       "id": "teachers",
       "patterns": {
-        "es": ["docentes", "profesores", "profe", "maestros", "equipo", "quién enseña", "quien ensena", "experiencia docentes"],
-        "en": ["teachers", "instructors", "professors", "team", "who teaches"]
+        "es": [
+          "docentes",
+          "profesores",
+          "profe",
+          "maestros",
+          "equipo",
+          "quién enseña",
+          "quien ensena",
+          "experiencia docentes"
+        ],
+        "en": [
+          "teachers",
+          "instructors",
+          "professors",
+          "team",
+          "who teaches"
+        ]
       },
       "response": {
         "es": "Nuestros docentes son el corazón de Musicala: profesionales, cercanos y con enfoque personalizado. Buscamos que cada clase sea técnica, creativa y humana 🎨🎵",
@@ -189,19 +401,58 @@
     {
       "id": "methodology",
       "patterns": {
-        "es": ["metodología", "metodologia", "crea", "método", "metodo", "cómo enseñan", "como ensenan", "enfoque", "ruta de aprendizaje"],
-        "en": ["method", "methodology", "crea", "how do you teach", "approach", "learning path"]
+        "es": [
+          "metodología",
+          "metodologia",
+          "crea",
+          "método",
+          "metodo",
+          "cómo enseñan",
+          "como ensenan",
+          "enfoque",
+          "ruta de aprendizaje"
+        ],
+        "en": [
+          "method",
+          "methodology",
+          "crea",
+          "how do you teach",
+          "approach",
+          "learning path"
+        ]
       },
       "response": {
-        "es": "Trabajamos con **Metodología CREA**: 🎯 Concentración, ⏩ Rapidez, 📈 Eficacia y 🌟 Adaptabilidad.\n\nLa idea es avanzar con técnica + creatividad + confianza, ajustado a cada estudiante.",
-        "en": "We use **CREA**: Focus 🎯, Fast progress ⏩, Effective goals 📈 and Adaptability 🌟.\n\nWe blend technique + creativity + confidence, tailored to each student."
+        "es": "Trabajamos con *Metodología CREA*: 🎯 Concentración, ⏩ Rapidez, 📈 Eficacia y 🌟 Adaptabilidad.\n\nLa idea es avanzar con técnica + creatividad + confianza, ajustado a cada estudiante.",
+        "en": "We use *CREA*: Focus 🎯, Fast progress ⏩, Effective goals 📈 and Adaptability 🌟.\n\nWe blend technique + creativity + confidence, tailored to each student."
       }
     },
     {
       "id": "payments",
       "patterns": {
-        "es": ["pago", "pagos", "cómo pago", "como pago", "medios de pago", "formas de pago", "transferencia", "tarjeta", "nequi", "daviplata", "factura", "recibo"],
-        "en": ["payment", "payments", "how do I pay", "payment methods", "transfer", "card", "invoice", "receipt"]
+        "es": [
+          "pago",
+          "pagos",
+          "cómo pago",
+          "como pago",
+          "medios de pago",
+          "formas de pago",
+          "transferencia",
+          "tarjeta",
+          "nequi",
+          "daviplata",
+          "factura",
+          "recibo"
+        ],
+        "en": [
+          "payment",
+          "payments",
+          "how do I pay",
+          "payment methods",
+          "transfer",
+          "card",
+          "invoice",
+          "receipt"
+        ]
       },
       "response": {
         "es": "Métodos de pago:\n- 💵 Efectivo\n- 💳 Tarjeta\n- 🏦 Transferencia\n- 🌐 Pagos online\n- 📱 Apps móviles\n\nTambién podemos ver opciones de pago fraccionado según el plan.",
@@ -211,45 +462,1125 @@
     {
       "id": "enrollment_dates",
       "patterns": {
-        "es": ["fechas de inscripción", "fechas de inscripcion", "inscripción", "inscripcion", "cuándo me inscribo", "cuando me inscribo", "inscribirme", "matricularme"],
-        "en": ["enrollment dates", "enrollment", "sign up", "signup", "register"]
+        "es": [
+          "fechas de inscripción",
+          "fechas de inscripcion",
+          "inscripción",
+          "inscripcion",
+          "cuándo me inscribo",
+          "cuando me inscribo",
+          "inscribirme",
+          "matricularme"
+        ],
+        "en": [
+          "enrollment dates",
+          "enrollment",
+          "sign up",
+          "signup",
+          "register"
+        ]
       },
       "response": {
-        "es": "**Inscripción abierta todo el año** 📅.\n\nAlgunos programas tienen temporadas (inicio de año / mitad de año). Si me dices qué te interesa, te digo lo que está abierto y cómo entrar.",
+        "es": "*Inscripción abierta todo el año* 📅.\n\nAlgunos programas tienen temporadas. Si me dices qué te interesa, te digo lo que está abierto y cómo entrar.",
         "en": "Enrollment is open year-round 📅.\n\nSome programs have seasonal intakes. Tell me what you’re interested in and I’ll guide you."
       }
     },
     {
       "id": "trial_or_courtesy",
       "patterns": {
-        "es": ["clase de prueba", "primera clase", "puedo probar", "cortesía", "cortesia", "clase gratis", "clase de cortesía", "sesión de prueba", "sesion de prueba"],
-        "en": ["trial class", "first class", "can I try", "courtesy class", "free class", "trial session"]
+        "es": [
+          "clase de prueba",
+          "primera clase",
+          "puedo probar",
+          "cortesía",
+          "cortesia",
+          "clase gratis",
+          "clase de cortesía",
+          "sesión de prueba",
+          "sesion de prueba"
+        ],
+        "en": [
+          "trial class",
+          "first class",
+          "can I try",
+          "courtesy class",
+          "free class",
+          "trial session"
+        ]
       },
       "response": {
-        "es": "Opciones:\n1️⃣ **Clase de prueba con valor** (60 min) todo el año.\n2️⃣ **Clase de cortesía gratis** (60 min) en días especiales/promos.\n\nPregúntame si hoy aplica cortesía o te ayudo a agendar la de prueba.",
-        "en": "Options:\n1) **Paid trial class** (60 min) year-round.\n2) **Free courtesy class** (60 min) on special dates/promos.\n\nAsk if a courtesy class is available today."
+        "es": "Opciones:\n1️⃣ *Clase de prueba con valor* (60 min) todo el año.\n2️⃣ *Clase de cortesía gratis* (60 min) en días especiales/promos.\n\nPregúntame si hoy aplica cortesía o te ayudo a agendar la de prueba.",
+        "en": "Options:\n1) *Paid trial class* (60 min) year-round.\n2) *Free courtesy class* (60 min) on special dates/promos.\n\nAsk if a courtesy class is available today."
       }
     },
     {
       "id": "other_services",
       "patterns": {
-        "es": ["otros servicios", "qué más ofrecen", "que mas ofrecen", "tienda", "alquiler", "alquilar salón", "alquilar salon", "estudio", "cumpleaños", "cumpleanos", "eventos", "empresas", "convenios"],
-        "en": ["other services", "what else", "store", "rent", "studio", "events", "companies", "corporate"]
+        "es": [
+          "otros servicios",
+          "qué más ofrecen",
+          "que mas ofrecen",
+          "servicios adicionales",
+          "servicios extra",
+          "aparte de clases"
+        ],
+        "en": [
+          "other services",
+          "what else",
+          "what else do you offer",
+          "extra services",
+          "additional services",
+          "besides classes"
+        ]
       },
       "response": {
-        "es": "Además de clases, ofrecemos: tienda, alquiler de espacios/estudios, eventos (cumples, shows), y experiencias para empresas.\n\nDime qué estás buscando y te digo la mejor ruta.",
-        "en": "Beyond classes, we offer: store, rentals/studios, events, and corporate experiences.\n\nTell me what you’re looking for and I’ll guide you."
+        "es": "Además de las clases principales, también contamos con opciones como preuniversitario, talleres creativos, tienda, alquiler de espacios, eventos y experiencias para alianzas o empresas.\n\nSi me dices qué necesitas, te cuento la ruta más cercana y, si aplica, te paso con un asesor.",
+        "en": "Beyond the main classes, we also have options such as pre-university support, creative workshops, store items, space rentals, events and experiences for partnerships or companies.\n\nIf you tell me what you need, I’ll guide you to the closest route and, if needed, connect you with an advisor."
       }
     },
     {
       "id": "about_musicala",
       "patterns": {
-        "es": ["qué es musicala", "que es musicala", "qué hacen", "que hacen", "de qué se trata", "de que se trata", "qué es esto", "que es esto", "musicala"],
-        "en": ["what is musicala", "what do you do", "what is this", "about musicala"]
+        "es": [
+          "qué es musicala",
+          "que es musicala",
+          "qué hacen",
+          "que hacen",
+          "de qué se trata",
+          "de que se trata",
+          "qué es esto",
+          "que es esto",
+          "musicala"
+        ],
+        "en": [
+          "what is musicala",
+          "what do you do",
+          "what is this",
+          "about musicala"
+        ]
       },
       "response": {
         "es": "Musicala es una escuela de artes donde integramos música, danza, teatro y artes visuales desde una mirada humana, creativa y cercana. Acompañamos procesos, no solo “dictamos clase”.",
         "en": "Musicala is an arts school integrating music, dance, theatre and visual arts with a human, creative approach. We guide processes, not just “teach classes”."
+      }
+    },
+    {
+      "id": "human_advisor",
+      "patterns": {
+        "es": [
+          "asesor",
+          "asesora",
+          "humano",
+          "persona",
+          "whatsapp",
+          "hablar con alguien",
+          "hablar con un asesor",
+          "quiero hablar con alguien",
+          "contacto"
+        ],
+        "en": [
+          "human",
+          "advisor",
+          "agent",
+          "whatsapp",
+          "talk to someone",
+          "contact"
+        ]
+      },
+      "response": {
+        "es": "Cuando ya tengas claro lo que necesitas, dale clic al botón de *WhatsApp* (arriba a la derecha) 📱\n\nAhí tu conversación sigue con una persona del equipo y te ayudamos con: horarios, cupos, pagos e inscripción.",
+        "en": "When you’re ready, click the *WhatsApp* button (top-right) 📱\n\nA team member will help you with schedules, availability, payments and enrollment."
+      }
+    },
+    {
+      "id": "work_with_us",
+      "patterns": {
+        "es": [
+          "trabajar con ustedes",
+          "trabajar con musicala",
+          "quiero trabajar",
+          "vacantes",
+          "empleo",
+          "hoja de vida",
+          "enviar hoja de vida",
+          "convocatoria",
+          "selección",
+          "postularme",
+          "aplicar",
+          "quiero ser docente",
+          "quiero ser profesor",
+          "quiero ser profe",
+          "quiero dictar clases",
+          "quiero dar clases",
+          "trabajo en musicala",
+          "quiero entrar a musicala"
+        ],
+        "en": [
+          "work with you",
+          "jobs",
+          "job opening",
+          "vacancy",
+          "apply",
+          "application",
+          "teacher position",
+          "send resume",
+          "join your team"
+        ]
+      },
+      "response": {
+        "es": "🎵 ¡Hola hola! Gracias por tu interés en ser parte de la familia Musicala 💫\n\nPara postularte, llena el formulario que mejor se ajuste a tu perfil:\n\n👩‍🏫 *Docentes (música, danza, teatro o artes plásticas):* https://forms.gle/376d62TuCmTM1KjN9\n📋 *Otros cargos (logística, comunicaciones, coordinación, ventas, administración, etc.):* https://forms.gle/akPMNW87TUJpaL8z8\n\nNuestro equipo revisa cada aplicación con cariño 💌 y, si hay una oportunidad que encaje contigo, te estaremos contactando.\n\nSi quieres, dime en una línea qué perfil tienes y te digo cuál formulario te corresponde 🙂",
+        "en": "🎵 Thanks for your interest in joining the Musicala family 💫\n\nPlease fill the form that matches your profile:\n\n👩‍🏫 *Teachers (music, dance, theatre or visual arts):* https://forms.gle/376d62TuCmTM1KjN9\n📋 *Other roles (ops, communications, coordination, sales, admin, etc.):* https://forms.gle/akPMNW87TUJpaL8z8\n\nWe review every application with care 💌 and will reach out if there’s a good match."
+      }
+    },
+    {
+      "id": "service_preuniversitario",
+      "category": "service",
+      "suggestionLabel": {
+        "es": "preuniversitario",
+        "en": "pre-university program"
+      },
+      "patterns": {
+        "es": [
+          "preuniversitario",
+          "programa preuniversitario",
+          "proceso preuniversitario",
+          "preparatorio artistico",
+          "preparatorio artístico",
+          "preparacion artistica",
+          "preparación artística"
+        ],
+        "en": [
+          "pre-university",
+          "preuniversity",
+          "pre university program",
+          "arts preparatory",
+          "pre-college arts"
+        ]
+      },
+      "response": {
+        "es": "Sí, también contamos con programa preuniversitario 🎓\nEs una opción pensada para procesos artísticos con enfoque más preparatorio y de acompañamiento según el objetivo del estudiante.\nComo puede variar según el área, nivel y disponibilidad, lo ideal es revisarlo con un asesor para orientarte bien.",
+        "en": "Yes, we also support pre-university processes 🎓\nIt is designed for artistic paths with a more preparatory focus depending on the student’s goal.\nSince it can vary by area, level and availability, the best next step is to review it with an advisor."
+      }
+    },
+    {
+      "id": "service_creative_workshops",
+      "category": "service",
+      "suggestionLabel": {
+        "es": "talleres creativos",
+        "en": "creative workshops"
+      },
+      "patterns": {
+        "es": [
+          "talleres creativos",
+          "taller creativo",
+          "talleres artisticos",
+          "talleres artísticos",
+          "workshop creativo",
+          "taller corto",
+          "curso corto artistico",
+          "curso corto artístico"
+        ],
+        "en": [
+          "creative workshops",
+          "creative workshop",
+          "art workshop",
+          "short artistic workshop",
+          "creative short course"
+        ]
+      },
+      "response": {
+        "es": "Sí ✨ También manejamos talleres creativos y experiencias más puntuales según el interés o la etapa del estudiante.\nPueden ser una muy buena opción cuando buscan explorar, activar la creatividad o tomar algo más flexible.\nComo la oferta puede moverse, lo mejor es validarlo con un asesor según el caso.",
+        "en": "Yes ✨ We also handle creative workshops and shorter-format experiences depending on the student’s interest and stage.\nThey can be a great fit when someone wants to explore, unlock creativity or take something more flexible.\nSince the offer may change, it is best to confirm it with an advisor."
+      }
+    },
+    {
+      "id": "service_convenios_alianzas",
+      "category": "service",
+      "suggestionLabel": {
+        "es": "convenios y alianzas",
+        "en": "partnerships and agreements"
+      },
+      "patterns": {
+        "es": [
+          "convenio",
+          "convenios",
+          "alianza",
+          "alianzas",
+          "alianza empresarial",
+          "convenio empresarial",
+          "convenio academico",
+          "convenio académico",
+          "colegios",
+          "instituciones",
+          "empresa",
+          "empresas",
+          "corporativo",
+          "corporativos"
+        ],
+        "en": [
+          "agreement",
+          "agreements",
+          "partnership",
+          "partnerships",
+          "corporate alliance",
+          "academic agreement",
+          "schools",
+          "institutions",
+          "company program",
+          "corporate experience"
+        ]
+      },
+      "response": {
+        "es": "Sí, también trabajamos convenios y alianzas 🤝\nPuede ser con colegios, instituciones, empresas u otros procesos especiales según el objetivo.\nComo cada caso se revisa de forma distinta, lo ideal es contarlo a un asesor para orientarte con la ruta correcta.",
+        "en": "Yes, we also work on partnerships and agreements 🤝\nThis can apply to schools, institutions, companies or other special processes depending on the goal.\nSince each case is reviewed differently, the best next step is to share it with an advisor."
+      }
+    },
+    {
+      "id": "service_events",
+      "category": "service",
+      "suggestionLabel": {
+        "es": "eventos",
+        "en": "events"
+      },
+      "patterns": {
+        "es": [
+          "eventos",
+          "evento artistico",
+          "evento artístico",
+          "cumpleaños artistico",
+          "cumpleaños artístico",
+          "show",
+          "shows",
+          "presentacion especial",
+          "presentación especial"
+        ],
+        "en": [
+          "events",
+          "art event",
+          "birthday event",
+          "artistic birthday",
+          "show",
+          "special presentation"
+        ]
+      },
+      "response": {
+        "es": "Sí 🎉 También contamos con eventos y experiencias especiales.\nEso puede incluir celebraciones, activaciones o propuestas artísticas según lo que estén buscando.\nComo depende del tipo de evento, número de personas y disponibilidad, lo más útil es revisarlo con un asesor.",
+        "en": "Yes 🎉 We also support events and special experiences.\nThat can include celebrations, activations or artistic proposals depending on what you need.\nSince it depends on the event type, group size and availability, the most useful next step is to review it with an advisor."
+      }
+    },
+    {
+      "id": "service_space_rental",
+      "category": "service",
+      "suggestionLabel": {
+        "es": "alquiler de espacios",
+        "en": "space rental"
+      },
+      "patterns": {
+        "es": [
+          "alquiler de espacios",
+          "alquilar espacio",
+          "alquilar salon",
+          "alquilar salón",
+          "alquilar estudio",
+          "rentar espacio",
+          "salon",
+          "salón",
+          "estudio"
+        ],
+        "en": [
+          "space rental",
+          "rent a room",
+          "rent a studio",
+          "rent a space",
+          "studio rental",
+          "room rental"
+        ]
+      },
+      "response": {
+        "es": "Sí, también manejamos alquiler de espacios 🏢\nPuede ser una buena opción si necesitas un salón o estudio para una actividad puntual.\nComo esto depende del uso, horario y disponibilidad, lo ideal es validarlo con un asesor.",
+        "en": "Yes, we also handle space rentals 🏢\nIt can be a good fit if you need a room or studio for a specific activity.\nSince this depends on use, timing and availability, it is best to validate it with an advisor."
+      }
+    },
+    {
+      "id": "service_store_instruments",
+      "category": "service",
+      "suggestionLabel": {
+        "es": "tienda e instrumentos",
+        "en": "store and instruments"
+      },
+      "patterns": {
+        "es": [
+          "tienda",
+          "instrumentos",
+          "instrumento",
+          "accesorios",
+          "comprar instrumento",
+          "comprar accesorios",
+          "venden instrumentos"
+        ],
+        "en": [
+          "store",
+          "instrument",
+          "instruments",
+          "accessories",
+          "buy an instrument",
+          "music accessories"
+        ]
+      },
+      "response": {
+        "es": "Sí 🎻 También contamos con tienda e información sobre instrumentos y accesorios.\nSi me dices qué estás buscando, puedo orientarte de forma general.\nPara disponibilidad puntual o referencias exactas, lo ideal es revisar con un asesor.",
+        "en": "Yes 🎻 We also have store support and information about instruments and accessories.\nIf you tell me what you are looking for, I can guide you in a general way.\nFor exact availability or specific references, the best next step is to review it with an advisor."
+      }
+    },
+    {
+      "id": "service_special_services",
+      "category": "service",
+      "suggestionLabel": {
+        "es": "servicios especiales",
+        "en": "special services"
+      },
+      "patterns": {
+        "es": [
+          "servicio especial",
+          "servicios especiales",
+          "algo personalizado",
+          "propuesta especial",
+          "experiencia especial",
+          "algo diferente"
+        ],
+        "en": [
+          "special service",
+          "special services",
+          "custom proposal",
+          "custom experience",
+          "something different"
+        ]
+      },
+      "response": {
+        "es": "Puede ser 💫 Musicala también revisa solicitudes o experiencias especiales según el objetivo.\nSi me cuentas muy brevemente qué necesitas, puedo orientarte mejor.\nY si es algo puntual o a medida, lo más práctico es revisarlo con un asesor.",
+        "en": "It could be 💫 Musicala can also review special requests or custom experiences depending on the goal.\nIf you briefly tell me what you need, I can guide you better.\nAnd if it is something very specific or tailored, the most practical route is to review it with an advisor."
+      }
+    },
+    {
+      "id": "objection_price",
+      "category": "objection",
+      "suggestionLabel": {
+        "es": "opciones más ajustadas",
+        "en": "more fitting options"
+      },
+      "patterns": {
+        "es": [
+          "esta muy caro",
+          "está muy caro",
+          "muy caro",
+          "caro",
+          "costoso",
+          "busco algo mas economico",
+          "busco algo más económico",
+          "mas economico",
+          "más económico",
+          "no tengo presupuesto",
+          "se me sale del presupuesto"
+        ],
+        "en": [
+          "too expensive",
+          "very expensive",
+          "expensive",
+          "more affordable",
+          "cheaper option",
+          "low budget",
+          "out of my budget"
+        ]
+      },
+      "response": {
+        "es": "Lo entiendo 💛\nA veces la mejor ruta cambia según modalidad, intensidad o formato.\nSi quieres, puedo orientarte hacia una opción más ajustada a lo que buscas o puedes revisar alternativas con un asesor.",
+        "en": "I understand 💛\nSometimes the best route changes depending on modality, intensity or format.\nIf you want, I can guide you toward a more fitting option or you can review alternatives with an advisor."
+      }
+    },
+    {
+      "id": "objection_thinking",
+      "category": "objection",
+      "suggestionLabel": {
+        "es": "opción según tu caso",
+        "en": "option for your case"
+      },
+      "patterns": {
+        "es": [
+          "lo voy a pensar",
+          "lo pensare",
+          "lo pensaré",
+          "dejame pensarlo",
+          "déjame pensarlo",
+          "voy a pensarlo",
+          "luego lo miro"
+        ],
+        "en": [
+          "i will think about it",
+          "let me think",
+          "i need to think",
+          "i will check later"
+        ]
+      },
+      "response": {
+        "es": "Claro, sin problema 🌿\nA veces ayuda aterrizarlo por edad, modalidad o tiempo disponible.\nSi quieres, puedo dejarte una orientación breve para que la decisión sea más fácil, o puedes hablar con un asesor cuando te quede mejor.",
+        "en": "Of course, no problem 🌿\nSometimes it helps to narrow it down by age, modality or available time.\nIf you want, I can leave you with a brief orientation, or you can speak with an advisor when it feels right."
+      }
+    },
+    {
+      "id": "objection_compare_consult",
+      "category": "objection",
+      "suggestionLabel": {
+        "es": "comparar opciones",
+        "en": "compare options"
+      },
+      "patterns": {
+        "es": [
+          "estoy comparando opciones",
+          "estoy comparando",
+          "comparando opciones",
+          "necesito consultarlo",
+          "necesito consultarlo con alguien",
+          "debo consultarlo",
+          "tengo que consultarlo"
+        ],
+        "en": [
+          "comparing options",
+          "i am comparing",
+          "i need to consult it",
+          "i need to check with someone",
+          "i need to discuss it"
+        ]
+      },
+      "response": {
+        "es": "Totalmente válido 🤍\nSi estás comparando o necesitas consultarlo con alguien, puedo ayudarte a resumirlo por modalidad, edad o enfoque para que sea más claro.\nY si prefieres una revisión más puntual, un asesor puede orientarte con tu caso.",
+        "en": "That makes sense 🤍\nIf you are comparing or need to check it with someone, I can help summarize it by modality, age or approach so it feels clearer.\nAnd if you prefer a more specific review, an advisor can guide you with your case."
+      }
+    },
+    {
+      "id": "objection_distance_time",
+      "category": "objection",
+      "suggestionLabel": {
+        "es": "alternativas de modalidad",
+        "en": "modality alternatives"
+      },
+      "patterns": {
+        "es": [
+          "me queda lejos",
+          "me queda retirado",
+          "no tengo tiempo",
+          "no puedo ahora",
+          "ahora no puedo",
+          "no me dan los horarios",
+          "no me queda facil",
+          "no me queda fácil"
+        ],
+        "en": [
+          "it is too far",
+          "too far",
+          "i do not have time",
+          "i cannot right now",
+          "i do not have availability",
+          "the schedule does not work for me"
+        ]
+      },
+      "response": {
+        "es": "Lo entiendo 💛\nA veces ahí sirve revisar otra modalidad o un formato más flexible.\nSi quieres, puedo orientarte entre sede, virtual o domicilio según lo que te quede más viable, o puedes validar alternativas con un asesor.",
+        "en": "I understand 💛\nSometimes it helps to review another modality or a more flexible format.\nIf you want, I can guide you between on-site, online or at-home options, or you can validate alternatives with an advisor."
+      }
+    },
+    {
+      "id": "objection_uncertain_interest",
+      "category": "objection",
+      "suggestionLabel": {
+        "es": "orientación para elegir",
+        "en": "guidance to choose"
+      },
+      "patterns": {
+        "es": [
+          "no se si le vaya a gustar",
+          "no sé si le vaya a gustar",
+          "no se si le guste",
+          "no sé si le guste",
+          "por ahora solo estoy averiguando",
+          "solo estoy averiguando",
+          "solo quiero informacion",
+          "solo quiero información",
+          "estoy mirando"
+        ],
+        "en": [
+          "i do not know if they will like it",
+          "not sure if they will like it",
+          "just browsing",
+          "just checking",
+          "only looking for information"
+        ]
+      },
+      "response": {
+        "es": "Es normal ✨\nMuchas familias primero quieren entender opciones antes de decidir.\nSi quieres, puedo orientarte de forma breve según la edad, el interés o la modalidad para que veas qué tendría más sentido.",
+        "en": "That is normal ✨\nMany families first want to understand the options before deciding.\nIf you want, I can briefly guide you by age, interest or modality so you can see what makes the most sense."
+      }
+    },
+    {
+      "id": "objection_modality_limits",
+      "category": "objection",
+      "suggestionLabel": {
+        "es": "otra modalidad",
+        "en": "another modality"
+      },
+      "patterns": {
+        "es": [
+          "no me sirve virtual",
+          "no me funciona virtual",
+          "no me sirve a domicilio",
+          "no me funciona a domicilio",
+          "no me sirve domicilio",
+          "solo presencial me sirve"
+        ],
+        "en": [
+          "online does not work for me",
+          "virtual does not work for me",
+          "at home does not work for me",
+          "home classes do not work for me",
+          "only on-site works for me"
+        ]
+      },
+      "response": {
+        "es": "Claro, no pasa nada 🌿\nNo todas las modalidades le funcionan igual a todo el mundo.\nSi quieres, te ayudo a mirar otra opción que se ajuste mejor, o puedes validarlo con un asesor según tu caso.",
+        "en": "Of course, that is okay 🌿\nNot every modality works the same way for everyone.\nIf you want, I can help you look at another option that fits better, or you can validate it with an advisor."
+      }
+    },
+    {
+      "id": "objection_no_instrument",
+      "category": "objection",
+      "suggestionLabel": {
+        "es": "materiales e instrumento",
+        "en": "materials and instrument"
+      },
+      "patterns": {
+        "es": [
+          "no tengo instrumento",
+          "no tenemos instrumento",
+          "sin instrumento",
+          "no cuento con instrumento",
+          "no tengo materiales"
+        ],
+        "en": [
+          "i do not have an instrument",
+          "we do not have an instrument",
+          "no instrument",
+          "i do not have materials"
+        ]
+      },
+      "response": {
+        "es": "Tranquilo 💛\nEso depende mucho del arte, la modalidad y el momento del proceso.\nSi quieres, puedo orientarte de forma general y, para revisar exactamente qué necesitarías, lo ideal es confirmarlo con un asesor.",
+        "en": "No worries 💛\nThat depends a lot on the art area, the modality and the stage of the process.\nIf you want, I can guide you in a general way and, for the exact requirement, the best step is to confirm it with an advisor."
+      }
+    },
+    {
+      "id": "faq_class_duration",
+      "category": "faq",
+      "suggestionLabel": {
+        "es": "duración de clase",
+        "en": "class duration"
+      },
+      "patterns": {
+        "es": [
+          "cuanto dura la clase",
+          "cuánto dura la clase",
+          "duracion de clase",
+          "duración de clase",
+          "tiempo de clase",
+          "horas por clase"
+        ],
+        "en": [
+          "how long is the class",
+          "class duration",
+          "how much time is each class",
+          "class length"
+        ]
+      },
+      "response": {
+        "es": "La duración puede variar según el programa, la modalidad y el tipo de proceso.\nSi quieres, dime qué modalidad o servicio te interesa y te digo cómo suele manejarse en ese caso.\nY si necesitas la confirmación exacta, un asesor te la valida sin problema.",
+        "en": "The duration can vary depending on the program, modality and type of process.\nIf you want, tell me which modality or service you are considering and I’ll tell you how it is usually handled there.\nAnd if you need the exact confirmation, an advisor can validate it."
+      }
+    },
+    {
+      "id": "faq_beginners",
+      "category": "faq",
+      "suggestionLabel": {
+        "es": "principiantes",
+        "en": "beginners"
+      },
+      "patterns": {
+        "es": [
+          "reciben principiantes",
+          "soy principiante",
+          "es para principiantes",
+          "nunca he visto",
+          "nunca ha visto clases",
+          "sin experiencia"
+        ],
+        "en": [
+          "do you accept beginners",
+          "i am a beginner",
+          "for beginners",
+          "no experience",
+          "never taken classes"
+        ]
+      },
+      "response": {
+        "es": "Sí, claro 🌟\nMusicala acompaña procesos desde niveles iniciales y también desde metas más avanzadas.\nLa idea es adaptarlo al punto de partida del estudiante, no esperar que llegue sabiendo.",
+        "en": "Yes, absolutely 🌟\nMusicala supports people from beginner levels and also from more advanced goals.\nThe idea is to adapt to the student’s starting point, not to expect previous knowledge."
+      }
+    },
+    {
+      "id": "faq_personalized_classes",
+      "category": "faq",
+      "suggestionLabel": {
+        "es": "clases personalizadas",
+        "en": "personalized classes"
+      },
+      "patterns": {
+        "es": [
+          "clases personalizadas",
+          "clase personalizada",
+          "clases individuales",
+          "clase individual",
+          "uno a uno"
+        ],
+        "en": [
+          "personalized classes",
+          "private classes",
+          "one on one classes",
+          "individual class"
+        ]
+      },
+      "response": {
+        "es": "Sí ✅ Tenemos procesos personalizados según el programa, la edad y la modalidad.\nSi quieres, te ayudo a ubicar cuál formato se acerca más a lo que estás buscando.",
+        "en": "Yes ✅ We have personalized processes depending on the program, age and modality.\nIf you want, I can help you identify which format is closest to what you need."
+      }
+    },
+    {
+      "id": "faq_group_classes",
+      "category": "faq",
+      "suggestionLabel": {
+        "es": "clases grupales",
+        "en": "group classes"
+      },
+      "patterns": {
+        "es": [
+          "clases grupales",
+          "grupales",
+          "en grupo",
+          "grupos pequeños"
+        ],
+        "en": [
+          "group classes",
+          "in group",
+          "small groups"
+        ]
+      },
+      "response": {
+        "es": "Sí 🙂 También manejamos formatos grupales en los procesos que lo permiten.\nEso suele depender de la edad, el nivel y la modalidad.\nSi me dices para quién es, te oriento con la opción más lógica.",
+        "en": "Yes 🙂 We also handle group formats where the process allows it.\nThat usually depends on age, level and modality.\nIf you tell me who it is for, I can guide you toward the most logical option."
+      }
+    },
+    {
+      "id": "faq_showcases_presentations",
+      "category": "faq",
+      "suggestionLabel": {
+        "es": "muestras y presentaciones",
+        "en": "showcases and presentations"
+      },
+      "patterns": {
+        "es": [
+          "hacen muestras",
+          "hay presentaciones",
+          "muestras",
+          "presentaciones",
+          "recitales",
+          "show final"
+        ],
+        "en": [
+          "do you do showcases",
+          "presentations",
+          "recitals",
+          "final show"
+        ]
+      },
+      "response": {
+        "es": "Sí 🎭 En Musicala también se pueden vivir muestras o presentaciones según el proceso y la dinámica del programa.\nEso no funciona igual en todos los casos, pero sí hace parte del tipo de experiencia que buscamos construir.",
+        "en": "Yes 🎭 Musicala can also include showcases or presentations depending on the process and the program dynamic.\nIt does not work exactly the same in every case, but it is part of the kind of experience we seek to build."
+      }
+    },
+    {
+      "id": "faq_home_how_it_works",
+      "category": "faq",
+      "suggestionLabel": {
+        "es": "cómo funciona a domicilio",
+        "en": "how at-home works"
+      },
+      "patterns": {
+        "es": [
+          "como funciona a domicilio",
+          "cómo funciona a domicilio",
+          "como es a domicilio",
+          "cómo es a domicilio",
+          "como funcionan las clases a domicilio",
+          "cómo funcionan las clases a domicilio",
+          "como manejan domicilio",
+          "cómo sería a domicilio"
+        ],
+        "en": [
+          "how does at home work",
+          "how do at home classes work",
+          "how is at home",
+          "how home classes work"
+        ]
+      },
+      "response": {
+        "es": "En modalidad a domicilio, el proceso se coordina según la zona, la disponibilidad y el objetivo del estudiante.\nLa idea es llevar el acompañamiento artístico hasta casa, pero la logística puede variar según ubicación.\nSi quieres revisar tu caso, lo ideal es confirmarlo con un asesor.",
+        "en": "For the at-home modality, the process is coordinated according to the area, availability and the student's goal.\nThe idea is to bring the artistic guidance home, but logistics can vary by location.\nIf you want to review your case, the best step is to confirm it with an advisor."
+      }
+    },
+    {
+      "id": "faq_virtual_how_it_works",
+      "category": "faq",
+      "suggestionLabel": {
+        "es": "cómo funciona virtual",
+        "en": "how virtual works"
+      },
+      "patterns": {
+        "es": [
+          "como funciona virtual",
+          "cómo funciona virtual",
+          "como son las clases virtuales",
+          "cómo son las clases virtuales",
+          "como funciona online",
+          "cómo funciona online",
+          "como manejan virtual"
+        ],
+        "en": [
+          "how does online work",
+          "how do online classes work",
+          "how virtual works",
+          "how are virtual classes"
+        ]
+      },
+      "response": {
+        "es": "En virtual, el proceso se acompaña de forma cercana y se ajusta según el arte, la edad y el objetivo del estudiante.\nLa dinámica puede variar un poco según el caso, pero sí hay seguimiento y orientación.\nSi quieres, te doy una guía general o un asesor te confirma la opción más adecuada.",
+        "en": "In the online modality, the process is guided closely and adjusted according to the art area, age and student goal.\nThe dynamic can vary a bit depending on the case, but there is guidance and follow-up.\nIf you want, I can give you a general overview or an advisor can confirm the most suitable option."
+      }
+    },
+    {
+      "id": "faq_materials_instruments",
+      "category": "faq",
+      "suggestionLabel": {
+        "es": "materiales para empezar",
+        "en": "materials to start"
+      },
+      "patterns": {
+        "es": [
+          "que materiales necesito",
+          "qué materiales necesito",
+          "que necesito para empezar",
+          "qué necesito para empezar",
+          "que instrumento necesito",
+          "qué instrumento necesito",
+          "piden materiales",
+          "se necesita instrumento"
+        ],
+        "en": [
+          "what materials do i need",
+          "what do i need to start",
+          "what instrument do i need",
+          "do i need materials",
+          "do i need an instrument"
+        ]
+      },
+      "response": {
+        "es": "Eso puede variar según el arte, la modalidad y el momento del proceso.\nEn algunos casos se puede empezar con algo básico y en otros conviene revisar materiales más específicos.\nSi me dices qué te interesa, te oriento de forma general y, para confirmarlo bien, un asesor te lo valida.",
+        "en": "That can vary depending on the art area, modality and stage of the process.\nIn some cases it is possible to start with something basic, and in others it makes sense to review more specific materials.\nIf you tell me what you are considering, I can guide you in a general way and an advisor can confirm it precisely."
+      }
+    },
+    {
+      "id": "faq_enrollment_process",
+      "category": "faq",
+      "suggestionLabel": {
+        "es": "proceso de inscripción",
+        "en": "enrollment process"
+      },
+      "patterns": {
+        "es": [
+          "como me inscribo",
+          "cómo me inscribo",
+          "como funciona la inscripcion",
+          "cómo funciona la inscripción",
+          "como es el proceso de inscripcion",
+          "cómo es el proceso de inscripción",
+          "que necesito para inscribirme",
+          "qué necesito para inscribirme"
+        ],
+        "en": [
+          "how do i enroll",
+          "how does enrollment work",
+          "enrollment process",
+          "what do i need to enroll",
+          "how to register"
+        ]
+      },
+      "response": {
+        "es": "La inscripción suele revisarse según el programa, la modalidad y la disponibilidad del momento.\nSi ya sabes qué te interesa, un asesor te puede confirmar los pasos y lo que aplique en tu caso.\nSi quieres, primero puedo ayudarte a ubicar la opción más cercana.",
+        "en": "Enrollment is usually reviewed according to the program, modality and current availability.\nIf you already know what you are interested in, an advisor can confirm the steps and what applies in your case.\nIf you want, I can first help you identify the closest option."
+      }
+    },
+    {
+      "id": "faq_change_modality",
+      "category": "faq",
+      "suggestionLabel": {
+        "es": "cambio de modalidad",
+        "en": "change modality"
+      },
+      "patterns": {
+        "es": [
+          "puedo cambiar de modalidad",
+          "se puede cambiar de modalidad",
+          "cambiar de modalidad",
+          "pasar de virtual a presencial",
+          "pasar de presencial a virtual",
+          "pasar de virtual a domicilio",
+          "cambiar de virtual a presencial"
+        ],
+        "en": [
+          "can i change modality",
+          "change modality",
+          "switch from online to on site",
+          "switch from on site to online",
+          "can i switch modality"
+        ]
+      },
+      "response": {
+        "es": "En muchos casos se puede revisar un cambio de modalidad, pero depende del proceso, la etapa del estudiante y la disponibilidad.\nSi quieres, te oriento primero de forma general y, para confirmarlo bien, lo ideal es revisarlo con un asesor.",
+        "en": "In many cases a change of modality can be reviewed, but it depends on the process, the student's stage and availability.\nIf you want, I can guide you first in a general way and, for a precise confirmation, the best route is to check it with an advisor."
+      }
+    },
+    {
+      "id": "faq_general_process",
+      "category": "faq",
+      "suggestionLabel": {
+        "es": "proceso general",
+        "en": "general process"
+      },
+      "patterns": {
+        "es": [
+          "como funciona el proceso",
+          "cómo funciona el proceso",
+          "como es el proceso",
+          "cómo es el proceso",
+          "como manejan las clases",
+          "cómo manejan las clases",
+          "tengo dudas del proceso",
+          "dudas generales"
+        ],
+        "en": [
+          "how does the process work",
+          "how is the process",
+          "how do you handle the classes",
+          "general process",
+          "general questions"
+        ]
+      },
+      "response": {
+        "es": "En general, Musicala orienta el proceso según quién tomaría las clases, qué arte les interesa y cuál modalidad les funciona mejor.\nA partir de eso se revisa la ruta más adecuada.\nSi quieres, cuéntame muy breve para quién sería y te oriento mejor, o puedes hablar con un asesor.",
+        "en": "In general, Musicala guides the process according to who would take the classes, which art area interests them and which modality fits best.\nFrom there, the most suitable route is reviewed.\nIf you want, briefly tell me who it is for and I can guide you better, or you can speak with an advisor."
+      }
+    },
+    {
+      "id": "guidance_child",
+      "category": "guidance",
+      "scoreBoost": 30,
+      "suggestionLabel": {
+        "es": "orientación para niño o niña",
+        "en": "guidance for a child"
+      },
+      "patterns": {
+        "es": [
+          "quiero algo artistico para mi hijo",
+          "quiero algo artístico para mi hijo",
+          "quiero algo artistico para mi hija",
+          "quiero algo artístico para mi hija",
+          "busco algo artistico para mi hijo",
+          "busco algo artístico para mi hijo",
+          "algo para mi hijo",
+          "algo para mi hija",
+          "algo artistico para niño",
+          "algo artístico para niño",
+          "algo artistico para niña",
+          "algo artístico para niña"
+        ],
+        "en": [
+          "i want something artistic for my child",
+          "something artistic for my son",
+          "something artistic for my daughter",
+          "something for my child"
+        ]
+      },
+      "response": {
+        "es": "Claro ✨ Si es para un niño o niña, en Musicala podemos orientar según la edad, los intereses y la modalidad, en música, danza, teatro o artes plásticas.\nSi me dices la edad aproximada y qué le llama la atención, te doy una guía breve.\nY si quieres una recomendación más precisa, un asesor puede ayudarte.",
+        "en": "Of course ✨ If it is for a child, Musicala can guide the choice according to age, interests and modality across music, dance, theatre or visual arts.\nIf you tell me the approximate age and what catches their attention, I can give you a brief orientation.\nAnd if you want a more precise recommendation, an advisor can help you."
+      }
+    },
+    {
+      "id": "guidance_teen",
+      "category": "guidance",
+      "scoreBoost": 30,
+      "suggestionLabel": {
+        "es": "orientación para adolescente",
+        "en": "guidance for a teen"
+      },
+      "patterns": {
+        "es": [
+          "quiero algo para adolescente",
+          "quiero algo para un adolescente",
+          "busco algo para adolescente",
+          "busco algo para un adolescente",
+          "algo para joven",
+          "algo para un joven",
+          "algo artistico para adolescente",
+          "algo artístico para adolescente"
+        ],
+        "en": [
+          "i want something for a teenager",
+          "something for a teen",
+          "artistic option for a teenager",
+          "something for a young person"
+        ]
+      },
+      "response": {
+        "es": "Claro ✨ Para adolescentes suele servir mirar primero qué les interesa explorar: música, danza, teatro o artes plásticas, y desde ahí revisar la modalidad más cómoda.\nSi me cuentas un poco la edad y lo que les gusta, te oriento mejor.\nY si prefieres una recomendación más puntual, un asesor puede ayudarte.",
+        "en": "Sure ✨ For teenagers it usually helps to first look at what they want to explore: music, dance, theatre or visual arts, and from there review the most comfortable modality.\nIf you tell me a bit about their age and what they like, I can guide you better.\nAnd if you prefer a more precise recommendation, an advisor can help."
+      }
+    },
+    {
+      "id": "guidance_adult_returning",
+      "category": "guidance",
+      "scoreBoost": 30,
+      "suggestionLabel": {
+        "es": "orientación para adulto",
+        "en": "guidance for an adult"
+      },
+      "patterns": {
+        "es": [
+          "busco algo para adulto",
+          "quiero algo para adulto",
+          "quiero retomar arte",
+          "quiero volver al arte",
+          "quiero retomar musica",
+          "quiero retomar música",
+          "quiero volver a la musica",
+          "quiero volver a la música"
+        ],
+        "en": [
+          "i want something for an adult",
+          "i want to return to art",
+          "i want to get back into music",
+          "adult option"
+        ]
+      },
+      "response": {
+        "es": "Sí, totalmente 🌿 En Musicala también hay procesos para adultos que quieren empezar, retomar o explorar desde otro ritmo.\nPodemos mirar áreas y modalidades según tu objetivo.\nSi quieres una recomendación más precisa, un asesor te ayuda a aterrizarlo.",
+        "en": "Yes, absolutely 🌿 Musicala also has processes for adults who want to start, return or explore at a different pace.\nWe can review areas and modalities according to your goal.\nIf you want a more precise recommendation, an advisor can help you narrow it down."
+      }
+    },
+    {
+      "id": "guidance_expression",
+      "category": "guidance",
+      "scoreBoost": 25,
+      "suggestionLabel": {
+        "es": "orientación por expresión",
+        "en": "expression guidance"
+      },
+      "patterns": {
+        "es": [
+          "quiero algo para expresarse",
+          "quiero algo para expresarme",
+          "busco algo para expresarse",
+          "busco algo para expresarme",
+          "quiero desarrollar expresion",
+          "quiero desarrollar expresión",
+          "algo para expresion",
+          "algo para expresión"
+        ],
+        "en": [
+          "i want something for expression",
+          "i want something to express myself",
+          "something creative for expression",
+          "something to express myself"
+        ]
+      },
+      "response": {
+        "es": "Qué bonito ✨ Si buscas un proceso más de expresión, creatividad y confianza, podemos orientarte entre música, danza, teatro o artes plásticas según la edad y lo que quieran explorar.\nSi me das ese contexto, te sugiero por dónde empezar.\nY si lo prefieres, un asesor también puede ayudarte a recomendar una ruta.",
+        "en": "That is lovely ✨ If you are looking for a process centered on expression, creativity and confidence, we can guide you between music, dance, theatre or visual arts according to age and what you want to explore.\nIf you give me that context, I can suggest where to start.\nAnd if you prefer, an advisor can also help recommend a path."
+      }
+    },
+    {
+      "id": "guidance_unsure_course",
+      "category": "guidance",
+      "scoreBoost": 40,
+      "suggestionLabel": {
+        "es": "orientación para elegir",
+        "en": "guidance to choose"
+      },
+      "patterns": {
+        "es": [
+          "no se que curso elegir",
+          "no sé qué curso elegir",
+          "no se cual curso escoger",
+          "no sé cuál curso escoger",
+          "no se que elegir",
+          "no sé qué elegir",
+          "no se cual escoger",
+          "no sé cuál escoger"
+        ],
+        "en": [
+          "i do not know which course to choose",
+          "i do not know what to choose",
+          "not sure what to choose",
+          "which course should i choose"
+        ]
+      },
+      "response": {
+        "es": "Claro ✨ En Musicala tenemos opciones en música, danza, teatro y artes plásticas, en distintas edades y modalidades.\nSi me cuentas para quién sería y qué les gustaría explorar, puedo orientarte mejor.\nY si prefieres una recomendación más precisa, un asesor puede ayudarte.",
+        "en": "Of course ✨ At Musicala we have options in music, dance, theatre and visual arts, across different ages and modalities.\nIf you tell me who it is for and what they would like to explore, I can guide you better.\nAnd if you prefer a more precise recommendation, an advisor can help."
+      }
+    },
+    {
+      "id": "coverage_home",
+      "patterns": {
+        "es": [
+          "zonas",
+          "zona de cobertura",
+          "cobertura",
+          "cobertura hogar",
+          "domicilio cobertura",
+          "a domicilio cobertura",
+          "hasta dónde llegan",
+          "hasta donde llegan",
+          "qué zonas manejan",
+          "que zonas manejan"
+        ],
+        "en": [
+          "coverage",
+          "coverage area",
+          "at home coverage",
+          "service area",
+          "where do you serve",
+          "do you cover my area"
+        ]
+      },
+      "response": {
+        "es": "📍 La cobertura de *Musicala Hogar* depende de la zona.\n\nAbre *Preguntas frecuentes* → *Zonas de cobertura (Hogar)* para ver el detalle.\n\nSi quieres confirmación rápida, escríbenos por WhatsApp con tu barrio/municipio ✅",
+        "en": "📍 *At home* coverage depends on your area.\n\nOpen *FAQ* → *Coverage areas (At home)* for details.\n\nFor a quick confirmation, message us on WhatsApp with your neighborhood/municipality ✅"
       }
     }
   ]

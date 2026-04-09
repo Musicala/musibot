@@ -1,0 +1,88 @@
+{
+  "name": "Musicala - Otros Servicios (módulo)",
+  "type": "botflow",
+  "version": "v3.10.7",
+  "notes": [
+    "Módulo Otros Servicios extraído del flow original.",
+    "Referencias al router: show_program_options existe en webflow_router.json.",
+    "Fix (multi-flow safe): opciones mapeadas 1:1 por índice con edges en orden estable.",
+    "Fix: se normaliza 'Menú inicial' y 'Volver al menú' a la misma salida sin ambigüedad.",
+    "Mejora UX: se agrega opción 💬 Hablar por WhatsApp (chip global) dentro del flujo."
+  ],
+  "nodes": [
+    {
+      "id": "flow_otros_servicios",
+      "name": "Otros servicios - Info + Opciones",
+      "type": "autobotAction",
+      "position": [2140, 560],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🎶 Gracias por tu interés en los servicios adicionales de Musicala 😊\n\nAquí van algunas opciones que manejamos:\n\n🏢 Alquiler de espacios\n🎻 Tienda / accesorios e instrumentos\n🤝 Alianzas empresariales\n🌍 Convenios académicos y sociales\n\nSi ya sabes cuál te interesa, lo más rápido es que nos escribas por WhatsApp y nos digas:\n1) ¿Cuál servicio necesitas?\n2) ¿Eres empresa o persona natural?\n\nTambién puedes volver al menú o pedir que un asesor te contacte 👇",
+          "options": [
+            "Menú inicial",
+            "Continuar a asesor",
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "otros_servicios_filter",
+      "name": "Otros servicios - Ruteo opciones",
+      "type": "filter",
+      "position": [2380, 560],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            { "operator": "contains", "value": "Continuar", "targetNodeId": "flow_otros_asesor" },
+            { "operator": "contains", "value": "Menú", "targetNodeId": "show_program_options" },
+            { "operator": "contains", "value": "Volver", "targetNodeId": "show_program_options" }
+          ],
+          "filterDefaultCondition": { "targetNodeId": "show_program_options" }
+        }
+      }
+    },
+    {
+      "id": "flow_otros_asesor",
+      "name": "Otros servicios - Continuar a asesor",
+      "type": "autobotAction",
+      "position": [2400, 720],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "✅ Listo 😊 Ya tenemos tus datos.\n\nEn un momento uno de los nuestros te contactará.\n\nSi quieres ir más rápido, escríbenos por WhatsApp y dinos qué servicio necesitas (y si eres empresa o persona natural) 📲",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    }
+  ],
+  "connections": [
+    { "source": "flow_otros_servicios", "target": "otros_servicios_filter" },
+    { "source": "flow_otros_servicios", "target": "otros_servicios_filter" },
+    { "source": "flow_otros_servicios", "target": "show_program_options" },
+    { "source": "flow_otros_servicios", "target": "otros_servicios_filter" },
+
+    { "source": "otros_servicios_filter", "target": "show_program_options" },
+    { "source": "otros_servicios_filter", "target": "flow_otros_asesor" },
+
+    { "source": "flow_otros_asesor", "target": "show_program_options" },
+    { "source": "flow_otros_asesor", "target": "show_program_options" }
+  ]
+}

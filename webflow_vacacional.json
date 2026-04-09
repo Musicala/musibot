@@ -1,0 +1,957 @@
+{
+  "name": "Musicala - Vacacionales (módulo)",
+  "type": "botflow",
+  "version": "v3.11.2",
+  "notes": [
+    "Módulo Vacacionales extraído del flow original.",
+    "Referencias al router: show_program_options y return_to_menu_filter existen en webflow_router.json.",
+    "Fix: Evita loops por case-sensitive en filters usando fragments estables con mayúscula: 'Volver', 'Vacaciones', 'Intensivos', 'Hogar', 'Virtual'.",
+    "Fix: Vacaciones Artísticas ahora es un flujo por pasos con botones (Ver precios -> Inscripción -> Formulario -> Confirmación).",
+    "Fix: Intensivos ARTE (Música/Danza/Teatro/Artes Plásticas) avanza robusto y guarda memoria (edad/arte/modalidad).",
+    "Fix: Modalidad Hogar/Virtual rutean correctamente a sus flows.",
+    "Fix (ruteo multi-flow): todos los nodos filter tienen conexiones salientes hacia TODOS los targetNodeId usados en conditions y default.",
+    "Mejora UX: Se agrega opción 💬 Hablar por WhatsApp (chip global) dentro del flujo en puntos clave.",
+    "Hardening: Conexiones 1:1 por opción en todos los nodos con botones para evitar mismatch por índice."
+  ],
+  "nodes": [
+    {
+      "id": "flow_vacacionales",
+      "name": "Vacacionales - Info + Elegir edad",
+      "type": "autobotAction",
+      "position": [
+        2140,
+        0
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🎶❄️ ¡Estas vacaciones vive el arte en Musicala! 🎭🎨💃\n\nDel 13 de enero al 6 de febrero disfruta una experiencia artística con música, danza, teatro y artes plásticas.\n\n📍 Modalidades disponibles:\n🏫 En nuestra sede (Pasadena)\n🏠 A domicilio\n💻 Virtual en vivo\n\n👥 Grupos de 2 a 6 personas\n👤 Clases personalizadas\n🕐 Duración: 60 minutos\n⏰ Horarios flexibles\n\n🎟️ Cupos limitados\n👇 Cuéntanos la edad del estudiante y te damos la info ideal 😊",
+          "options": [
+            "1 a 3",
+            "4 a 6",
+            "7 a 11",
+            "12 a 15",
+            "16 a 40",
+            "40 en adelante",
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "vacacionales_age_filter",
+      "name": "Vacacionales - Guardar edad + Ruteo",
+      "type": "filter",
+      "position": [
+        2380,
+        0
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "4 a 6",
+              "targetNodeId": "vacacionales_4a15_offer",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "7 a 11",
+              "targetNodeId": "vacacionales_4a15_offer",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "12 a 15",
+              "targetNodeId": "vacacionales_4a15_offer",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "1 a 3",
+              "targetNodeId": "vacacionales_age_common_gate",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "16 a 40",
+              "targetNodeId": "vacacionales_age_common_gate",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "40 en adelante",
+              "targetNodeId": "vacacionales_age_common_gate",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "flow_vacacionales"
+          }
+        }
+      }
+    },
+    {
+      "id": "vacacionales_age_common_gate",
+      "name": "Vacacionales (1-3 / 16-40 / 40+) - Gate común (mismo flujo)",
+      "type": "filter",
+      "position": [
+        2620,
+        -120
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "vacacionales_intensivos_msg"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "vacacionales_intensivos_msg"
+          }
+        }
+      }
+    },
+    {
+      "id": "vacacionales_4a15_offer",
+      "name": "Vacacionales (4-15) - Mostrar 2 opciones",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        0
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "📚✨ Para esta edad tenemos dos caminos buenísimos 😊\n\n👧🧒 *Vacaciones Artísticas*\n4 horas diarias de arte en la mañana (lun a vie), con actividades de música, danza, teatro y artes plásticas.\n\n🎯 *Cursos Intensivos*\nClases enfocadas en una disciplina (música, danza, teatro o artes plásticas), con horarios flexibles y descuentos de temporada 💸\n\n¿Cuál te interesa más?",
+          "options": [
+            "Vacaciones Artísticas",
+            "Cursos Intensivos",
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "vacacionales_4a15_offer_filter",
+      "name": "Vacacionales (4-15) - Guardar elección",
+      "type": "filter",
+      "position": [
+        2860,
+        0
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Vacaciones",
+              "targetNodeId": "flow_vacaciones_artisticas",
+              "storeResponseInMemory": true,
+              "labelInMemory": "vacacionales_tipo"
+            },
+            {
+              "operator": "contains",
+              "value": "Intensivos",
+              "targetNodeId": "intensivos_age_gate",
+              "storeResponseInMemory": true,
+              "labelInMemory": "vacacionales_tipo"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "vacacionales_4a15_offer"
+          }
+        }
+      }
+    },
+    {
+      "id": "flow_vacaciones_artisticas",
+      "name": "Vacaciones Artísticas - Paso 1 (Resumen)",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        -140
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🎨🎶🕺🤝 *Vacaciones Artísticas en Musicala*\n\nDurante estas semanas, niños y niñas de *4 a 15 años* viven una experiencia creativa en jornadas de *4 horas cada mañana (9:00 a.m. a 1:00 p.m.)*:\n\n🎨 *Artes Plásticas:* pintura, escultura y manualidades\n🎶 *Música:* juegos rítmicos, melodías y creación\n💃 *Baile y Teatro:* expresión corporal y confianza\n🤝 *Trabajo en equipo:* compañerismo y colaboración\n\nCuando quieras, te muestro los planes 👇",
+          "options": [
+            "Ver precios",
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "vac_art_precios",
+      "name": "Vacaciones Artísticas - Paso 2 (Precios)",
+      "type": "autobotAction",
+      "position": [
+        3340,
+        -140
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "🎟️ Estos son los planes disponibles para la *Semana de Vacaciones Artísticas*:\n\n✨ *Plan de 16 horas:* *$424.000*\n✨ *Plan de 20 horas:* *$478.000*\n\n💡 Tenemos descuentos si se inscriben hermanitos, primos o referidos 💕\nY si deseas tomar más de una semana, también hay beneficio por continuidad 🫶\n\n🎨 Grupos por edades:\n👶 *Musicalitos* (4 a 6)\n🧒 *Musikids* (7 a 11)\n👦 *Musiteens* (12 a 15)\n\nSi quieres, te paso el paso a paso para asegurar el cupo 👇",
+          "options": [
+            "Paso a paso inscripción",
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "vac_art_inscripcion",
+      "name": "Vacaciones Artísticas - Paso 3 (Paso a paso)",
+      "type": "autobotAction",
+      "position": [
+        3580,
+        -140
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "📝 *¡Ya casi están dentro!* Para finalizar la inscripción:\n\n1️⃣ Completar el formulario con los datos del estudiante.\n2️⃣ Realizar el pago del plan elegido y enviarnos el comprobante por este mismo medio 💳\n\nCon eso aseguramos el cupo 🎉\n\n¿Quieres que te envíe el formulario ahora o prefieres hablar con un asesor? 👇",
+          "options": [
+            "Enviar formulario",
+            "Hablar con asesor",
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "vac_art_formulario",
+      "name": "Vacaciones Artísticas - Paso 4 (Formulario)",
+      "type": "autobotAction",
+      "position": [
+        3820,
+        -140
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "✨ Aquí tienes el formulario de inscripción:\n👉 https://docs.google.com/forms/d/e/1FAIpQLSecZ_FpjAvMewItcek5N2Hc2QFhTNlS4CdmNSb3T4q4xnQxmQ/viewform\n\nCuando lo completes, regresa y me dices para seguir con el pago 🎟️💳",
+          "options": [
+            "Ya lo llené",
+            "Hablar con asesor",
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "vac_art_formulario_filter",
+      "name": "Vacaciones Artísticas - Confirmación post-formulario",
+      "type": "filter",
+      "position": [
+        4060,
+        -140
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Ya lo llené",
+              "targetNodeId": "vac_art_cierre_final"
+            },
+            {
+              "operator": "contains",
+              "value": "asesor",
+              "targetNodeId": "vac_art_cierre_final"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "vac_art_cierre_final"
+          }
+        }
+      }
+    },
+    {
+      "id": "vac_art_cierre_final",
+      "name": "Vacaciones Artísticas - Cierre (Final FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [
+        4300,
+        -140
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "💬 ¡Súper! Ya estás a un pasito de vivir una experiencia llena de arte y diversión con Musicala 🎨🎭🎶\n\nAntes de hablar con nuestro equipo humano 🎧✨, te invitamos a explorar nuestras Preguntas Frecuentes. Allí encontrarás información clave sobre horarios, precios, modalidades y mucho más.\n\n🧐 Revisa todo con calma, y cuando estés listo para dar el siguiente paso, también puedes escribirnos por WhatsApp.\n\n🌟 ¡Gracias por confiar en Musicala! Aquí empieza una aventura artística inolvidable 💃🎹🎨",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "intensivos_age_gate",
+      "name": "Intensivos - Repreguntar edad (4-6/7-11/12-15)",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        0
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "Perfecto 🎯 Para darte la info más precisa de los Cursos Intensivos, ¿en cuál rango de edad está el estudiante?",
+          "options": [
+            "4 a 6",
+            "7 a 11",
+            "12 a 15",
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "intensivos_age_gate_filter",
+      "name": "Intensivos - Guardar edad + Continuar a elegir ARTE",
+      "type": "filter",
+      "position": [
+        3340,
+        0
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "4 a 6",
+              "targetNodeId": "vacacionales_intensivos_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "7 a 11",
+              "targetNodeId": "vacacionales_intensivos_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "12 a 15",
+              "targetNodeId": "vacacionales_intensivos_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "edad"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "intensivos_age_gate"
+          }
+        }
+      }
+    },
+    {
+      "id": "vacacionales_intensivos_msg",
+      "name": "Intensivos - Elegir ARTE (flujo único común)",
+      "type": "autobotAction",
+      "position": [
+        2620,
+        180
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "💥 Cursos Intensivos Musicala 🎶\n\nUna opción perfecta para aprender, avanzar o retomar lo que más te apasiona: música, danza, artes plásticas o teatro 🎭✨\n\nHorarios flexibles, clases personalizadas o en grupos pequeños, y descuentos de temporada 💸\n\n🎯 ¿Qué te gustaría aprender?",
+          "options": [
+            "🎶 Música",
+            "💃 Danza",
+            "🎭 Teatro",
+            "🖌️ Artes Plásticas",
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "vacacionales_intensivos_filter",
+      "name": "Intensivos - Guardar ARTE + ir a Modalidad (con imagen precios)",
+      "type": "filter",
+      "position": [
+        2860,
+        180
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "always",
+              "value": "*",
+              "targetNodeId": "intensivos_modalidad_msg",
+              "storeResponseInMemory": true,
+              "labelInMemory": "arte"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "intensivos_modalidad_msg",
+            "storeResponseInMemory": true,
+            "labelInMemory": "arte"
+          }
+        }
+      }
+    },
+    {
+      "id": "intensivos_modalidad_msg",
+      "name": "Intensivos - Imagen precios + Elegir modalidad",
+      "type": "autobotAction",
+      "position": [
+        3100,
+        180
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/intensivos.png"
+            }
+          ],
+          "textMessage": "🌟 Perfecto. ¿En cuál modalidad te gustaría tomar las clases?\n\n🏫 En nuestra sede (Pasadena, Bogotá)\n🏠 Musicala Hogar (clases personalizadas en tu casa)\n💻 Virtual en tiempo real (desde cualquier lugar)",
+          "options": [
+            "🏫 En sede",
+            "🏠 Musicala Hogar",
+            "💻 Virtual",
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "intensivos_modalidad_filter",
+      "name": "Intensivos - Guardar modalidad + ruteo",
+      "type": "filter",
+      "position": [
+        3340,
+        180
+      ],
+      "parameters": {
+        "options": {
+          "filterConditions": [
+            {
+              "operator": "contains",
+              "value": "sede",
+              "targetNodeId": "flow_intensivos_sede",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "Hogar",
+              "targetNodeId": "flow_intensivos_hogar",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "Virtual",
+              "targetNodeId": "flow_intensivos_virtual",
+              "storeResponseInMemory": true,
+              "labelInMemory": "modalidad"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
+          ],
+          "filterDefaultCondition": {
+            "targetNodeId": "intensivos_modalidad_msg"
+          }
+        }
+      }
+    },
+    {
+      "id": "flow_intensivos_sede",
+      "name": "Intensivos - Sede (FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [
+        3580,
+        120
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "💬 ¡Súper! Ya estás a un pasito de vivir una experiencia llena de arte y diversión con Musicala 🎨🎭🎶\n\nAntes de hablar con nuestro equipo humano 🎧✨, te invitamos a explorar nuestras Preguntas Frecuentes. Allí encontrarás información clave sobre horarios, precios, modalidades y mucho más.\n\n🧐 Revisa todo con calma, y cuando estés listo para dar el siguiente paso, también puedes escribirnos por WhatsApp.\n\n🌟 ¡Gracias por confiar en Musicala! Aquí empieza una aventura artística inolvidable 💃🎹🎨",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "flow_intensivos_hogar",
+      "name": "Intensivos - Hogar (Final FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [
+        3580,
+        180
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "💬 ¡Súper! Ya estás a un pasito de vivir una experiencia llena de arte y diversión con Musicala 🎨🎭🎶\n\nAntes de hablar con nuestro equipo humano 🎧✨, te invitamos a explorar nuestras Preguntas Frecuentes. Allí encontrarás información clave sobre horarios, precios, modalidades y mucho más.\n\n🧐 Revisa todo con calma, y cuando estés listo para dar el siguiente paso, también puedes escribirnos por WhatsApp.\n\n🌟 ¡Gracias por confiar en Musicala! Aquí empieza una aventura artística inolvidable 💃🎹🎨",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    },
+    {
+      "id": "flow_intensivos_virtual",
+      "name": "Intensivos - Virtual (Final FAQ + WhatsApp)",
+      "type": "autobotAction",
+      "position": [
+        3580,
+        240
+      ],
+      "parameters": {
+        "options": {
+          "allowFreeText": false,
+          "textMessage": "💬 ¡Súper! Ya estás a un pasito de vivir una experiencia llena de arte y diversión con Musicala 🎨🎭🎶\n\nAntes de hablar con nuestro equipo humano 🎧✨, te invitamos a explorar nuestras Preguntas Frecuentes. Allí encontrarás información clave sobre horarios, precios, modalidades y mucho más.\n\n🧐 Revisa todo con calma, y cuando estés listo para dar el siguiente paso, también puedes escribirnos por WhatsApp.\n\n🌟 ¡Gracias por confiar en Musicala! Aquí empieza una aventura artística inolvidable 💃🎹🎨",
+          "options": [
+            {
+              "label": "💬 Hablar por WhatsApp",
+              "value": "WHATSAPP",
+              "kind": "global:WHATSAPP"
+            },
+            "Volver al menú"
+          ],
+          "waitResponse": true,
+          "typeMessage": "text"
+        }
+      }
+    }
+  ],
+  "connections": [
+    {
+      "source": "flow_vacacionales",
+      "target": "vacacionales_age_filter"
+    },
+    {
+      "source": "flow_vacacionales",
+      "target": "vacacionales_age_filter"
+    },
+    {
+      "source": "flow_vacacionales",
+      "target": "vacacionales_age_filter"
+    },
+    {
+      "source": "flow_vacacionales",
+      "target": "vacacionales_age_filter"
+    },
+    {
+      "source": "flow_vacacionales",
+      "target": "vacacionales_age_filter"
+    },
+    {
+      "source": "flow_vacacionales",
+      "target": "vacacionales_age_filter"
+    },
+    {
+      "source": "flow_vacacionales",
+      "target": "show_program_options"
+    },
+    {
+      "source": "flow_vacacionales",
+      "target": "vacacionales_age_filter"
+    },
+    {
+      "source": "vacacionales_age_filter",
+      "target": "vacacionales_4a15_offer"
+    },
+    {
+      "source": "vacacionales_age_filter",
+      "target": "vacacionales_age_common_gate"
+    },
+    {
+      "source": "vacacionales_age_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "vacacionales_age_filter",
+      "target": "flow_vacacionales"
+    },
+    {
+      "source": "vacacionales_age_common_gate",
+      "target": "vacacionales_intensivos_msg"
+    },
+    {
+      "source": "vacacionales_4a15_offer",
+      "target": "vacacionales_4a15_offer_filter"
+    },
+    {
+      "source": "vacacionales_4a15_offer",
+      "target": "vacacionales_4a15_offer_filter"
+    },
+    {
+      "source": "vacacionales_4a15_offer",
+      "target": "show_program_options"
+    },
+    {
+      "source": "vacacionales_4a15_offer",
+      "target": "vacacionales_4a15_offer_filter"
+    },
+    {
+      "source": "vacacionales_4a15_offer_filter",
+      "target": "flow_vacaciones_artisticas"
+    },
+    {
+      "source": "vacacionales_4a15_offer_filter",
+      "target": "intensivos_age_gate"
+    },
+    {
+      "source": "vacacionales_4a15_offer_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "vacacionales_4a15_offer_filter",
+      "target": "vacacionales_4a15_offer"
+    },
+    {
+      "source": "flow_vacaciones_artisticas",
+      "target": "vac_art_precios"
+    },
+    {
+      "source": "flow_vacaciones_artisticas",
+      "target": "show_program_options"
+    },
+    {
+      "source": "flow_vacaciones_artisticas",
+      "target": "show_program_options"
+    },
+    {
+      "source": "vac_art_precios",
+      "target": "vac_art_inscripcion"
+    },
+    {
+      "source": "vac_art_precios",
+      "target": "show_program_options"
+    },
+    {
+      "source": "vac_art_precios",
+      "target": "show_program_options"
+    },
+    {
+      "source": "vac_art_inscripcion",
+      "target": "vac_art_formulario"
+    },
+    {
+      "source": "vac_art_inscripcion",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "vac_art_inscripcion",
+      "target": "show_program_options"
+    },
+    {
+      "source": "vac_art_inscripcion",
+      "target": "show_program_options"
+    },
+    {
+      "source": "vac_art_formulario",
+      "target": "vac_art_formulario_filter"
+    },
+    {
+      "source": "vac_art_formulario",
+      "target": "vac_art_formulario_filter"
+    },
+    {
+      "source": "vac_art_formulario",
+      "target": "show_program_options"
+    },
+    {
+      "source": "vac_art_formulario",
+      "target": "vac_art_formulario_filter"
+    },
+    {
+      "source": "intensivos_age_gate",
+      "target": "intensivos_age_gate_filter"
+    },
+    {
+      "source": "intensivos_age_gate",
+      "target": "intensivos_age_gate_filter"
+    },
+    {
+      "source": "intensivos_age_gate",
+      "target": "intensivos_age_gate_filter"
+    },
+    {
+      "source": "intensivos_age_gate",
+      "target": "show_program_options"
+    },
+    {
+      "source": "intensivos_age_gate",
+      "target": "intensivos_age_gate_filter"
+    },
+    {
+      "source": "intensivos_age_gate_filter",
+      "target": "vacacionales_intensivos_msg"
+    },
+    {
+      "source": "intensivos_age_gate_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "intensivos_age_gate_filter",
+      "target": "intensivos_age_gate"
+    },
+    {
+      "source": "vacacionales_intensivos_msg",
+      "target": "vacacionales_intensivos_filter"
+    },
+    {
+      "source": "vacacionales_intensivos_msg",
+      "target": "vacacionales_intensivos_filter"
+    },
+    {
+      "source": "vacacionales_intensivos_msg",
+      "target": "vacacionales_intensivos_filter"
+    },
+    {
+      "source": "vacacionales_intensivos_msg",
+      "target": "vacacionales_intensivos_filter"
+    },
+    {
+      "source": "vacacionales_intensivos_msg",
+      "target": "show_program_options"
+    },
+    {
+      "source": "vacacionales_intensivos_msg",
+      "target": "vacacionales_intensivos_filter"
+    },
+    {
+      "source": "vacacionales_intensivos_filter",
+      "target": "intensivos_modalidad_msg"
+    },
+    {
+      "source": "vacacionales_intensivos_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "intensivos_modalidad_msg",
+      "target": "intensivos_modalidad_filter"
+    },
+    {
+      "source": "intensivos_modalidad_msg",
+      "target": "intensivos_modalidad_filter"
+    },
+    {
+      "source": "intensivos_modalidad_msg",
+      "target": "intensivos_modalidad_filter"
+    },
+    {
+      "source": "intensivos_modalidad_msg",
+      "target": "show_program_options"
+    },
+    {
+      "source": "intensivos_modalidad_msg",
+      "target": "intensivos_modalidad_filter"
+    },
+    {
+      "source": "intensivos_modalidad_filter",
+      "target": "flow_intensivos_sede"
+    },
+    {
+      "source": "intensivos_modalidad_filter",
+      "target": "flow_intensivos_hogar"
+    },
+    {
+      "source": "intensivos_modalidad_filter",
+      "target": "flow_intensivos_virtual"
+    },
+    {
+      "source": "intensivos_modalidad_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "intensivos_modalidad_filter",
+      "target": "intensivos_modalidad_msg"
+    },
+    {
+      "source": "flow_intensivos_sede",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "flow_intensivos_sede",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "flow_intensivos_hogar",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "flow_intensivos_hogar",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "flow_intensivos_hogar",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "flow_intensivos_hogar",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "flow_intensivos_virtual",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "flow_intensivos_virtual",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "flow_intensivos_virtual",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "flow_intensivos_virtual",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "vac_art_formulario_filter",
+      "target": "vac_art_cierre_final"
+    },
+    {
+      "source": "vac_art_formulario_filter",
+      "target": "vac_art_cierre_final"
+    },
+    {
+      "source": "vac_art_formulario_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "vac_art_cierre_final",
+      "target": "return_to_menu_filter"
+    },
+    {
+      "source": "vac_art_cierre_final",
+      "target": "return_to_menu_filter"
+    }
+  ]
+}

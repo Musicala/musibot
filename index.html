@@ -2,17 +2,32 @@
 <html lang="es" data-lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0C41C4" />
+  <meta name="color-scheme" content="light" />
   <title>MusiBot — Musicala</title>
 
-  <!-- SEO / Share (light) -->
+  <!-- SEO -->
   <meta name="description" content="MusiBot: asistente de Musicala para resolver dudas sobre clases, horarios, servicios y más." />
+  <meta name="robots" content="index,follow" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="MusiBot — Musicala" />
+  <meta property="og:description" content="Asistente de Musicala para resolver dudas sobre clases, horarios, servicios y más." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_CO" />
+  <!-- Si tienen una imagen social, pónganla aquí -->
+  <!-- <meta property="og:image" content="https://www.tudominio.com/assets/og-musibot.png" /> -->
+
+  <!-- Icons -->
+  <link rel="icon" href="./assets/logo.png" />
+  <link rel="apple-touch-icon" href="./assets/logo.png" />
 
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Styles -->
   <link rel="stylesheet" href="./styles.css" />
@@ -21,15 +36,36 @@
   <link rel="preload" as="image" href="./assets/logo.png" />
   <link rel="preload" as="video" href="./assets/saludo.mp4" type="video/mp4" />
 
-  <!-- Respect reduced motion (sin tocar JS) -->
+  <!-- Respect reduced motion + A11y utilities -->
   <style>
     @media (prefers-reduced-motion: reduce) {
       .intro-video { animation: none !important; }
+      * { scroll-behavior: auto !important; }
+    }
+    .skip-link{
+      position:absolute;
+      left:-9999px;
+      top:auto;
+      width:1px;height:1px;
+      overflow:hidden;
+    }
+    .skip-link:focus{
+      left:12px; top:12px;
+      width:auto;height:auto;
+      padding:10px 12px;
+      background:#fff;
+      border:1px solid rgba(11,16,32,.14);
+      border-radius:10px;
+      box-shadow:0 12px 26px rgba(11,16,32,.12);
+      z-index:9999;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     }
   </style>
 </head>
 
 <body>
+  <a class="skip-link" href="#chat">Saltar al chat</a>
+
   <noscript>
     <div style="max-width:960px;margin:16px auto;padding:14px 16px;border:1px solid #e6e8f0;border-radius:12px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;">
       <strong>Este sitio necesita JavaScript</strong>
@@ -44,14 +80,22 @@
   ========================== -->
   <header class="topbar" role="banner">
     <div class="brand" aria-label="Marca MusiBot Musicala">
-      <img src="./assets/logo.png" alt="Musicala" class="brand-logo" />
+      <img
+        src="./assets/logo.png"
+        alt="Musicala"
+        class="brand-logo"
+        decoding="async"
+        loading="eager"
+        width="40"
+        height="40"
+      />
       <div class="brand-meta">
         <div class="brand-title">MusiBot</div>
         <div class="brand-sub" data-i18n="brandSub">Asistente • Musicala</div>
       </div>
     </div>
 
-    <div class="topbar-actions">
+    <div class="topbar-actions" aria-label="Acciones principales">
       <!-- Language switch (se oculta al inicio: idioma se elige en intro) -->
       <div class="lang-switch is-hidden" id="langSwitchTop" aria-label="Selector de idioma">
         <span class="lang-label" data-i18n="language">Idioma</span>
@@ -63,7 +107,18 @@
         </button>
       </div>
 
-      <a class="wa-btn" id="waBtn" href="#" target="_blank" rel="noopener" aria-label="Abrir WhatsApp">
+      <!-- WhatsApp TOP: SIEMPRE visible y SIEMPRE activo (salida libre) -->
+      <a
+        class="wa-btn"
+        id="waBtnTop"
+        href="#"
+        target="_blank"
+        rel="noopener"
+        aria-label="Abrir WhatsApp"
+        data-wa-mode="top"
+        data-wa-text-es="Hola 😊 Quiero hablar con un asesor de Musicala."
+        data-wa-text-en="Hi 😊 I’d like to talk to a Musicala advisor."
+      >
         <span class="wa-ic" aria-hidden="true">💬</span>
         <span class="wa-tx">WhatsApp</span>
       </a>
@@ -91,17 +146,27 @@
         id="chat"
         role="log"
         aria-live="polite"
+        aria-atomic="false"
         aria-relevant="additions text"
         aria-label="Historial del chat"
+        tabindex="-1"
       ></div>
 
       <!-- Composer -->
       <div class="composer" aria-label="Escritura de mensajes">
+        <div class="quick-picker" id="quickPickerWrap" hidden>
+          <select class="quick-select" id="quickPicker" aria-label="Elegir una opción rápida">
+            <option value="">Elige una opción...</option>
+          </select>
+        </div>
         <!-- Quick chips -->
         <div class="chips" id="quick" aria-label="Opciones rápidas"></div>
 
         <!-- Input -->
         <form class="inputbar" id="form" autocomplete="off" aria-label="Enviar mensaje">
+          <label for="input" class="sr-only" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;">
+            Escribe tu mensaje
+          </label>
           <input
             id="input"
             type="text"
@@ -110,6 +175,7 @@
             placeholder="Escribe aquí..."
             autocomplete="off"
             autocapitalize="sentences"
+            autocorrect="on"
             spellcheck="true"
             inputmode="text"
             enterkeyhint="send"
@@ -178,14 +244,13 @@
         <details class="help-collapsible faq-collapsible" id="faqDetails">
           <summary data-i18n="faqTitle">Preguntas frecuentes</summary>
 
-          <!-- Nota: esto lo traduces con ui.js (o lo dejas ES por ahora) -->
           <div class="faq-body" id="faqBody">
             <div class="faq-item">
               <strong>¿Qué horarios manejan?</strong>
               <div>
                 Depende de la modalidad:
-                <br>• Personalizado: lunes a viernes 10:00 a.m. – 8:00 p.m.; sábados 8:00 a.m. – 5:00 p.m.
-                <br>• Grupales (en sede): entre semana desde las 5:00 p.m.; sábados jornada mañana y tarde.
+                <br />• Personalizado: lunes a viernes 10:00 a.m. – 8:00 p.m.; sábados 8:00 a.m. – 5:00 p.m.
+                <br />• Grupales (en sede): entre semana desde las 5:00 p.m.; sábados jornada mañana y tarde.
               </div>
             </div>
 
@@ -252,7 +317,7 @@
         autoplay
         preload="auto"
       >
-        <source src="./assets/saludo.mp4" type="video/mp4">
+        <source src="./assets/saludo.mp4" type="video/mp4" />
         <span data-i18n="videoNotSupported">Tu navegador no soporta video.</span>
       </video>
 
@@ -293,11 +358,14 @@
           </button>
         </div>
       </div>
+
+      <!-- fallback si autoplay falla: tu JS puede mostrar #introText y listo -->
     </div>
   </div>
 
   <!-- =========================
        SCRIPTS (ES MODULES)
+       Nota: module es defer por defecto, así que no bloquea el render.
   ========================== -->
   <script type="module" src="./js/main.js"></script>
 </body>
