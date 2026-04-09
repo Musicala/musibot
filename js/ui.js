@@ -1,25 +1,23 @@
-// ui.js (v5.9)
+// ui.js (v6.3.0)
 // ============================
 // Render de interfaz (chat + chips del FLOW + gate de idioma)
+//
 // Objetivo 2026:
-// ✅ Abajo SOLO hay chips del flujo. Nada de FAQ/Inicio/Reiniciar/WhatsApp.
-// ✅ Idioma: gate con chips ui:lang (value: "es" | "en") que sí dispara acción en main.js.
+// ✅ Abajo SOLO hay chips del flujo. Nada de FAQ/Inicio/Reiniciar/WhatsApp “manual”.
+// ✅ Idioma: gate con chips ui:lang (value: "es" | "en") que dispara acción en main.js.
 // ✅ ComposerMode automático (text vs chips) basado en último botMsg y/o msg._flow.allowFreeText.
 // ✅ Mejor manejo teclado móvil: al enviar o tocar chip, se cierra teclado y se mantiene visible el chat.
-// ✅ Soporte de media robusto (audio/image/video/link) + estados (loading/error).
+// ✅ Soporte media robusto (audio/image/video/link) + estados (loading/error).
 // ✅ Autoplay "best effort": intenta reproducir audio al renderizar;
-//    si el navegador bloquea, se reproduce automáticamente en la primera interacción del usuario.
-// ✅ v5.7:
-//    - Si un mensaje trae IMAGEN (y NO trae audio/video), renderiza IMAGEN primero y luego TEXTO.
-//    - Imágenes más pequeñas (maxWidth/maxHeight) para que no se coman el chat.
-// ✅ v5.8:
-//    - FAQ en acordeón: se abre/cierra y solo una abierta a la vez.
-//    - FAQ soporta *negrita* _cursiva_ y saltos de línea.
-// ✅ v5.9:
-//    - FAQ soporta directiva @img:URL (renderiza imagen, no texto).
-//    - Soporte opcional @link:URL|Texto (renderiza link bonito).
-//    - Sanitización mínima de URLs en FAQ para evitar rutas raras.
-// ✅ Sin lógica de negocio: solo UI.
+//    si el navegador bloquea, se reproduce en la primera interacción del usuario.
+//
+// Mejoras clave v6.3.0:
+// ✅ FIX: en captura de nombre/teléfono, si no vienen options, se renderiza fallback estable:
+//    "Prefiero no dejarlo" / "Prefer not to share"
+// ✅ FIX: si options vienen como strings u objetos, se normalizan igual.
+// ✅ FIX: heurística de composer mode más robusta durante captura.
+// ✅ MEJORA: filtro WhatsApp más defensivo.
+// ✅ MEJORA: render de media y links más tolerante.
 // ============================
 
 /* =========================
@@ -27,6 +25,9 @@
 ========================= */
 const $chat   = document.getElementById("chat");
 const $quick  = document.getElementById("quick");
+const $composer = document.querySelector(".composer");
+const $quickPickerWrap = document.getElementById("quickPickerWrap");
+const $quickPicker = document.getElementById("quickPicker");
 const $form   = document.getElementById("form");
 const $input  = document.getElementById("input");
 const $submit = $form ? $form.querySelector('button[type="submit"]') : null;
@@ -36,13 +37,13 @@ const $faqBody  = document.getElementById("faqBody");
 
 // Placeholder original
 const DEFAULT_PLACEHOLDER = $input ? ($input.getAttribute("placeholder") || "") : "";
+let LAST_QUICK_OPTIONS = [];
 
 /* =========================
    AUTOPLAY STATE
 ========================= */
-// Para no intentar autoplay infinitamente al re-renderizar historial.
-const AUTO_PLAYED = new Set(); // urls ya reproducidas o intentadas
-let PENDING_AUTOPLAY = null;   // { audioEl, url, statusEl, buttonEl }
+const AUTO_PLAYED = new Set();
+let PENDING_AUTOPLAY = null; // { audioEl, url, statusEl, buttonEl }
 
 function armAutoplayOnFirstUserGesture() {
   if (armAutoplayOnFirstUserGesture._armed) return;
@@ -60,7 +61,7 @@ function armAutoplayOnFirstUserGesture() {
       PENDING_AUTOPLAY = null;
       AUTO_PLAYED.add(url);
     } catch {
-      // Si falla incluso con gesto, queda el botón/control nativo
+      // si falla incluso con gesto, queda el control nativo
     }
   };
 
@@ -76,16 +77,17 @@ export function setComposerMode(mode = "chips") {
   const allowText = mode === "text";
 
   if ($input) {
-    $input.disabled = !allowText;
+    // El compositor permanece escribible siempre; el modo solo cambia la guia visual.
+    $input.disabled = false;
 
     if (!allowText) {
       $input.setAttribute("placeholder", getBlockedPlaceholder());
-    } else {
-      if (DEFAULT_PLACEHOLDER) $input.setAttribute("placeholder", DEFAULT_PLACEHOLDER);
+    } else if (DEFAULT_PLACEHOLDER) {
+      $input.setAttribute("placeholder", DEFAULT_PLACEHOLDER);
     }
   }
 
-  if ($submit) $submit.disabled = !allowText;
+  if ($submit) $submit.disabled = false;
 
   if (allowText) focusInput();
 }
@@ -93,18 +95,24 @@ export function setComposerMode(mode = "chips") {
 /* =========================
    HELPERS UI
 ========================= */
+let _scrollT = null;
+
 export function scrollToBottom(smooth = true) {
   if (!$chat) return;
-  try {
-    const top = $chat.scrollHeight;
-    if (smooth && typeof $chat.scrollTo === "function") {
-      $chat.scrollTo({ top, behavior: "smooth" });
-    } else {
-      $chat.scrollTop = top;
+
+  if (_scrollT) cancelAnimationFrame(_scrollT);
+  _scrollT = requestAnimationFrame(() => {
+    try {
+      const top = $chat.scrollHeight;
+      if (smooth && typeof $chat.scrollTo === "function") {
+        $chat.scrollTo({ top, behavior: "smooth" });
+      } else {
+        $chat.scrollTop = top;
+      }
+    } catch {
+      $chat.scrollTop = $chat.scrollHeight;
     }
-  } catch {
-    $chat.scrollTop = $chat.scrollHeight;
-  }
+  });
 }
 
 export function focusInput() {
@@ -126,9 +134,175 @@ function getLangFromDOM() {
   return lang === "en" ? "en" : "es";
 }
 
+function t(es, en) {
+  return getLangFromDOM() === "en" ? en : es;
+}
+
+function normalizeEmojiText(text = "") {
+  try {
+    return String(text || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+  } catch {
+    return String(text || "").toLowerCase().trim();
+  }
+}
+
+function hasEmoji(text = "") {
+  if (!hasEmoji._re) {
+    try {
+      hasEmoji._re = new RegExp("\\p{Extended_Pictographic}", "u");
+    } catch {
+      hasEmoji._re = /[\u{1F300}-\u{1FAFF}]/u;
+    }
+  }
+
+  return hasEmoji._re.test(String(text || ""));
+}
+
+const EMOJI_RULES = [
+  { emoji: "\u{1F44B}", patterns: [/^hola\b/, /^hello\b/, /\bbienvenid/, /\bwelcome\b/] },
+  { emoji: "\u2728", patterns: [/^gracias\b/, /^thanks\b/, /^perfect\b/, /^genial\b/, /^great\b/, /^super\b/] },
+  { emoji: "\u{1F3B6}", patterns: [/\bmusica\b/, /\bmusic\b/, /\binstrument/, /\bcanto\b/, /\bvocal\b/] },
+  { emoji: "\u{1F483}", patterns: [/\bdanza\b/, /\bdance\b/, /\bbaile\b/, /\bballet\b/, /\bhip hop\b/] },
+  { emoji: "\u{1F3AD}", patterns: [/\bteatro\b/, /\btheatre\b/, /\btheater\b/, /\bactuacion\b/, /\bimpro\b/] },
+  { emoji: "\u{1F3A8}", patterns: [/\bartes plasticas\b/, /\bvisual arts\b/, /\bpintura\b/, /\bdibujo\b/, /\bmanualidades\b/, /\bart\b/] },
+  { emoji: "\u{1F4CD}", patterns: [/\bubicacion\b/, /\blocation\b/, /\bdireccion\b/, /\bmaps\b/, /\bdonde\b/] },
+  { emoji: "\u{1F552}", patterns: [/\bhorarios\b/, /\bschedule\b/, /\bhours\b/, /\bdisponibilidad\b/, /\bavailability\b/] },
+  { emoji: "\u{1F4B8}", patterns: [/\bprecios\b/, /\bpricing\b/, /\bprice\b/, /\bcosto\b/, /\bcost\b/, /\bvalor\b/] },
+  { emoji: "\u{1F4DD}", patterns: [/\binscripcion\b/, /\benrollment\b/, /\bmatricula\b/, /\bformulario\b/, /\bform\b/, /\bregistro\b/] },
+  { emoji: "\u{1F4B3}", patterns: [/\bpago\b/, /\bpayments?\b/, /\bpayment\b/, /\btransferencia\b/, /\bcard\b/, /\btarjeta\b/] },
+  { emoji: "\u{1F469}\u200D\u{1F3EB}", patterns: [/\bdocentes\b/, /\bteachers\b/, /\bprofes\b/, /\bprofessors?\b/, /\bmaestros?\b/] },
+  { emoji: "\u{1F680}", patterns: [/\bmetodologia\b/, /\bmethodology\b/, /\bmetodo\b/, /\bcrea\b/, /\bruta\b/, /\bpath\b/] },
+  { emoji: "\u{1F476}", patterns: [/\b1 a 3\b/, /\b1 to 3\b/, /\bmusibabies\b/] },
+  { emoji: "\u{1F9D2}", patterns: [/\b4 a 6\b/, /\b4 to 6\b/, /\bmusicalitos\b/] },
+  { emoji: "\u{1F392}", patterns: [/\b7 a 11\b/, /\b7 to 11\b/, /\bmusikids\b/] },
+  { emoji: "\u{1F525}", patterns: [/\b12 a 15\b/, /\b12 to 15\b/, /\bmusiteens\b/] },
+  { emoji: "\u{1F3AF}", patterns: [/\b16 a 50\b/, /\b16 to 50\b/, /\bmusigrandes\b/, /\bobjetivo\b/, /\bgoal\b/] },
+  { emoji: "\u{1F31F}", patterns: [/\b50 en adelante\b/, /\b50 and up\b/, /\bmusiadultos\b/] },
+  { emoji: "\u{1F3EB}", patterns: [/\ben sede\b/, /\bon-site\b/, /\bpresencial\b/, /\bcampus\b/] },
+  { emoji: "\u{1F3E0}", patterns: [/\bhogar\b/, /\bat home\b/, /\ba domicilio\b/] },
+  { emoji: "\u{1F4BB}", patterns: [/\bvirtual\b/, /\bonline\b/, /\bplataforma\b/, /\blive classes\b/] },
+  { emoji: "\u2744\uFE0F", patterns: [/\bvacacional/, /\bholiday\b/, /\bvacaciones\b/, /\bbreak\b/] },
+  { emoji: "\u{1F39F}\uFE0F", patterns: [/\bplan(es)?\b/, /\bpackage\b/, /\bpackages\b/, /\bplanes\b/, /\bcupos\b/, /\bspots\b/] },
+  { emoji: "\u{1F389}", patterns: [/\botros servicios\b/, /\bother services\b/, /\beventos\b/, /\bevents\b/, /\btienda\b/, /\bstore\b/] },
+  { emoji: "\u{1F4AC}", patterns: [/\bwhatsapp\b/, /\basesor\b/, /\badvisor\b/, /\bhumano\b/, /\bhuman\b/, /\bcontacto\b/] },
+  { emoji: "\u{1F914}", patterns: [/\bfaq\b/, /\bpreguntas frecuentes\b/, /\bquestions\b/, /\bhelp\b/, /\bayuda\b/] },
+  { emoji: "\u21A9\uFE0F", patterns: [/\bvolver\b/, /\bback\b/, /\bmenu\b/, /\bhome\b/, /\bregresar\b/] }
+];
+
+function detectEmojiForText(text = "") {
+  const clean = normalizeEmojiText(text);
+  if (!clean) return "";
+
+  const rule = EMOJI_RULES.find(({ patterns }) =>
+    patterns.some((re) => re.test(clean))
+  );
+
+  return rule?.emoji || "";
+}
+
+function decorateLineWithEmoji(line = "") {
+  const raw = String(line || "");
+  if (!raw.trim()) return raw;
+  if (hasEmoji(raw)) return raw;
+  if (/^\s*(https?:\/\/|www\.|@img:|@link:)/i.test(raw)) return raw;
+
+  const match = raw.match(/^(\s*(?:[-*\u2022]\s+|\d+[.)]\s+)?)(.*)$/);
+  const prefix = match?.[1] || "";
+  const body = match?.[2] || raw;
+  const emoji = detectEmojiForText(body);
+  if (!emoji) return raw;
+
+  return `${prefix}${emoji} ${body}`;
+}
+
+function decorateVisibleText(text = "", mode = "multiline") {
+  const raw = String(text || "");
+  if (!raw.trim()) return raw;
+
+  if (mode === "single") {
+    if (hasEmoji(raw)) return raw;
+    return decorateLineWithEmoji(raw);
+  }
+
+  return raw
+    .split("\n")
+    .map((line) => decorateLineWithEmoji(line))
+    .join("\n");
+}
+
 function getBlockedPlaceholder() {
-  const lang = getLangFromDOM();
-  return lang === "en" ? "Use the buttons above 👆" : "Usa los botones de arriba 👆";
+  return t(
+    "Usa los botones de arriba o escribe tu pregunta 👆",
+    "Use the buttons above or type your question 👆"
+  );
+}
+
+function isMobileViewport() {
+  try {
+    return window.matchMedia("(max-width: 899px)").matches;
+  } catch {
+    return false;
+  }
+}
+
+function toQuickLabel(text = "") {
+  return decorateVisibleText(text, "single").replace(/\s+/g, " ").trim();
+}
+
+function updateMobileQuickPicker(options = []) {
+  const safeOptions = Array.isArray(options) ? options.filter(Boolean) : [];
+  const useSelect = Boolean($quickPickerWrap && $quickPicker && isMobileViewport() && safeOptions.length >= 3);
+
+  if ($composer) {
+    $composer.dataset.quickUi = useSelect ? "select" : "chips";
+  }
+
+  if (!$quickPickerWrap || !$quickPicker) return;
+
+  $quickPickerWrap.hidden = !useSelect;
+  $quickPicker.innerHTML = "";
+
+  if (!useSelect) return;
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = t("Elegir una opción rápida...", "Choose a quick option...");
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  $quickPicker.appendChild(placeholder);
+
+  safeOptions.forEach((opt) => {
+    const label = toQuickLabel(opt?.label || opt?.value || "");
+    const value = String(opt?.value ?? label).trim();
+    if (!label || !value) return;
+
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = label;
+    option.dataset.kind = String(opt?.kind || "option");
+    option.dataset.label = label;
+    $quickPicker.appendChild(option);
+  });
+
+  $quickPicker.selectedIndex = 0;
+}
+
+function renderQuickTargets(options = []) {
+  const safeOptions = Array.isArray(options) ? options.filter(Boolean) : [];
+  LAST_QUICK_OPTIONS = safeOptions;
+
+  updateMobileQuickPicker(safeOptions);
+
+  if (!$quick) return;
+
+  $quick.innerHTML = "";
+  safeOptions.forEach((opt) => {
+    $quick.appendChild(makeChip(opt.label, opt.kind || "option", opt.value));
+  });
 }
 
 function nowTime(ts) {
@@ -146,21 +320,80 @@ function isCaptureStage(state) {
   return Boolean(state?.memory?.capture?.stage);
 }
 
+function getCaptureStage(state) {
+  const stage = state?.memory?.capture?.stage;
+  return stage === "name" || stage === "phone" ? stage : null;
+}
+
 function isLangGate(state) {
   return state?.memory?.ui?.stage === "lang";
 }
 
-/* =========================
-   COMPOSER AUTO MODE (v5.7+)
-========================= */
-// Regla principal:
-// - si el último botMsg dice _flow.allowFreeText === true => habilitar texto
-// - si hay opciones en el último botMsg => solo botones
-// - fallback: texto habilitado (para no romper capturas antiguas)
-function applyComposerModeFromState(state) {
-  const history = state?.history || [];
+function isObj(v) {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
 
+/* =========================
+   WHATSAPP CHIP VISIBILITY
+========================= */
+function isWhatsAppChip(opt) {
+  const kind = String(opt?.kind || "").toLowerCase();
+  const label = String(opt?.label || "").toLowerCase();
+  const value = String(opt?.value || "").toLowerCase();
+
+  if (kind === "global:whatsapp") return true;
+  if (label.includes("whatsapp")) return true;
+  if (value.includes("whatsapp")) return true;
+  if (label.includes("wa.me")) return true;
+  if (value.includes("wa.me")) return true;
+
+  return false;
+}
+
+function isFlowClosing(state) {
+  const name = String(
+    state?.progress?.lastNodeName ||
+    state?.progress?.lastNodeId ||
+    state?.currentNodeId ||
+    ""
+  ).toLowerCase();
+
+  if (/\bcierre\b|\bfinal\b|\binscrip\b|\bconfirm\b|\bpago\b|\bcupo\b|\bready\b/.test(name)) {
+    return true;
+  }
+
+  try {
+    const history = Array.isArray(state?.history) ? state.history : [];
+    const lastBot = [...history].reverse().find(m => m?.from === "bot");
+    const flow = isObj(lastBot?._flow) ? lastBot._flow : {};
+
+    if (flow.isClosing === true) return true;
+
+    const hints = Array.isArray(flow.actionHints) ? flow.actionHints : [];
+    const hintText = hints.join(" ").toLowerCase();
+    if (
+      hintText.includes("close") ||
+      hintText.includes("cierre") ||
+      hintText.includes("whatsapp_ready") ||
+      hintText.includes("ready_for_whatsapp")
+    ) {
+      return true;
+    }
+
+    const action = String(flow.action || "").toUpperCase();
+    if (action === "WHATSAPP") return true;
+  } catch {}
+
+  return false;
+}
+
+/* =========================
+   COMPOSER AUTO MODE
+========================= */
+function applyComposerModeFromState(state) {
+  const history = Array.isArray(state?.history) ? state.history : [];
   const lastBot = [...history].reverse().find((m) => m?.from === "bot");
+
   const hasOptions = Array.isArray(lastBot?.options) && lastBot.options.length > 0;
 
   const flowAllow =
@@ -168,23 +401,27 @@ function applyComposerModeFromState(state) {
     lastBot?._flow?.allowFreeText === false ? false :
     null;
 
-  // Gate de idioma: siempre chips
   if (isLangGate(state)) {
     setComposerMode("chips");
     return;
   }
 
-  // Si flow dictó explícito
+  // Durante captura, normalmente se espera texto, aunque exista un chip de omitir.
+  if (getCaptureStage(state)) {
+    setComposerMode("text");
+    return;
+  }
+
   if (flowAllow === true) {
     setComposerMode("text");
     return;
   }
+
   if (flowAllow === false) {
     setComposerMode("chips");
     return;
   }
 
-  // Fallback: si hay opciones, chips; si no, texto
   if (hasOptions) setComposerMode("chips");
   else setComposerMode("text");
 }
@@ -192,20 +429,17 @@ function applyComposerModeFromState(state) {
 /* =========================
    RENDER
 ========================= */
-
-// Render inicial (historial completo)
 export function renderAll(state) {
   if (!$chat) return;
+
   $chat.innerHTML = "";
   (state?.history || []).forEach((m) => appendMessage(m, { fromRenderAll: true }));
 
   renderChips(state);
   applyComposerModeFromState(state);
-
   scrollToBottom(false);
 }
 
-// Helper: inserta media y trackea el último audio para autoplay
 function appendMedia(bubble, mediaList, track) {
   if (!mediaList.length) return;
 
@@ -220,13 +454,12 @@ function appendMedia(bubble, mediaList, track) {
       const { el, audioEl, statusEl, playBtnEl } = renderAudio(m.url);
       item.appendChild(el);
 
-      // Autoplay: best-effort sobre el último audio del mensaje
       track.lastAudioEl = audioEl;
       track.lastAudioUrl = m.url;
       track.lastAudioStatusEl = statusEl;
       track.lastAudioBtnEl = playBtnEl;
     } else if (m.type === "image") {
-      item.appendChild(renderImage(m.url, { maxWidth: 600, maxHeight: 360 }));
+      item.appendChild(renderImage(m.url, { maxWidth: 560, maxHeight: 340 }));
     } else if (m.type === "video") {
       item.appendChild(renderVideo(m.url));
     } else {
@@ -239,7 +472,6 @@ function appendMedia(bubble, mediaList, track) {
   bubble.appendChild(mediaWrap);
 }
 
-// Render incremental (un solo mensaje)
 export function appendMessage(msg, opts = {}) {
   if (!$chat || !msg) return;
 
@@ -249,16 +481,13 @@ export function appendMessage(msg, opts = {}) {
   const bubble = document.createElement("div");
   bubble.className = `bubble ${msg.from || "bot"}`;
 
-  // Media list (lo calculamos antes para decidir orden)
   const mediaList = normalizeMedia(msg.media);
 
-  // v5.7: si hay IMAGEN y NO hay audio/video => media primero
   const hasImage = mediaList.some(m => m.type === "image");
   const hasAudio = mediaList.some(m => m.type === "audio");
   const hasVideo = mediaList.some(m => m.type === "video");
   const mediaFirst = hasImage && !hasAudio && !hasVideo;
 
-  // Track para autoplay de audio
   const track = {
     lastAudioEl: null,
     lastAudioUrl: "",
@@ -266,21 +495,13 @@ export function appendMessage(msg, opts = {}) {
     lastAudioBtnEl: null
   };
 
-  // 1) Media primero (si aplica)
-  if (mediaFirst) {
-    appendMedia(bubble, mediaList, track);
-  }
+  if (mediaFirst) appendMedia(bubble, mediaList, track);
 
-  // 2) Texto
   const text = String(msg.text || "");
-  if (text) {
-    bubble.appendChild(renderRichText(text));
-  }
+  const visibleText = msg?.from === "bot" ? decorateVisibleText(text) : text;
+  if (visibleText) bubble.appendChild(renderRichText(visibleText));
 
-  // 3) Media después (si no aplicó mediaFirst)
-  if (!mediaFirst) {
-    appendMedia(bubble, mediaList, track);
-  }
+  if (!mediaFirst) appendMedia(bubble, mediaList, track);
 
   const meta = document.createElement("div");
   meta.className = "meta";
@@ -292,9 +513,13 @@ export function appendMessage(msg, opts = {}) {
 
   scrollToBottom(false);
 
-  // Autoplay best-effort SOLO en mensajes nuevos (no al reconstruir historial)
   if (!opts.fromRenderAll && track.lastAudioEl && track.lastAudioUrl) {
-    tryAutoplayAudio(track.lastAudioEl, track.lastAudioUrl, track.lastAudioStatusEl, track.lastAudioBtnEl);
+    tryAutoplayAudio(
+      track.lastAudioEl,
+      track.lastAudioUrl,
+      track.lastAudioStatusEl,
+      track.lastAudioBtnEl
+    );
   }
 }
 
@@ -307,6 +532,8 @@ async function tryAutoplayAudio(audioEl, url, statusEl, buttonEl) {
 
   armAutoplayOnFirstUserGesture();
 
+  PENDING_AUTOPLAY = { audioEl, url, statusEl, buttonEl };
+
   try {
     audioEl.preload = "auto";
     await audioEl.play();
@@ -317,9 +544,13 @@ async function tryAutoplayAudio(audioEl, url, statusEl, buttonEl) {
     AUTO_PLAYED.add(url);
     PENDING_AUTOPLAY = null;
   } catch {
-    if (statusEl) statusEl.textContent = "Toca la pantalla o el botón para escuchar 🎧";
+    if (statusEl) {
+      statusEl.textContent = t(
+        "Toca la pantalla o el botón para escuchar 🎧",
+        "Tap the screen or the button to play 🎧"
+      );
+    }
     if (buttonEl) buttonEl.style.display = "inline-flex";
-    PENDING_AUTOPLAY = { audioEl, url, statusEl, buttonEl };
   }
 }
 
@@ -327,10 +558,9 @@ async function tryAutoplayAudio(audioEl, url, statusEl, buttonEl) {
    CHIPS
 ========================= */
 export function renderChips(state) {
-  if (!$quick) return;
-  $quick.innerHTML = "";
+  if (!$quick && !$quickPickerWrap) return;
 
-  // 0) Gate de idioma (prioridad absoluta)
+  // 0) Gate de idioma
   if (isLangGate(state)) {
     const current = getLangFromDOM();
     const langLabel = (code) => {
@@ -338,39 +568,68 @@ export function renderChips(state) {
       return current === "en" ? "English (EN)" : "Inglés (EN)";
     };
 
-    $quick.appendChild(makeChip(langLabel("es"), "ui:lang", "es"));
-    $quick.appendChild(makeChip(langLabel("en"), "ui:lang", "en"));
+    renderQuickTargets([
+      { label: langLabel("es"), kind: "ui:lang", value: "es" },
+      { label: langLabel("en"), kind: "ui:lang", value: "en" }
+    ]);
     return;
   }
 
-  // 1) Opciones del último mensaje del bot con options
-  const history = state?.history || [];
+  const history = Array.isArray(state?.history) ? state.history : [];
   const lastBotWithOptions = [...history]
     .reverse()
     .find((m) => m?.from === "bot" && Array.isArray(m.options) && m.options.length);
 
   const options = normalizeOptions(lastBotWithOptions?.options);
+  const captureStage = getCaptureStage(state);
+  const closing = isFlowClosing(state);
 
-  // Si estamos en captura, no distraemos con chips salvo que el flow los haya puesto.
-  if (isCaptureStage(state) && options.length === 0) return;
+  // 1) En captura de nombre o teléfono: SIEMPRE dejar un botón visible.
+  //    Si el flow trae opciones, se usan. Si no, fallback estable.
+  if (captureStage === "name" || captureStage === "phone") {
+    const safeCaptureOptions = options.filter((opt) => !isWhatsAppChip(opt));
 
-  options.forEach((opt) => {
-    $quick.appendChild(makeChip(opt.label, opt.kind || "option", opt.value));
-  });
+    if (safeCaptureOptions.length) {
+      renderQuickTargets(safeCaptureOptions);
+      return;
+    }
+
+    const skipLabel = t("Prefiero no dejarlo", "Prefer not to share");
+    renderQuickTargets([{ label: skipLabel, kind: "option", value: skipLabel }]);
+    return;
+  }
+
+  // 2) Flujo normal
+  renderQuickTargets(
+    options.filter((opt) => !(isWhatsAppChip(opt) && !closing))
+  );
 }
 
 function normalizeOptions(options) {
   if (!Array.isArray(options)) return [];
+
   return options
     .map((o) => {
-      if (typeof o === "string") return { label: o, value: o, kind: "option" };
-      if (o && typeof o === "object") {
-        const label = String(o.label || o.text || o.value || "").trim();
-        const value = String(o.value ?? label).trim();
-        const kind  = String(o.kind || "option");
-        if (!label) return null;
-        return { label, value, kind };
+      if (typeof o === "string") {
+        const s = o.trim();
+        return s ? { label: s, value: s, kind: "option" } : null;
       }
+
+      if (o && typeof o === "object") {
+        const label = String(o.label || o.text || o.title || o.value || "").trim();
+        const value = String(o.value ?? label).trim();
+        const kind  = String(o.kind || "option").trim() || "option";
+
+        if (!label) return null;
+
+        return {
+          ...o,
+          label,
+          value,
+          kind
+        };
+      }
+
       return null;
     })
     .filter(Boolean);
@@ -379,16 +638,15 @@ function normalizeOptions(options) {
 /* =========================
    EVENTOS
 ========================= */
-
-// Mantener conversación visible cuando aparece teclado móvil
 function bindViewportGuard() {
   if (!("visualViewport" in window) || !window.visualViewport) return;
-  const vv = window.visualViewport;
 
-  let t = null;
+  const vv = window.visualViewport;
+  let tmr = null;
+
   const onChange = () => {
-    clearTimeout(t);
-    t = setTimeout(() => scrollToBottom(false), 50);
+    clearTimeout(tmr);
+    tmr = setTimeout(() => scrollToBottom(false), 50);
   };
 
   vv.addEventListener("resize", onChange, { passive: true });
@@ -397,15 +655,13 @@ function bindViewportGuard() {
 
 export function bindForm(onSubmit) {
   if (!$form || !$input) return;
-
   if ($form.dataset.bound === "1") return;
-  $form.dataset.bound = "1";
 
+  $form.dataset.bound = "1";
   bindViewportGuard();
 
   $form.addEventListener("submit", (e) => {
     e.preventDefault();
-    if ($input.disabled) return;
 
     const value = $input.value.trim();
     if (!value) return;
@@ -413,7 +669,6 @@ export function bindForm(onSubmit) {
     onSubmit(value);
     $input.value = "";
 
-    // Cerrar teclado móvil y mantener conversación visible
     blurInput();
     scrollToBottom(false);
   });
@@ -423,42 +678,68 @@ export function bindForm(onSubmit) {
   });
 }
 
-// Botón reiniciar (topbar)
 export function bindReset(onReset) {
   if (!$btnReset) return;
-
   if ($btnReset.dataset.bound === "1") return;
-  $btnReset.dataset.bound = "1";
 
+  $btnReset.dataset.bound = "1";
   $btnReset.addEventListener("click", () => onReset());
 }
 
-// Manejo de clicks en chips
 export function bindChips(onChip) {
-  if (!$quick) return;
+  if (!$quick && !$quickPicker) return;
 
-  if ($quick.dataset.bound === "1") return;
-  $quick.dataset.bound = "1";
+  if (bindChips._resizeBound !== "1") {
+    bindChips._resizeBound = "1";
+    window.addEventListener("resize", () => updateMobileQuickPicker(LAST_QUICK_OPTIONS), { passive: true });
+  }
 
-  $quick.addEventListener("click", (e) => {
-    const btn = e.target.closest("button.chip");
-    if (!btn) return;
+  const handleQuickPick = async ({ value, kind, label }) => {
+    const safeValue = String(value || "").trim();
+    if (!safeValue) return;
 
-    const value = btn.dataset.value;
-    const kind  = btn.dataset.kind;
-    if (!value) return;
-
-    // Cerrar teclado móvil y mantener conversación visible
     blurInput();
 
-    // Bonus: si hay autoplay pendiente, intentamos reproducir en este gesto
     if (PENDING_AUTOPLAY?.audioEl) {
-      try { PENDING_AUTOPLAY.audioEl.play(); } catch {}
+      try { await PENDING_AUTOPLAY.audioEl.play(); } catch {}
     }
 
-    onChip(value, kind);
+    onChip(safeValue, String(kind || "option"), String(label || safeValue));
     scrollToBottom(false);
-  });
+  };
+
+  if ($quick && $quick.dataset.bound !== "1") {
+    $quick.dataset.bound = "1";
+
+    $quick.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button.chip");
+      if (!btn) return;
+
+      await handleQuickPick({
+        value: btn.dataset.value,
+        kind: btn.dataset.kind,
+        label: btn.dataset.label || btn.textContent || btn.dataset.value
+      });
+    });
+  }
+
+  if ($quickPicker && $quickPicker.dataset.bound !== "1") {
+    $quickPicker.dataset.bound = "1";
+
+    $quickPicker.addEventListener("change", async () => {
+      const selected = $quickPicker.selectedOptions?.[0];
+      const value = String(selected?.value || "").trim();
+      if (!value) return;
+
+      await handleQuickPick({
+        value,
+        kind: selected?.dataset?.kind || "option",
+        label: selected?.dataset?.label || selected?.textContent || value
+      });
+
+      $quickPicker.selectedIndex = 0;
+    });
+  }
 }
 
 /* =========================
@@ -469,7 +750,7 @@ export function syncComposerMode(state) {
 }
 
 /* =========================
-   FAQ (Acordeón v5.9)
+   FAQ (Acordeón)
 ========================= */
 export function renderFAQ(items = []) {
   if (!$faqBody) return;
@@ -484,29 +765,36 @@ export function renderFAQ(items = []) {
   const safeUrl = (url) => {
     const u = String(url || "").trim();
     if (!u) return "";
-    // Permitimos rutas relativas y http(s). Bloqueamos javascript: por obvias razones.
-    const low = u.toLowerCase();
-    if (low.startsWith("javascript:")) return "";
+    if (u.toLowerCase().startsWith("javascript:")) return "";
     return u;
   };
 
-  // Formato mínimo: *negrita* _cursiva_ y saltos de línea
-  // + Directivas:
-  // - @img:./assets/Ubicación.jpeg
-  // - @link:https://...|Texto opcional
+  function cleanUrlEnd(url) {
+    let u = String(url || "");
+    while (u.length && /[)\].,;:!?]+$/.test(u)) u = u.slice(0, -1);
+    return u;
+  }
+
+  function linkifyHtmlString(html) {
+    const re = /((https?:\/\/|www\.)[^\s<]+)/gi;
+
+    return html.replace(re, (match) => {
+      const cleaned = cleanUrlEnd(match);
+      const href = cleaned.startsWith("www.") ? `https://${cleaned}` : cleaned;
+      if (/^javascript:/i.test(href)) return match;
+      return `<a href="${href}" target="_blank" rel="noopener noreferrer">${cleaned}</a>`;
+    });
+  }
+
   const formatFAQ = (txt = "") => {
     const raw = String(txt || "").trim();
 
-    // ✅ Directiva imagen
     if (raw.startsWith("@img:")) {
       const url = safeUrl(raw.slice(5).trim());
       if (!url) return "<em>Imagen no disponible</em>";
-      // Usamos el mismo renderer de imágenes, pero en HTML string
-      // (manteniendo estilos con clase para CSS)
-      return `<img src="${escHtml(url)}" alt="Ubicación Musicala" class="faq-img" loading="lazy" decoding="async">`;
+      return `<img src="${escHtml(url)}" alt="Imagen" class="faq-img" loading="lazy" decoding="async">`;
     }
 
-    // ✅ Directiva link (opcional)
     if (raw.startsWith("@link:")) {
       const rest = raw.slice(6).trim();
       const [urlRaw, labelRaw] = rest.split("|");
@@ -516,11 +804,11 @@ export function renderFAQ(items = []) {
       return `<a href="${escHtml(url)}" target="_blank" rel="noopener noreferrer">${escHtml(label)}</a>`;
     }
 
-    // Markdown simple
     let out = escHtml(raw);
     out = out.replace(/\*(.+?)\*/g, "<strong>$1</strong>");
     out = out.replace(/_(.+?)_/g, "<em>$1</em>");
     out = out.replace(/\n/g, "<br>");
+    out = linkifyHtmlString(out);
     return out;
   };
 
@@ -531,17 +819,18 @@ export function renderFAQ(items = []) {
 
     const summary = document.createElement("summary");
     summary.className = "faq-q";
-    summary.innerHTML = formatFAQ(it?.q || "");
+    summary.innerHTML = formatFAQ(decorateVisibleText(it?.q || "", "single"));
 
     const answer = document.createElement("div");
     answer.className = "faq-a";
-    answer.innerHTML = formatFAQ(it?.a || "");
+    const rawAnswer = String(it?.a || "");
+    const visibleAnswer = rawAnswer.startsWith("@") ? rawAnswer : decorateVisibleText(rawAnswer);
+    answer.innerHTML = formatFAQ(visibleAnswer);
 
     details.appendChild(summary);
     details.appendChild(answer);
     $faqBody.appendChild(details);
 
-    // Acordeón: solo una abierta
     details.addEventListener("toggle", () => {
       if (!details.open) return;
       [...$faqBody.querySelectorAll("details.faq-item[open]")].forEach((d) => {
@@ -567,11 +856,10 @@ function renderAudio(url) {
   status.className = "mediastatus";
   status.textContent = "";
 
-  // Botón extra
   const playBtn = document.createElement("button");
   playBtn.type = "button";
   playBtn.className = "chip";
-  playBtn.textContent = "Reproducir";
+  playBtn.textContent = t("Reproducir", "Play");
   playBtn.style.display = "none";
 
   playBtn.addEventListener("click", async () => {
@@ -587,12 +875,17 @@ function renderAudio(url) {
   });
 
   audio.addEventListener("error", () => {
-    status.textContent = "No pude cargar el audio 😅 (revisa la ruta del archivo)";
+    status.textContent = t(
+      "No pude cargar el audio 😅 (revisa la ruta del archivo)",
+      "Couldn’t load the audio 😅 (check the file URL)"
+    );
     playBtn.style.display = "none";
   });
 
   audio.addEventListener("play", () => {
-    if (status.textContent && status.textContent.includes("escuchar")) status.textContent = "";
+    if (status.textContent && (status.textContent.includes("escuchar") || status.textContent.includes("Tap"))) {
+      status.textContent = "";
+    }
     playBtn.style.display = "none";
   });
 
@@ -610,10 +903,9 @@ function renderImage(url, opts = {}) {
   img.loading = "lazy";
   img.decoding = "async";
 
-  const maxWidth  = opts.maxWidth  ?? 600;
-  const maxHeight = opts.maxHeight ?? 360;
+  const maxWidth = opts.maxWidth ?? 560;
+  const maxHeight = opts.maxHeight ?? 340;
 
-  // Tamaño controlado (tarjeta, no sábana)
   img.style.width = "100%";
   img.style.maxWidth = `${maxWidth}px`;
   img.style.maxHeight = `${maxHeight}px`;
@@ -634,9 +926,12 @@ function renderVideo(url) {
   video.preload = "metadata";
   video.src = url;
   video.playsInline = true;
+  video.style.width = "100%";
+
   video.addEventListener("error", () => {
     video.replaceWith(renderLink(url));
   });
+
   return video;
 }
 
@@ -655,57 +950,96 @@ function renderLink(url) {
 function makeChip(text, kind, valueOverride) {
   const label = String(text ?? "").trim();
   const value = String(valueOverride ?? label).trim();
+  const visibleLabel = decorateVisibleText(label, "single");
 
   const btn = document.createElement("button");
   btn.className = "chip";
-  btn.type = "button";
-  btn.textContent = label;
 
+  if (
+    label.toLowerCase().includes("whatsapp") ||
+    String(kind || "").toLowerCase() === "global:whatsapp"
+  ) {
+    btn.classList.add("chip--wa");
+  }
+
+  btn.type = "button";
+  btn.textContent = visibleLabel;
   btn.dataset.value = value;
-  btn.dataset.kind  = kind;
-  btn.setAttribute("aria-label", label);
+  btn.dataset.label = visibleLabel;
+  btn.dataset.kind = String(kind || "option");
+  btn.setAttribute("aria-label", visibleLabel);
 
   return btn;
 }
 
-// Texto con URLs clicables (chat)
+/* =========================
+   RICH TEXT (CHAT)
+========================= */
 function renderRichText(text) {
-  const frag = document.createDocumentFragment();
-  const parts = splitByUrls(String(text || ""));
+  const container = document.createElement("div");
+  container.className = "msgtext";
 
-  parts.forEach((part) => {
-    if (part.type === "url") {
-      const a = document.createElement("a");
-      a.href = part.value;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.textContent = part.value;
-      frag.appendChild(a);
-    } else {
-      frag.appendChild(document.createTextNode(part.value));
+  const lines = String(text || "").split("\n");
+
+  lines.forEach((line, idx) => {
+    const parts = splitByUrls(line);
+
+    parts.forEach((part) => {
+      if (part.type === "url") {
+        const a = document.createElement("a");
+        a.href = part.value;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.textContent = part.label || part.value;
+        container.appendChild(a);
+      } else {
+        container.appendChild(document.createTextNode(part.value));
+      }
+    });
+
+    if (idx < lines.length - 1) {
+      container.appendChild(document.createElement("br"));
     }
   });
 
-  return frag;
+  return container;
 }
 
 function splitByUrls(text) {
   const out = [];
-  const re = /(https?:\/\/[^\s]+)/gi;
+  const re = /((https?:\/\/|www\.)[^\s]+)/gi;
+
   let last = 0;
   let m;
 
   while ((m = re.exec(text)) !== null) {
-    if (m.index > last) out.push({ type: "text", value: text.slice(last, m.index) });
-    out.push({ type: "url", value: m[1] });
+    if (m.index > last) {
+      out.push({ type: "text", value: text.slice(last, m.index) });
+    }
+
+    const raw = cleanUrlEnd(m[1]);
+    const href = raw.startsWith("www.") ? `https://${raw}` : raw;
+
+    out.push({ type: "url", value: href, label: raw });
     last = m.index + m[1].length;
   }
 
-  if (last < text.length) out.push({ type: "text", value: text.slice(last) });
+  if (last < text.length) {
+    out.push({ type: "text", value: text.slice(last) });
+  }
 
   return out.length ? out : [{ type: "text", value: text }];
 }
 
+function cleanUrlEnd(url) {
+  let u = String(url || "");
+  while (u.length && /[)\].,;:!?]+$/.test(u)) u = u.slice(0, -1);
+  return u;
+}
+
+/* =========================
+   MEDIA NORMALIZATION
+========================= */
 function normalizeMedia(media) {
   if (!media) return [];
 
@@ -716,14 +1050,19 @@ function normalizeMedia(media) {
       if (m && typeof m === "object") {
         const url = String(m.url || m.src || m.href || "").trim();
         if (!url) return null;
-        const type = String(m.type || inferMediaType(url)).trim();
-        return { type, url };
+
+        const type = String(m.type || inferMediaType(url)).trim() || inferMediaType(url);
+
+        return { ...m, type, url };
       }
+
       if (typeof m === "string") {
         const url = m.trim();
         if (!url) return null;
+
         return { type: inferMediaType(url), url };
       }
+
       return null;
     })
     .filter(Boolean);
@@ -735,5 +1074,6 @@ function inferMediaType(url = "") {
   if (u.endsWith(".mp3") || u.endsWith(".wav") || u.endsWith(".ogg") || u.endsWith(".m4a")) return "audio";
   if (u.endsWith(".png") || u.endsWith(".jpg") || u.endsWith(".jpeg") || u.endsWith(".webp") || u.endsWith(".gif")) return "image";
   if (u.endsWith(".mp4") || u.endsWith(".webm") || u.endsWith(".mov")) return "video";
+
   return "link";
 }

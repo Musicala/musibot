@@ -1,25 +1,23 @@
-// main.js (v3.10.4)
+// main.js (v3.12.0)
 // ============================
 // Orquestador principal de MusiBot (modo FLOW puro)
-// ✅ Conversación controlada SOLO por webflow.json
-// ✅ NO lead-capture hardcodeado aquí: solo "sync" de state.memory -> Google Sheets
-// ✅ Idioma elegido en INTRO (evento "musibot:lang" desde intro.js)
-// ✅ UI i18n (ES/EN) solo interfaz (labels/ayuda/FAQ)
-// ✅ Chips UI "ui:lang" (value: "es" | "en") desde ui.js
-// ✅ Reset limpio: reinicia estado + re-arranca flow sin duplicar mensajes
-// ✅ Integración con leadSync.js (upsert por sessionId)
-// ✅ FIX real: LeadSync lee TODOS los lugares posibles (memory.lead.* + legacy + aliases)
-// ✅ Sincroniza edad (rango) a Sheets (field: "edad")
-// ✅ Sincroniza "arte" a Sheets (field: "arte")
-// ✅ NUEVO: sincroniza "modalidad" a Sheets (field: "modalidad")
-// ✅ ComposerMode preferente desde UI sync (msg._flow.allowFreeText + options)
-// ✅ FIX definitivo: NO se habilita texto por awaitingNodeId (solo nodos que lo permiten)
+//
+// Lo que queda fijo (según lo que pidieron):
+// ✅ Botón WhatsApp TOP (arriba a la derecha) = SIEMPRE visible + SIEMPRE activo (salida libre)
+// ✅ WhatsApp “chip” abajo (en el chat) = SOLO al final (lo filtra UI) y envía resumen mínimo (edad/arte/modalidad/servicio)
+// ✅ main.js NO decide visibilidad del chip; solo sabe abrir WhatsApp con el texto correcto cuando se dispara la acción.
+//
+// Notas:
+// - TOP WA usa mensaje genérico (data-attributes en index.html o CONFIG fallback)
+// - FINAL WA (chip) usa resumen mínimo desde state.memory (sin nombre/teléfono)
+// - Se mantiene: i18n UI, flow engine, leadSync debounce, FAQ loader, reset limpio.
 
 import { CONFIG } from "./config.js";
 import {
   getInitialState,
   loadState,
   saveState,
+  makeBotMessage,
   makeUserMessage,
   resetState
 } from "./state.js";
@@ -38,7 +36,8 @@ import {
 import {
   loadFlow,
   startFlow,
-  handleUserInput
+  handleUserInput,
+  relocalizeHistory
 } from "./flowEngine.js";
 import { initIntro } from "./intro.js";
 
@@ -109,36 +108,28 @@ function normalizeChoiceValue(v) {
   if (!s) return "";
 
   const low = s.toLowerCase();
-  const ignore = ["volver al menú", "volver", "menu", "menú"];
+  const ignore = [
+    "volver al menú", "volver", "menu", "menú", "inicio", "home",
+    "menu inicial", "menú inicial"
+  ];
   if (ignore.some(x => low.includes(x))) return "";
 
   return s;
 }
 
-/**
- * Normaliza un posible valor de "edad/rango" para guardarlo en Sheets.
- */
-function normalizeEdadValue(v) {
-  return normalizeChoiceValue(v);
-}
+function normalizeEdadValue(v) { return normalizeChoiceValue(v); }
+function normalizeArteValue(v) { return normalizeChoiceValue(v); }
+function normalizeModalidadValue(v) { return normalizeChoiceValue(v); }
+function normalizeServicioValue(v) { return normalizeChoiceValue(v); }
 
-/**
- * Normaliza un posible valor de "arte" (disciplina) para guardarlo en Sheets.
- */
-function normalizeArteValue(v) {
-  return normalizeChoiceValue(v);
-}
-
-/**
- * Normaliza un posible valor de "modalidad" para guardarlo en Sheets.
- * - Acepta labels humanos con emoji ("🏫 En sede", "🏠 Musicala Hogar", "💻 Virtual")
- */
-function normalizeModalidadValue(v) {
-  const s = normalizeChoiceValue(v);
-  if (!s) return "";
-
-  // Si algún día quieren estandarizar a "sede/hogar/virtual", se puede mapear acá.
-  return s;
+function inferModalidadFromServicio(servicio) {
+  const raw = String(servicio ?? "").trim().toLowerCase();
+  if (!raw) return "";
+  if (raw.includes("on-site")) return "On-site";
+  if (raw.includes("presencial")) return "En sede";
+  if (raw.includes("hogar") || raw.includes("domicilio")) return "Musicala Hogar";
+  if (raw.includes("virtual")) return "Virtual";
+  return "";
 }
 
 /**
@@ -151,7 +142,6 @@ function readLeadFieldsFromState() {
   const mem = state?.memory || {};
   const lead = (mem.lead && typeof mem.lead === "object") ? mem.lead : {};
 
-  // NOMBRE
   const nombre = pickFirstNonEmpty(
     lead.name,
     lead.nombre,
@@ -163,7 +153,6 @@ function readLeadFieldsFromState() {
     mem.fullName
   );
 
-  // CEL
   const cel = pickFirstNonEmpty(
     lead.phone,
     lead.cel,
@@ -177,15 +166,14 @@ function readLeadFieldsFromState() {
     mem.phone
   );
 
-  // SERVICIO
-  const servicio = pickFirstNonEmpty(
+  const servicioRaw = pickFirstNonEmpty(
     lead.servicio,
     lead.service,
     mem.servicio,
     mem.service
   );
+  const servicio = normalizeServicioValue(servicioRaw);
 
-  // EDAD / RANGO
   const edadRaw = pickFirstNonEmpty(
     lead.edad,
     lead.age,
@@ -200,7 +188,6 @@ function readLeadFieldsFromState() {
   );
   const edad = normalizeEdadValue(edadRaw);
 
-  // ARTE / DISCIPLINA
   const arteRaw = pickFirstNonEmpty(
     lead.arte,
     lead.art,
@@ -213,7 +200,6 @@ function readLeadFieldsFromState() {
   );
   const arte = normalizeArteValue(arteRaw);
 
-  // MODALIDAD (nuevo)
   const modalidadRaw = pickFirstNonEmpty(
     lead.modalidad,
     lead.mode,
@@ -224,7 +210,9 @@ function readLeadFieldsFromState() {
     mem.modalidad_clase,
     mem.classMode
   );
-  const modalidad = normalizeModalidadValue(modalidadRaw);
+  const modalidad =
+    normalizeModalidadValue(modalidadRaw) ||
+    inferModalidadFromServicio(servicioRaw || servicio);
 
   return { nombre, cel, servicio, edad, arte, modalidad };
 }
@@ -236,6 +224,16 @@ function getLeadSyncFlags() {
   state.memory.flags = state.memory.flags || {};
   state.memory.flags.leadSync = state.memory.flags.leadSync || {};
   return state.memory.flags.leadSync;
+}
+
+// Debounce simple
+let leadSyncTimer = null;
+function scheduleLeadSync() {
+  if (!leadSync || !state) return;
+  if (leadSyncTimer) clearTimeout(leadSyncTimer);
+  leadSyncTimer = setTimeout(() => {
+    syncLeadFromState().catch(() => {});
+  }, Number(CONFIG?.LEAD_SYNC_DEBOUNCE_MS ?? 250));
 }
 
 async function syncLeadFromState() {
@@ -264,32 +262,27 @@ async function syncLeadFromState() {
   }
 
   try {
+    // Ojo: Sheets puede seguir queriendo nombre/cel. Si no existen, no se mandan.
     if (nombre && flags.nombre !== nombre) {
       await leadSync.saveField("nombre", nombre);
       flags.nombre = nombre;
     }
-
     if (cel && flags.cel !== cel) {
       await leadSync.saveField("cel", cel);
       flags.cel = cel;
     }
-
     if (servicio && flags.servicio !== servicio) {
       await leadSync.saveField("servicio", servicio);
       flags.servicio = servicio;
     }
-
     if (edad && flags.edad !== edad) {
       await leadSync.saveField("edad", edad);
       flags.edad = edad;
     }
-
     if (arte && flags.arte !== arte) {
       await leadSync.saveField("arte", arte);
       flags.arte = arte;
     }
-
-    // ✅ NUEVO: modalidad
     if (modalidad && flags.modalidad !== modalidad) {
       await leadSync.saveField("modalidad", modalidad);
       flags.modalidad = modalidad;
@@ -311,11 +304,13 @@ function getLang() {
 }
 function setLang(lang) {
   uiLang = normalizeLang(lang);
+  // persist in memory
+  if (state?.memory) {
+    state.memory.ui = state.memory.ui || {};
+    state.memory.ui.lang = uiLang;
+  }
 }
 
-/**
- * Mapea diccionario anidado a llaves planas usadas por data-i18n
- */
 function mapI18nFlat(raw = {}) {
   const app = raw.app || {};
   const labels = raw.labels || {};
@@ -343,9 +338,6 @@ function mapI18nFlat(raw = {}) {
 
     helpWhatIsTitle: help?.whatIsThis?.title,
     helpWhatIsText: help?.whatIsThis?.text,
-
-    helpWhatItsTitle: help?.whatIsThis?.title,
-    helpWhatItsText: help?.whatIsThis?.text,
 
     helpHowTitle: help?.howItWorks?.title,
     helpHowText: help?.howItWorks?.text,
@@ -397,7 +389,9 @@ function dict(lang) {
     introP1: "Soy tu asistente de Musicala.",
     introP2: "Usa los botones o escribe para comenzar.",
     start: "Empezar",
-    waConfigMissing: "Configura el número de WhatsApp en config.js 🙃"
+    waConfigMissing: "Configura el número de WhatsApp en config.js 🙃",
+    waTopFallback: "Hola 😊 Quiero hablar con un asesor de Musicala.",
+    waFinalFallback: "Hola 😊 Quiero información para clases."
   };
 
   const fallbackEN = {
@@ -415,7 +409,9 @@ function dict(lang) {
     introP1: "I’m Musicala’s assistant.",
     introP2: "Use the buttons or type to start.",
     start: "Start",
-    waConfigMissing: "Set the WhatsApp number in config.js 🙃"
+    waConfigMissing: "Set the WhatsApp number in config.js 🙃",
+    waTopFallback: "Hi 😊 I’d like to talk to a Musicala advisor.",
+    waFinalFallback: "Hi 😊 I’d like info about classes."
   };
 
   const base = lang === "en" ? fallbackEN : fallbackES;
@@ -427,9 +423,6 @@ function t(key) {
   return dict(getLang())[key] ?? key;
 }
 
-/**
- * Aplica idioma a la UI (HTML + data-i18n + placeholders)
- */
 function applyUILang(lang) {
   const safe = normalizeLang(lang);
   setLang(safe);
@@ -457,8 +450,19 @@ function applyUILang(lang) {
     el.setAttribute("placeholder", t(k));
   });
 
-  setupWhatsAppBtn();
+  // WhatsApp TOP siempre listo y con texto del idioma
+  setupWhatsAppTopBtn();
+
+  if (state) {
+    try {
+      relocalizeHistory(state);
+      renderAll(state);
+      updateComposerModeFromFlow();
+    } catch {}
+  }
+
   renderFAQFromKB();
+  try { saveState(state); } catch {}
 }
 
 function bindLangUI() {
@@ -487,6 +491,455 @@ function openHelpPanel(target = "") {
 }
 
 /* =========================
+   FAQ: abrir una pregunta específica
+========================= */
+
+function normalizeLite(s = "") {
+  try {
+    return String(s || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+  } catch {
+    return String(s || "").toLowerCase().trim();
+  }
+}
+
+function openFAQQuestionContains(qNeedle = "") {
+  openHelpPanel("faq");
+
+  // Espera un beat para que el DOM del acordeón esté listo
+  setTimeout(() => {
+    const body = document.getElementById("faqBody");
+    if (!body) return;
+
+    const needle = normalizeLite(qNeedle);
+    const items = Array.from(body.querySelectorAll("details.faq-item"));
+
+    const hit = items.find((d) => {
+      const sum = d.querySelector("summary");
+      const txt = sum ? sum.textContent : "";
+      return normalizeLite(txt).includes(needle);
+    });
+
+    if (hit) {
+      hit.open = true;
+      hit.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, 80);
+}
+
+const FAQ_TITLE_BY_INTENT = {
+  location: { es: "Ubicacion", en: "Location" },
+  arts: { es: "Artes que ensenamos", en: "Arts we teach" },
+  schedules: { es: "Horarios", en: "Schedules" },
+  modalities: { es: "Modalidades", en: "Modalities" },
+  coverage_home: { es: "Zonas de cobertura", en: "Coverage areas" },
+  ages_programs: { es: "Edades", en: "Ages" },
+  prices: { es: "Precios", en: "Pricing" },
+  teachers: { es: "Docentes", en: "Teachers" },
+  methodology: { es: "Metodologia", en: "Methodology" },
+  payments: { es: "Metodos de pago", en: "Payment methods" },
+  enrollment_dates: { es: "Fechas de inscripcion", en: "Enrollment dates" },
+  trial_or_courtesy: { es: "Clase de prueba", en: "Trial" },
+  other_services: { es: "Otros servicios", en: "Other services" },
+  human_advisor: { es: "asesor humano", en: "human advisor" },
+  work_with_us: { es: "trabajar con nosotros", en: "work with us" }
+};
+
+const KNOWLEDGE_SUGGESTION_EXCLUDED_IDS = new Set([
+  "about_musicala",
+  "human_advisor",
+  "work_with_us"
+]);
+
+function getKBIntents() {
+  return Array.isArray(kbCache?.intents) ? kbCache.intents : [];
+}
+
+function getLastBotWithOptions() {
+  const history = Array.isArray(state?.history) ? state.history : [];
+  return [...history].reverse().find(
+    (m) => m?.from === "bot" && Array.isArray(m.options) && m.options.length
+  ) || null;
+}
+
+function getFAQItemsForLang(lang = getLang()) {
+  const faq = kbCache?.faq;
+  if (Array.isArray(faq)) return faq;
+  if (faq && Array.isArray(faq[lang])) return faq[lang];
+  return [];
+}
+
+function getLocalizedKBText(value, lang = getLang()) {
+  if (!value) return "";
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "object") {
+    return String(value?.[lang] || value?.es || value?.en || "").trim();
+  }
+  return "";
+}
+
+function getFAQTitleForIntent(intentOrId, lang = getLang()) {
+  const intentId =
+    typeof intentOrId === "object"
+      ? String(intentOrId?.id || "").trim()
+      : String(intentOrId || "").trim();
+
+  if (typeof intentOrId === "object") {
+    const directTitle = getLocalizedKBText(intentOrId?.faqTitle, lang);
+    if (directTitle) return directTitle;
+  }
+
+  const mapped = FAQ_TITLE_BY_INTENT[intentId]?.[lang];
+  if (mapped) return mapped;
+
+  const items = getFAQItemsForLang(lang);
+  const fallback = items.find((item) =>
+    normalizeLite(item?.id || item?.q || "").includes(normalizeLite(intentId))
+  );
+
+  return String(fallback?.q || "").trim();
+}
+
+function isCurrentFlowOptionText(text = "") {
+  const clean = normalizeLite(text);
+  if (!clean) return false;
+
+  const lastBotWithOptions = getLastBotWithOptions();
+  const options = Array.isArray(lastBotWithOptions?.options) ? lastBotWithOptions.options : [];
+
+  return options.some((opt) => {
+    const rawValues =
+      typeof opt === "string"
+        ? [opt]
+        : [opt?.label, opt?.value, opt?.text];
+
+    return rawValues.some((value) => normalizeLite(value || "") === clean);
+  });
+}
+
+function shouldBypassKnowledgeInterrupt(text = "") {
+  const clean = normalizeLite(text);
+  if (!clean) return true;
+
+  if (clean === "menu" || clean === "menú" || clean === "home" || clean === "inicio") return true;
+  if (clean === "reset" || clean === "reiniciar") return true;
+  if (clean === "faq") return true;
+  if (clean.includes("whatsapp") || clean.includes("whats app") || clean.includes("wa.me")) return true;
+  if (isCurrentFlowOptionText(clean)) return true;
+
+  return false;
+}
+
+function scoreIntentPattern(inputText = "", pattern = "") {
+  const input = normalizeLite(inputText);
+  const needle = normalizeLite(pattern);
+
+  if (!input || !needle || needle.length < 3) return 0;
+  if (input === needle) return 1000 + needle.length;
+
+  const paddedInput = ` ${input} `;
+  const paddedNeedle = ` ${needle} `;
+  if (paddedInput.includes(paddedNeedle)) return 900 + needle.length;
+  if (input.includes(needle)) return 800 + needle.length;
+
+  if (input.length >= 5 && needle.includes(input)) return 250 + input.length;
+
+  return 0;
+}
+
+function tokenizeLite(text = "") {
+  return normalizeLite(text)
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length >= 3);
+}
+
+function scoreIntentPatternLoose(inputText = "", pattern = "") {
+  const direct = scoreIntentPattern(inputText, pattern);
+  if (direct) return direct;
+
+  const inputTokens = tokenizeLite(inputText);
+  const patternTokens = tokenizeLite(pattern);
+  if (!inputTokens.length || !patternTokens.length) return 0;
+
+  const shared = patternTokens.filter((token) => inputTokens.includes(token));
+  if (!shared.length) return 0;
+
+  const ratio = shared.length / patternTokens.length;
+  const coverage = shared.length / inputTokens.length;
+  if (shared.length < 2 && ratio < 0.6 && coverage < 0.6) return 0;
+
+  return Math.round(140 + (shared.length * 18) + (ratio * 40) + (coverage * 30));
+}
+
+function getKnowledgeCategory(intent) {
+  return String(intent?.category || "faq").trim().toLowerCase() || "faq";
+}
+
+function getIntentScoreBoost(intent) {
+  const n = Number(intent?.scoreBoost || 0);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function getIntentSuggestionLabel(intent, lang = getLang()) {
+  const explicit = getLocalizedKBText(intent?.suggestionLabel, lang);
+  if (explicit) return explicit;
+
+  const faqTitle = getFAQTitleForIntent(intent, lang);
+  if (faqTitle) return faqTitle;
+
+  const patterns = Array.isArray(intent?.patterns?.[lang]) ? intent.patterns[lang] : [];
+  return String(patterns[0] || intent?.id || "").trim();
+}
+
+function findInlineKnowledgeIntent(text = "") {
+  if (!kbCache?.intents || shouldBypassKnowledgeInterrupt(text)) return null;
+
+  const lang = getLang();
+  const intents = getKBIntents();
+  let best = null;
+
+  intents.forEach((intent) => {
+    const patterns = Array.isArray(intent?.patterns?.[lang]) ? intent.patterns[lang] : [];
+    const response = getLocalizedKBText(intent?.response, lang);
+    if (!patterns.length || !response) return;
+
+    patterns.forEach((pattern) => {
+      const baseScore = scoreIntentPattern(text, pattern);
+      if (!baseScore) return;
+
+      const score = baseScore + getIntentScoreBoost(intent);
+
+      if (!best || score > best.score) {
+        best = {
+          intent,
+          id: String(intent?.id || "").trim(),
+          response,
+          score
+        };
+      }
+    });
+  });
+
+  if (!best) return null;
+
+  return {
+    ...best,
+    category: getKnowledgeCategory(best.intent),
+    faqTitle: getFAQTitleForIntent(best.intent, lang),
+    advisorPrompt: getLocalizedKBText(best.intent?.advisorPrompt, lang),
+    suggestionLabel: getIntentSuggestionLabel(best.intent, lang)
+  };
+}
+
+function findNearbyKnowledgeTopics(text = "", limit = 3) {
+  if (!kbCache?.intents || shouldBypassKnowledgeInterrupt(text)) return [];
+
+  const lang = getLang();
+  const ranked = [];
+
+  getKBIntents().forEach((intent) => {
+    const intentId = String(intent?.id || "").trim();
+    if (!intentId || KNOWLEDGE_SUGGESTION_EXCLUDED_IDS.has(intentId)) return;
+
+    const patterns = Array.isArray(intent?.patterns?.[lang]) ? intent.patterns[lang] : [];
+    if (!patterns.length) return;
+
+    const rawScore = patterns.reduce((max, pattern) => {
+      return Math.max(max, scoreIntentPatternLoose(text, pattern));
+    }, 0);
+
+    if (!rawScore) return;
+
+    const bestScore = rawScore + getIntentScoreBoost(intent);
+
+    ranked.push({
+      id: intentId,
+      label: getIntentSuggestionLabel(intent, lang),
+      score: bestScore,
+      category: getKnowledgeCategory(intent)
+    });
+  });
+
+  return ranked
+    .sort((a, b) => b.score - a.score)
+    .filter((item, idx, arr) =>
+      Boolean(item.label) &&
+      arr.findIndex((candidate) => normalizeLite(candidate.label) === normalizeLite(item.label)) === idx
+    )
+    .slice(0, limit);
+}
+
+function getSmartFallbackConfig(lang = getLang()) {
+  const cfg = kbCache?.smartFallback;
+  if (cfg && typeof cfg === "object" && cfg[lang] && typeof cfg[lang] === "object") {
+    return cfg[lang];
+  }
+  return {};
+}
+
+function joinHumanList(items = [], lang = getLang()) {
+  const list = items.filter(Boolean);
+  if (!list.length) return "";
+  if (list.length === 1) return list[0];
+  if (list.length === 2) return lang === "en" ? `${list[0]} and ${list[1]}` : `${list[0]} y ${list[1]}`;
+
+  const last = list[list.length - 1];
+  const rest = list.slice(0, -1);
+  return lang === "en"
+    ? `${rest.join(", ")} and ${last}`
+    : `${rest.join(", ")} y ${last}`;
+}
+
+function getResumePromptAfterInterrupt() {
+  const lang = getLang();
+  const captureStage = String(state?.memory?.capture?.stage || "").toLowerCase();
+
+  if (captureStage === "name") {
+    return lang === "en"
+      ? "When you're ready, we can continue with your name."
+      : "Cuando quieras, seguimos con tu nombre.";
+  }
+
+  if (captureStage === "phone") {
+    return lang === "en"
+      ? "When you're ready, we can continue with your phone number."
+      : "Cuando quieras, seguimos con tu numero de celular.";
+  }
+
+  const lastBotWithOptions = getLastBotWithOptions();
+
+  if (lastBotWithOptions) {
+    return lang === "en"
+      ? "We can keep going right where we left off. You can choose one of the options below or ask me something else."
+      : "Podemos seguir justo donde vamos. Puedes elegir una de las opciones de abajo o hacerme otra pregunta.";
+  }
+
+  return lang === "en"
+    ? "When you're ready, we can continue from the same point."
+    : "Cuando quieras, seguimos desde el mismo punto.";
+}
+
+function buildInlineKnowledgeReply(hit) {
+  const body = [
+    String(hit?.response || "").trim(),
+    String(hit?.advisorPrompt || "").trim(),
+    getResumePromptAfterInterrupt()
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const msg = makeBotMessage(body);
+  msg._flow = {
+    allowFreeText: true,
+    inlineFAQ: hit?.category === "faq",
+    inlineKnowledge: true,
+    faqIntentId: hit?.id || "",
+    knowledgeIntentId: hit?.id || "",
+    knowledgeCategory: hit?.category || ""
+  };
+  return msg;
+}
+
+function handleInlineKnowledgeInterrupt(text = "") {
+  const hit = findInlineKnowledgeIntent(text);
+  if (!hit) return null;
+
+  return {
+    hit,
+    botReply: buildInlineKnowledgeReply(hit)
+  };
+}
+
+function isGenericFlowFallbackReply(botReply) {
+  if (!botReply) return false;
+  if (botReply?._flow?.buttonsOnly) return true;
+
+  const clean = normalizeLite(botReply?.text || "");
+  if (!clean) return false;
+
+  return (
+    clean.includes("no te entendi") ||
+    clean.includes("no te entendi del todo") ||
+    clean.includes("didnt fully get") ||
+    clean.includes("didn't fully get") ||
+    clean.includes("use the buttons") ||
+    clean.includes("elige una opcion")
+  );
+}
+
+function buildKnowledgeFallbackReply(userText = "", seedReply = null) {
+  const lang = getLang();
+  const cfg = getSmartFallbackConfig(lang);
+  const nearby = findNearbyKnowledgeTopics(userText, 3).map((item) => item.label).filter(Boolean);
+  const defaults = Array.isArray(cfg?.defaultSuggestions)
+    ? cfg.defaultSuggestions.map((item) => String(item || "").trim()).filter(Boolean)
+    : [];
+
+  const suggestions = [...nearby, ...defaults]
+    .filter(Boolean)
+    .filter((item, idx, arr) => arr.findIndex((candidate) => normalizeLite(candidate) === normalizeLite(item)) === idx)
+    .slice(0, 4);
+
+  const intro =
+    getLocalizedKBText(cfg?.message, lang) ||
+    (lang === "en"
+      ? "I didn't fully place it, but I can still help you with Musicala programs, modalities, extra services and basic guidance."
+      : "No lo ubiqué del todo, pero igual puedo ayudarte con programas, modalidades, servicios adicionales y orientación básica.");
+
+  const suggestionLine = suggestions.length
+    ? (lang === "en"
+        ? `Maybe it is closer to: ${joinHumanList(suggestions, lang)}.`
+        : `De pronto va más por: ${joinHumanList(suggestions, lang)}.`)
+    : "";
+
+  const continueLine = seedReply?.options?.length
+    ? (lang === "en"
+        ? "Meanwhile, you can also continue with one of the options below."
+        : "Mientras tanto, también puedes seguir con una de las opciones de abajo.")
+    : (lang === "en"
+        ? "If you tell me who it is for, the art area or the modality, I can guide you better."
+        : "Si me dices para quién es, el área artística o la modalidad, puedo orientarte mejor.");
+
+  const advisorLine =
+    getLocalizedKBText(cfg?.advisorHint, lang) ||
+    (lang === "en"
+      ? "If you prefer, you can also speak with an advisor on WhatsApp."
+      : "Si prefieres, también puedes hablar con un asesor por WhatsApp.");
+
+  const text = [intro, suggestionLine, continueLine, advisorLine]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const msg = seedReply ? { ...seedReply, text } : makeBotMessage(text);
+  msg._flow = {
+    ...(seedReply?._flow || {}),
+    smartFallback: true
+  };
+  return msg;
+}
+
+function enhanceBotReplyWithKnowledgeFallback(userText = "", botReply = null) {
+  if (!botReply || !kbCache || !isGenericFlowFallbackReply(botReply)) return botReply;
+  return buildKnowledgeFallbackReply(userText, botReply);
+}
+
+function applyUIHintsAfterBotReply() {
+  const nodeId = String(state?.progress?.lastNodeId || "");
+  if (!nodeId) return;
+
+  // Caso específico: si el usuario eligió HOGAR en vacacionales,
+  // abrimos automáticamente la FAQ de "Zonas de cobertura (Hogar)".
+  if (nodeId === "flow_intensivos_hogar") {
+    openFAQQuestionContains(getLang() === "en" ? "Coverage areas" : "Zonas de cobertura");
+  }
+}
+
+
+/* =========================
    STATE SHAPE (defensivo)
 ========================= */
 
@@ -495,13 +948,13 @@ function normalizeStateShape(s) {
   s.memory = s.memory || {};
   s.memory.ui = s.memory.ui || { stage: null, lang: null };
 
-  // lead.* existe por consistencia (aunque tu webflow guarda directo en memory.*)
   s.memory.lead = s.memory.lead || {
     name: "",
     phone: "",
     edad: "",
     arte: "",
-    modalidad: ""
+    modalidad: "",
+    servicio: ""
   };
 
   s.memory.capture = s.memory.capture || { stage: null };
@@ -509,6 +962,7 @@ function normalizeStateShape(s) {
 
   if (s.memory.arte == null) s.memory.arte = s.memory.arte || "";
   if (s.memory.modalidad == null) s.memory.modalidad = s.memory.modalidad || "";
+  if (s.memory.servicio == null) s.memory.servicio = s.memory.servicio || "";
 
   s.currentNodeId = s.currentNodeId || null;
   s.awaitingNodeId = s.awaitingNodeId || null;
@@ -516,6 +970,11 @@ function normalizeStateShape(s) {
 
   s.history = Array.isArray(s.history) ? s.history : [];
   s.lastOptions = Array.isArray(s.lastOptions) ? s.lastOptions : [];
+
+  // persist UI lang on load
+  const persistedLang = normalizeLang(s.memory?.ui?.lang);
+  if (persistedLang) uiLang = persistedLang;
+
   return s;
 }
 
@@ -523,16 +982,8 @@ function normalizeStateShape(s) {
    FLOW CONTROL (puro)
 ========================= */
 
-/**
- * ✅ ComposerMode: la fuente de verdad es el último bot msg:
- * - msg._flow.allowFreeText === true  -> text
- * - msg._flow.allowFreeText === false -> chips
- * - si no existe _flow -> chips por defecto
- */
 function updateComposerModeFromFlow() {
-  try {
-    syncComposerMode(state);
-  } catch {}
+  try { syncComposerMode(state); } catch {}
 
   try {
     const history = state?.history || [];
@@ -551,9 +1002,6 @@ function updateComposerModeFromFlow() {
   }
 }
 
-/**
- * Arranca el flow si aún no ha arrancado.
- */
 function startFlowIfNeeded() {
   state.memory = state.memory || {};
   state.memory.flags = state.memory.flags || {};
@@ -576,7 +1024,7 @@ function startFlowIfNeeded() {
   renderChips(state);
   updateComposerModeFromFlow();
 
-  syncLeadFromState();
+  scheduleLeadSync();
   saveState(state);
 }
 
@@ -588,8 +1036,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     bindLangUI();
 
-    // Idioma visual por defecto
-    applyUILang("es");
+    // Estado
+    state = normalizeStateShape(loadState() || getInitialState());
+
+    // Idioma visual por defecto (o persistido)
+    applyUILang(uiLang || "es");
 
     // Escuchar idioma elegido desde INTRO
     window.addEventListener("musibot:lang", (e) => {
@@ -597,14 +1048,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (lang === "es" || lang === "en") applyUILang(lang);
     });
 
-    // Estado
-    state = normalizeStateShape(loadState() || getInitialState());
+    // Render inicial (para que no se vea vacío mientras carga flow)
+    renderAll(state);
 
     // Flow
     await loadFlow();
 
-    // WhatsApp
-    setupWhatsAppBtn();
+    // WhatsApp TOP: siempre activo
+    setupWhatsAppTopBtn();
 
     // Intro
     initIntro(startApp, {
@@ -625,14 +1076,14 @@ function startApp() {
   bindReset(onReset);
   bindChips(onChipClick);
 
-  loadFAQ();
+  loadFAQ(); // async
 
   startFlowIfNeeded();
 
   renderChips(state);
   updateComposerModeFromFlow();
 
-  syncLeadFromState();
+  scheduleLeadSync();
   saveState(state);
 }
 
@@ -640,42 +1091,59 @@ function startApp() {
    HANDLERS
 ========================= */
 
+function isTextAllowedNow() {
+  return true;
+}
+
 function onUserSubmit(text) {
   const value = String(text || "").trim();
   if (!value) return;
-
-  // Si el último bot msg no permite texto, ignoramos envíos por teclado.
-  try {
-    const history = state?.history || [];
-    const lastBot = [...history].reverse().find((m) => m?.from === "bot");
-    const allow = lastBot?._flow?.allowFreeText;
-
-    if (allow !== true) return;
-  } catch {
-    return;
-  }
-
-  // Guard extra: si no hay awaitingNodeId, no aceptamos texto libre
-  if (!state?.awaitingNodeId) return;
 
   const userMsg = makeUserMessage(value);
   state.history.push(userMsg);
   appendMessage(userMsg);
 
-  const botReply = handleUserInput(value, state);
+  const knowledgeInterrupt = handleInlineKnowledgeInterrupt(value);
+  if (knowledgeInterrupt?.botReply) {
+    state.history.push(knowledgeInterrupt.botReply);
+    appendMessage(knowledgeInterrupt.botReply);
+
+    if (knowledgeInterrupt.hit?.category === "faq" && knowledgeInterrupt.hit?.faqTitle) {
+      openFAQQuestionContains(knowledgeInterrupt.hit.faqTitle);
+    }
+
+    renderChips(state);
+    updateComposerModeFromFlow();
+
+    scheduleLeadSync();
+    saveState(state);
+    return;
+  }
+
+  const botReply = enhanceBotReplyWithKnowledgeFallback(
+    value,
+    handleUserInput(value, state)
+  );
   if (botReply) {
     state.history.push(botReply);
     appendMessage(botReply);
+    applyUIHintsAfterBotReply();
+
+    // Acción global (defensivo)
+    const action = botReply?._flow?.action;
+    if (action === "WHATSAPP") openWhatsAppFinal(); // 👈 SOLO cuando el flow lo pida (normalmente en cierre)
+    if (action === "FAQ") openHelpPanel("faq");
+    if (action === "MENU") openHelpPanel();
   }
 
   renderChips(state);
   updateComposerModeFromFlow();
 
-  syncLeadFromState();
+  scheduleLeadSync();
   saveState(state);
 }
 
-function onChipClick(value, kind) {
+function onChipClick(value, kind, label) {
   if (!value) return;
 
   // Chips UI: idioma
@@ -687,14 +1155,14 @@ function onChipClick(value, kind) {
   // Acciones UI (si existen)
   if (kind === "global:FAQ") { openHelpPanel("faq"); return; }
   if (kind === "global:MENU") { openHelpPanel(); return; }
-  if (kind === "global:WHATSAPP") {
-    const waBtn = document.getElementById("waBtn");
-    if (waBtn && waBtn.href) window.open(waBtn.href, "_blank", "noopener");
-    return;
-  }
+
+  // OJO: el chip WHATSAPP de abajo SOLO aparece al final (lo filtra ui.js).
+  // Aquí solo ejecutamos la acción.
+  if (kind === "global:WHATSAPP") { openWhatsAppFinal(); return; }
 
   // Chip como input de conversación
-  const userMsg = makeUserMessage(value);
+  const visibleValue = String(label || value);
+  const userMsg = makeUserMessage(visibleValue);
   state.history.push(userMsg);
   appendMessage(userMsg);
 
@@ -702,17 +1170,25 @@ function onChipClick(value, kind) {
   if (botReply) {
     state.history.push(botReply);
     appendMessage(botReply);
+    applyUIHintsAfterBotReply();
+
+    const action = botReply?._flow?.action;
+    if (action === "WHATSAPP") openWhatsAppFinal();
+    if (action === "FAQ") openHelpPanel("faq");
+    if (action === "MENU") openHelpPanel();
   }
 
   renderChips(state);
   updateComposerModeFromFlow();
 
-  syncLeadFromState();
+  scheduleLeadSync();
   saveState(state);
 }
 
 function onReset() {
   state = normalizeStateShape(resetState());
+  state.memory.ui = state.memory.ui || {};
+  state.memory.ui.lang = getLang();
 
   state.memory.flags.flowStarted = false;
 
@@ -726,42 +1202,65 @@ function onReset() {
   renderChips(state);
   updateComposerModeFromFlow();
 
-  // Solo focus si realmente está en modo texto
-  try {
-    const history = state?.history || [];
-    const lastBot = [...history].reverse().find((m) => m?.from === "bot");
-    if (lastBot?._flow?.allowFreeText === true) focusInput();
-  } catch {}
+  if (isTextAllowedNow()) focusInput();
 
   saveState(state);
+
+  // TOP sigue activo siempre
+  setupWhatsAppTopBtn();
 }
 
 /* =========================
    WHATSAPP
 ========================= */
 
-let waGuardBound = false;
+function normalizeWhatsAppNumber(raw) {
+  return String(raw || "").replace(/[^\d]/g, "");
+}
 
-function setupWhatsAppBtn() {
-  const waBtn = document.getElementById("waBtn");
-  if (!waBtn) return;
+function getWhatsAppNumberOrWarn() {
+  const number = normalizeWhatsAppNumber(CONFIG.WHATSAPP_NUMBER);
+  if (!number || number.includes("XXXXXXXX")) return "";
+  return number;
+}
 
-  const number = (CONFIG.WHATSAPP_NUMBER || "").replace(/[^\d]/g, "");
+/**
+ * TOP WA = salida libre, mensaje genérico.
+ * - Preferencia: data attributes del <a id="waBtnTop"> en index.html
+ * - Fallback: CONFIG.WHATSAPP_TEXT_ES/EN o i18n fallback
+ */
+function getTopWhatsAppText() {
   const lang = getLang();
+  const el = document.getElementById("waBtnTop");
 
-  const rawText =
+  const fromData =
     lang === "en"
-      ? (CONFIG.WHATSAPP_TEXT_EN || CONFIG.WHATSAPP_TEXT_ES || "Hi 👋")
-      : (CONFIG.WHATSAPP_TEXT_ES || "Hola 👋");
+      ? (el?.getAttribute("data-wa-text-en") || "")
+      : (el?.getAttribute("data-wa-text-es") || "");
 
-  const text = encodeURIComponent(rawText);
+  const fromConfig =
+    lang === "en"
+      ? (CONFIG.WHATSAPP_TOP_TEXT_EN || CONFIG.WHATSAPP_TEXT_EN || "")
+      : (CONFIG.WHATSAPP_TOP_TEXT_ES || CONFIG.WHATSAPP_TEXT_ES || "");
 
-  if (!number || number.includes("XXXXXXXX")) {
-    waBtn.href = "#";
-    if (!waGuardBound) {
-      waGuardBound = true;
-      waBtn.addEventListener("click", (e) => {
-        if (waBtn.getAttribute("href") === "#") {
+  const fallback = lang === "en" ? t("waTopFallback") : t("waTopFallback");
+  return pickFirstNonEmpty(fromData, fromConfig, fallback);
+}
+
+let waTopGuardBound = false;
+function setupWhatsAppTopBtn() {
+  const el = document.getElementById("waBtnTop");
+  if (!el) return;
+
+  const number = getWhatsAppNumberOrWarn();
+  const text = getTopWhatsAppText();
+
+  if (!number) {
+    el.href = "#";
+    if (!waTopGuardBound) {
+      waTopGuardBound = true;
+      el.addEventListener("click", (e) => {
+        if (el.getAttribute("href") === "#") {
           e.preventDefault();
           alert(t("waConfigMissing"));
         }
@@ -770,7 +1269,71 @@ function setupWhatsAppBtn() {
     return;
   }
 
-  waBtn.href = `https://wa.me/${number}?text=${text}`;
+  el.setAttribute("aria-disabled", "false");
+  el.classList.remove("muted");
+
+  el.href = `https://wa.me/${number}?text=${encodeURIComponent(String(text).trim())}`;
+}
+
+/**
+ * FINAL WA (chip) = resumen mínimo sin nombre/teléfono.
+ * “Hola, quiero clases de X para una persona de Y años. Modalidad: Z.”
+ * - Si faltan campos, se arma igual sin sonar raro.
+ */
+function buildWhatsAppFinalText() {
+  const lang = getLang();
+  const { servicio, edad, arte, modalidad } = readLeadFieldsFromState();
+
+  const svc = servicio ? String(servicio).trim() : "";
+  const art = arte ? String(arte).trim() : "";
+  const age = edad ? String(edad).trim() : "";
+  const mode = modalidad ? String(modalidad).trim() : "";
+
+  if (lang === "en") {
+    const head = (CONFIG.WHATSAPP_FINAL_TEXT_EN || "").trim();
+    const start = head || t("waFinalFallback"); // fallback EN
+    const parts = [];
+
+    // Preferimos "classes of {arte}" si hay arte, si no, servicio
+    const what = art || svc;
+    if (what && age) parts.push(`I want ${what} classes for someone aged ${age}.`);
+    else if (what) parts.push(`I want ${what} classes.`);
+    else if (age) parts.push(`I want classes for someone aged ${age}.`);
+
+    if (mode) parts.push(`Mode: ${mode}.`);
+
+    // Si no hay nada, al menos "I want info"
+    const body = parts.length ? parts.join(" ") : "I’d like information about classes.";
+    return `${start}\n\n${body}`.trim();
+  }
+
+  // ES
+  const head = (CONFIG.WHATSAPP_FINAL_TEXT_ES || "").trim();
+  const start = head || t("waFinalFallback");
+
+  const parts = [];
+  const what = art || svc;
+
+  if (what && age) parts.push(`Quiero clases de ${what} para una persona de ${age}.`);
+  else if (what) parts.push(`Quiero clases de ${what}.`);
+  else if (age) parts.push(`Quiero clases para una persona de ${age}.`);
+
+  if (mode) parts.push(`Modalidad: ${mode}.`);
+
+  const body = parts.length ? parts.join(" ") : "Quiero información sobre clases.";
+  return `${start}\n\n${body}`.trim();
+}
+
+function openWhatsAppFinal() {
+  const number = getWhatsAppNumberOrWarn();
+  if (!number) {
+    alert(t("waConfigMissing"));
+    return;
+  }
+
+  const text = buildWhatsAppFinalText();
+  const href = `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+  window.open(href, "_blank", "noopener");
 }
 
 /* =========================
@@ -792,7 +1355,10 @@ function renderFAQFromKB() {
 
 async function loadFAQ() {
   try {
-    const res = await fetch(CONFIG.KB_URL, { cache: "no-store" });
+    const kbUrl = String(CONFIG.KB_URL || "").trim();
+    if (!kbUrl) return;
+
+    const res = await fetch(kbUrl, { cache: "no-store" });
     if (!res.ok) return;
 
     kbCache = await res.json();
