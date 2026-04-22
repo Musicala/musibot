@@ -30,6 +30,7 @@ const EN = {
     helpTitle: "Help",
     helpQuick: "Quick help",
     faqTitle: "FAQ",
+    siteShort: "Website",
 
     // Media
     videoNotSupported: "Your browser doesn’t support video.",
@@ -226,6 +227,7 @@ const EN = {
   helpTitle: "Help",
   helpQuick: "Quick help",
   faqTitle: "FAQ",
+  siteShort: "Website",
   videoNotSupported: "Your browser doesn’t support video.",
   introTitle: "Welcome to MusiBot 🎵",
   introP1:
