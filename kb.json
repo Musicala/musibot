@@ -183,6 +183,12 @@
         "es": [
           "ubicación",
           "ubicacion",
+          "estan en bogota",
+          "estÃ¡n en bogotÃ¡",
+          "estan ubicados en bogota",
+          "estÃ¡n ubicados en bogotÃ¡",
+          "quedan en bogota",
+          "quedan en bogotÃ¡",
           "dónde están ubicados",
           "donde estan ubicados",
           "dónde se ubican",
@@ -227,6 +233,15 @@
           "disciplinas",
           "música danza teatro artes plásticas",
           "musica danza teatro artes plasticas",
+          "interesada en clases de baile",
+          "clases de baile",
+          "clases de guitarra",
+          "clases de canto",
+          "clases de bateria",
+          "clases de baterÃ­a",
+          "guitarra y canto",
+          "bateria para mi hijo",
+          "baterÃ­a para mi hijo",
           "areas artisticas",
           "áreas artísticas"
         ],
@@ -1116,6 +1131,8 @@
           "reciben principiantes",
           "soy principiante",
           "es para principiantes",
+          "guitarra y canto para principiantes",
+          "clases de guitarra y canto para principiantes",
           "nunca he visto",
           "nunca ha visto clases",
           "sin experiencia"
@@ -1129,8 +1146,8 @@
         ]
       },
       "response": {
-        "es": "Sí, claro 🌟\nMusicala acompaña procesos desde niveles iniciales y también desde metas más avanzadas.\nLa idea es adaptarlo al punto de partida del estudiante, no esperar que llegue sabiendo.",
-        "en": "Yes, absolutely 🌟\nMusicala supports people from beginner levels and also from more advanced goals.\nThe idea is to adapt to the student’s starting point, not to expect previous knowledge."
+        "es": "Sí, claro 🌟\nMusicala acompaña procesos desde niveles iniciales y también desde metas más avanzadas.\nLa idea es adaptar la experiencia al punto de partida del estudiante, para que avance con confianza y a su ritmo.",
+        "en": "Yes, absolutely 🌟\nMusicala supports people from beginner levels and also from more advanced goals.\nThe idea is to adapt the experience to the student’s starting point so they can grow with confidence and at their own pace."
       }
     },
     {
@@ -1410,6 +1427,10 @@
           "quiero algo artistico para mi hija",
           "quiero algo artístico para mi hija",
           "busco algo artistico para mi hijo",
+          "estoy interesada en las clases de bateria para mi hijo",
+          "estoy interesado en las clases de bateria para mi hijo",
+          "estoy interesada en las clases de baterÃ­a para mi hijo",
+          "estoy interesado en las clases de baterÃ­a para mi hijo",
           "busco algo artístico para mi hijo",
           "algo para mi hijo",
           "algo para mi hija",
