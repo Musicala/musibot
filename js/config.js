@@ -76,6 +76,7 @@ export const CONFIG = Object.freeze({
   WHATSAPP_NUMBER: "573193529475", // +57 319 352 9475 (sin +)
   WHATSAPP_TEXT_ES: "Hola, quiero información sobre clases en Musicala 🙌",
   WHATSAPP_TEXT_EN: "Hi, I want information about classes at Musicala 🙌",
+  WEBSITE_URL: "https://www.imusicala.com",
 
   /* =========================
      FLOW ENGINE (special nodes)
@@ -203,6 +204,7 @@ export const CONFIG = Object.freeze({
       RESET: "RESET",
       FAQ: "FAQ",
       WHATSAPP: "WHATSAPP",
+      USD_APPROX: "USD_APPROX",
     },
 
     // Definición textual por si en algún momento vuelves a renderizar chips.
@@ -211,7 +213,13 @@ export const CONFIG = Object.freeze({
       MENU: { es: "Inicio", en: "Home" },
       RESET: { es: "Reiniciar", en: "Restart" },
       WHATSAPP: { es: "Hablar por WhatsApp", en: "WhatsApp" },
+      USD_APPROX: { es: "Aprox. en USD", en: "Approx. in USD" },
     },
+  },
+
+  USD: {
+    APPROX_COP_RATE: 4000,
+    MIN_PRICE_BUTTONS: 1,
   },
 
   /* =========================

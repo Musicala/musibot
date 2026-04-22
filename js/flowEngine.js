@@ -105,6 +105,148 @@ function makeWhatsAppReadyMessage(state, mode = "ready") {
   return msg;
 }
 
+function formatCopAmount(amount, lang = "es") {
+  const safe = Number(amount || 0);
+  const locale = lang === "en" ? "en-US" : "es-CO";
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0
+  }).format(safe);
+}
+
+function formatUsdAmount(amount, lang = "es") {
+  const safe = Number(amount || 0);
+  const locale = lang === "en" ? "en-US" : "es-CO";
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(safe);
+}
+
+function extractCopPriceValues(text = "") {
+  const raw = String(text || "");
+  if (!raw) return [];
+
+  const matches = [...raw.matchAll(/(?:COP\s*)?\$\s*([\d.,]+)/gi)];
+  const seen = new Set();
+  const out = [];
+
+  for (const match of matches) {
+    const source = String(match[1] || "").trim();
+    if (!source) continue;
+
+    let normalized = source.replace(/\s+/g, "");
+    if (normalized.includes(".") && normalized.includes(",")) {
+      normalized = normalized.replace(/\./g, "").replace(/,/g, ".");
+    } else if (normalized.includes(".")) {
+      normalized = normalized.replace(/\./g, "");
+    } else if (normalized.includes(",")) {
+      const parts = normalized.split(",");
+      normalized = parts.length > 1 && parts[parts.length - 1].length <= 2
+        ? normalized.replace(/\./g, "").replace(/,/g, ".")
+        : normalized.replace(/,/g, "");
+    }
+
+    const amount = Math.round(Number(normalized));
+    if (!Number.isFinite(amount) || amount <= 0) continue;
+    if (seen.has(amount)) continue;
+    seen.add(amount);
+    out.push(amount);
+  }
+
+  return out;
+}
+
+const PRICE_MAP_BY_IMAGE = Object.freeze({
+  "assets/planesvirtuales.png": [282000, 536000, 760000, 1434000],
+  "assets/planespersonalizados.png": [314000, 594000, 844000, 1594000],
+  "assets/planesgrupales.png": [160000, 304000, 432000, 810000],
+  "assets/planeshogar.png": [376000, 714000, 1012000, 1912000],
+  "assets/intensivos.png": [
+    250000, 475000, 675000, 1274000,
+    225000, 428000, 607000, 1147000,
+    325000, 617000, 877000, 1657000
+  ]
+});
+
+const PRICE_LABELS_BY_IMAGE = Object.freeze({
+  "assets/planesvirtuales.png": [
+    "Plan de 4 clases",
+    "Plan de 8 clases",
+    "Plan de 12 clases",
+    "Plan de 24 clases"
+  ],
+  "assets/planespersonalizados.png": [
+    "Paquete de 4 clases",
+    "Paquete de 8 clases",
+    "Paquete de 12 clases",
+    "Paquete de 24 clases"
+  ],
+  "assets/planesgrupales.png": [
+    "Plan de 4 clases",
+    "Plan de 8 clases",
+    "Plan de 12 clases",
+    "Plan de 24 clases"
+  ],
+  "assets/planeshogar.png": [
+    "Plan de 4 clases",
+    "Plan de 8 clases",
+    "Plan de 12 clases",
+    "Plan de 24 clases"
+  ],
+  "assets/intensivos.png": [
+    "Sede personalizada - 4 clases",
+    "Sede personalizada - 8 clases",
+    "Sede personalizada - 12 clases",
+    "Sede personalizada - 24 clases",
+    "Virtual - 4 clases",
+    "Virtual - 8 clases",
+    "Virtual - 12 clases",
+    "Virtual - 24 clases",
+    "Hogar - 4 clases",
+    "Hogar - 8 clases",
+    "Hogar - 12 clases",
+    "Hogar - 24 clases"
+  ]
+});
+
+function normalizeMediaUrl(url = "") {
+  return String(url || "")
+    .trim()
+    .replace(/^\.?\//, "")
+    .toLowerCase();
+}
+
+function getNodeCopPriceValues(node, state, media = []) {
+  const p = getNodeOptions(node, state);
+  const rawText = String(p?.textMessage || p?.message || "").trim();
+  const fromText = extractCopPriceValues(rawText);
+  if (fromText.length) return fromText;
+
+  for (const item of media) {
+    const key = normalizeMediaUrl(item?.url || item?.src || "");
+    if (!key) continue;
+    if (Array.isArray(PRICE_MAP_BY_IMAGE[key]) && PRICE_MAP_BY_IMAGE[key].length) {
+      return [...PRICE_MAP_BY_IMAGE[key]];
+    }
+  }
+
+  return [];
+}
+
+function getNodePriceLabels(media = [], count = 0) {
+  for (const item of media) {
+    const key = normalizeMediaUrl(item?.url || item?.src || "");
+    if (!key) continue;
+    const labels = PRICE_LABELS_BY_IMAGE[key];
+    if (Array.isArray(labels) && labels.length) return labels.slice(0, count);
+  }
+  return Array.from({ length: count }, (_, idx) => `Plan ${idx + 1}`);
+}
+
 function getNodeTranslation(nodeId, state) {
   const lang = getStateLang(state);
   if (lang !== "en") return null;
@@ -637,6 +779,8 @@ function handleAutobotAction(node, state) {
   state.awaitingNodeId = wait ? node.id : null;
 
   const media = p.hideMedia ? [] : extractMediaFromAutobotOptions(p);
+  const usdApproxOption = getUsdApproxOption(state, node, media);
+  const finalOptions = usdApproxOption ? [...options, usdApproxOption] : options;
 
   let text =
     textRaw ||
@@ -657,8 +801,8 @@ function handleAutobotAction(node, state) {
 
   // ✅ FIX v4.3.0: preservar options completas (no solo labels)
   // Para compatibilidad: también generamos labels fallback.
-  const msg = makeBotMessage(text, options.map((o) => o.label));
-  msg.options = options.map((o) => ({
+  const msg = makeBotMessage(text, finalOptions.map((o) => o.label));
+  msg.options = finalOptions.map((o) => ({
     label: o.label,
     value: o.value,
     kind: o.kind || "option"
@@ -673,7 +817,7 @@ function handleAutobotAction(node, state) {
     nodeId: node.id,
     nodeName: String(node.name || ""),
     allowFreeText,
-    hasOptions: Boolean(options.length),
+    hasOptions: Boolean(finalOptions.length),
     source: FLOW?.sourceByNodeId?.[node.id] || null,
     waitResponse: wait,
     isClosing
@@ -700,6 +844,8 @@ function buildAutobotReply(node, state, seed = null) {
   const options = gateOptionsForUX(normalizeOptions(p.options), node, state);
   const wait = Boolean(p.waitResponse);
   const media = p.hideMedia ? [] : extractMediaFromAutobotOptions(p);
+  const usdApproxOption = getUsdApproxOption(state, node, media);
+  const finalOptions = usdApproxOption ? [...options, usdApproxOption] : options;
 
   const text =
     textRaw ||
@@ -712,9 +858,9 @@ function buildAutobotReply(node, state, seed = null) {
 
   const msg = seed
     ? { ...seed, text }
-    : makeBotMessage(text, options.map((o) => o.label));
+    : makeBotMessage(text, finalOptions.map((o) => o.label));
 
-  msg.options = options.map((o) => ({
+  msg.options = finalOptions.map((o) => ({
     label: o.label,
     value: o.value,
     kind: o.kind || "option"
@@ -730,11 +876,96 @@ function buildAutobotReply(node, state, seed = null) {
     nodeId: node.id,
     nodeName: String(node.name || ""),
     allowFreeText,
-    hasOptions: Boolean(options.length),
+    hasOptions: Boolean(finalOptions.length),
     source: FLOW?.sourceByNodeId?.[node.id] || null,
     waitResponse: wait,
     isClosing
   };
+
+  return msg;
+}
+
+function getCurrentNodeForUsdApprox(state) {
+  const nodeId = String(state?.currentNodeId || state?.awaitingNodeId || "").trim();
+  return nodeId ? getNode(nodeId) : null;
+}
+
+function getUsdApproxOption(state, node, media = []) {
+  const hasImage = Array.isArray(media) && media.some((item) => String(item?.type || "").toLowerCase() === "image");
+  if (!hasImage) return null;
+
+  const prices = getNodeCopPriceValues(node, state, media);
+  const minPrices = Number(CONFIG.USD?.MIN_PRICE_BUTTONS ?? 1);
+  if (prices.length < minPrices) return null;
+
+  const isEn = getStateLang(state) === "en";
+  return {
+    label: isEn ? "Approx. in USD" : "Aprox. en USD",
+    value: "USD_APPROX",
+    kind: "global:USD_APPROX"
+  };
+}
+
+function makeUsdApproxMessage(state, node) {
+  const lang = getStateLang(state);
+  const rate = Number(CONFIG.USD?.APPROX_COP_RATE ?? 4000);
+  const p = getNodeOptions(node, state);
+  const media = p.hideMedia ? [] : extractMediaFromAutobotOptions(p);
+  const prices = getNodeCopPriceValues(node, state, media);
+  const labels = getNodePriceLabels(media, prices.length);
+
+  if (!prices.length || !Number.isFinite(rate) || rate <= 0) {
+    return makeBotMessage(
+      lang === "en"
+        ? "I couldn't calculate an approximate USD conversion for this step yet."
+        : "Todavía no pude calcular una conversión aproximada a USD para este paso."
+    );
+  }
+
+  const lines = prices.map((amount, idx) => {
+    const usd = Math.round(amount / rate);
+    const label = String(labels[idx] || `Plan ${idx + 1}`).trim();
+    return lang === "en"
+      ? `- ${label}: ${formatCopAmount(amount, lang)} is approximately ${formatUsdAmount(usd, lang)}`
+      : `- ${label}: ${formatCopAmount(amount, lang)} son aproximadamente ${formatUsdAmount(usd, lang)}`;
+  });
+
+  const text = lang === "en"
+    ? [
+        `Approximate conversion to USD using COP ${rate.toLocaleString("en-US")} per USD:`,
+        "",
+        ...lines,
+        "",
+        "This is only a quick reference. The official price and payment are handled in COP."
+      ].join("\n")
+    : [
+        `Conversión aproximada a USD usando COP ${rate.toLocaleString("es-CO")} por cada USD:`,
+        "",
+        ...lines,
+        "",
+        "Esto es solo una referencia rápida. El valor oficial y el pago se manejan en COP."
+      ].join("\n");
+
+  const msg = makeBotMessage(text);
+  const originalOptions = getAutobotOptions(node, state)
+    .filter((opt) => String(opt?.value || "").toUpperCase() !== "USD_APPROX");
+
+  if (originalOptions.length) {
+    msg.options = originalOptions.map((o) => ({
+      label: o.label,
+      value: o.value,
+      kind: o.kind || "option"
+    }));
+    msg._flow = {
+      nodeId: node.id,
+      nodeName: String(node.name || ""),
+      allowFreeText: false,
+      hasOptions: true,
+      source: FLOW?.sourceByNodeId?.[node.id] || null,
+      waitResponse: Boolean(p.waitResponse),
+      isClosing: allowWhatsAppNow(node, state) || isCierreNode(node)
+    };
+  }
 
   return msg;
 }
@@ -780,7 +1011,8 @@ function isMenuLikeOption(opt) {
 }
 
 function isFinalWhatsAppNode(node, state) {
-  const options = getAutobotOptions(node, state);
+  const p = getNodeOptions(node, state);
+  const options = normalizeOptions(p.options);
   if (!options.length) return false;
 
   const waOptions = options.filter((o) => isWhatsAppOption(o));
@@ -1007,6 +1239,18 @@ function handleGlobalAction(action, state) {
       return makeBotMessage("Listo 💬 Dale al botón de WhatsApp y te llevo directo. Ya tengo tu info y el punto donde vas ✅");
     }
 
+    case "USD_APPROX": {
+      const currentNode = getCurrentNodeForUsdApprox(state);
+      if (!currentNode) {
+        return makeBotMessage(
+          getStateLang(state) === "en"
+            ? "I couldn't identify the current pricing step."
+            : "No logré identificar el paso actual de precios."
+        );
+      }
+      return makeUsdApproxMessage(state, currentNode);
+    }
+
     default:
       return makeBotMessage(flowText(state, "defaultMenu", "Ok... menu?"));
       return makeBotMessage("Ok… ¿menú? 😅");
@@ -1033,7 +1277,10 @@ function shouldSkipNode(node) {
 ========================= */
 function getAutobotOptions(node, state) {
   const p = getNodeOptions(node, state);
-  return normalizeOptions(p.options);
+  const options = gateOptionsForUX(normalizeOptions(p.options), node, state);
+  const media = p.hideMedia ? [] : extractMediaFromAutobotOptions(p);
+  const usdApproxOption = getUsdApproxOption(state, node, media);
+  return usdApproxOption ? [...options, usdApproxOption] : options;
 }
 
 /**

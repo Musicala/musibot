@@ -574,6 +574,7 @@ function dict(lang) {
     helpTitle: "Ayuda",
     helpQuick: "Ayuda rápida",
     faqTitle: "Preguntas frecuentes",
+    siteShort: "Sitio web",
     videoNotSupported: "Tu navegador no soporta video.",
     introTitle: "Bienvenido a MusiBot 🎵",
     introP1: "Soy tu asistente de Musicala.",
@@ -594,6 +595,7 @@ function dict(lang) {
     helpTitle: "Help",
     helpQuick: "Quick help",
     faqTitle: "FAQ",
+    siteShort: "Website",
     videoNotSupported: "Your browser doesn’t support video.",
     introTitle: "Welcome to MusiBot 🎵",
     introP1: "I’m Musicala’s assistant.",
@@ -642,6 +644,7 @@ function applyUILang(lang) {
 
   // WhatsApp TOP siempre listo y con texto del idioma
   setupWhatsAppTopBtn();
+  setupWebsiteTopBtn();
 
   if (state) {
     try {
@@ -1655,6 +1658,25 @@ function onChipClick(value, kind, label) {
   // OJO: el chip WHATSAPP de abajo SOLO aparece al final (lo filtra ui.js).
   // Aquí solo ejecutamos la acción.
   if (kind === "global:WHATSAPP") { openWhatsAppFinal(); return; }
+  if (kind === "global:USD_APPROX") {
+    const visibleValue = String(label || value);
+    const userMsg = makeUserMessage(visibleValue);
+    state.history.push(userMsg);
+    appendMessage(userMsg);
+
+    const botReply = handleUserInput(value, state);
+    if (botReply) {
+      state.history.push(botReply);
+      appendMessage(botReply);
+      applyUIHintsAfterBotReply();
+    }
+
+    renderChips(state);
+    updateComposerModeFromFlow();
+    scheduleLeadSync();
+    saveState(state);
+    return;
+  }
 
   // Chip como input de conversación
   const visibleValue = String(label || value);
@@ -1774,6 +1796,28 @@ function setupWhatsAppTopBtn() {
   el.classList.remove("muted");
 
   el.href = `https://wa.me/${number}?text=${encodeURIComponent(String(text).trim())}`;
+}
+
+function getWebsiteUrl() {
+  const url = String(CONFIG.WEBSITE_URL || "").trim();
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  return `https://${url}`;
+}
+
+function setupWebsiteTopBtn() {
+  const el = document.getElementById("siteBtnTop");
+  if (!el) return;
+
+  const url = getWebsiteUrl();
+  if (!url) {
+    el.setAttribute("href", "#");
+    el.setAttribute("aria-disabled", "true");
+    return;
+  }
+
+  el.setAttribute("href", url);
+  el.setAttribute("aria-disabled", "false");
 }
 
 /**
