@@ -1074,7 +1074,9 @@ function handleFilterInternal(node, state) {
 
     if (ok) {
       if (c.storeResponseInMemory && c.labelInMemory) {
-        setMemoryByPath(state, String(c.labelInMemory), last);
+        const guard = validateLeadMemoryWrite(String(c.labelInMemory), last, state);
+        if (!guard.ok) return buildInvalidLeadFieldReply(guard.field, state);
+        setMemoryByPath(state, guard.path, guard.value);
       }
 
       if (!getNode(target)) {
@@ -1109,6 +1111,146 @@ function handleFilterInternal(node, state) {
   }
 
   return makeBotMessage("No encontré a dónde rutear 😅");
+}
+
+function validateLeadMemoryWrite(path, value, state) {
+  const cleanPath = String(path || "").trim();
+  const raw = String(value || "").trim();
+  const field = normalizeLeadMemoryField(cleanPath);
+
+  if (field === "name") {
+    const name = normalizeLeadName(raw);
+    if (!name || isLikelyNonNameInput(name)) {
+      state.awaitingNodeId = "ask_name";
+      return { ok: false, field: "name" };
+    }
+    return { ok: true, path: cleanPath, value: name };
+  }
+
+  if (field === "phone") {
+    if (isPhoneSkipInput(raw)) return { ok: true, path: cleanPath, value: raw };
+
+    const phone = normalizeLeadPhone(raw);
+    if (!phone) {
+      state.awaitingNodeId = "ask_phone";
+      return { ok: false, field: "phone" };
+    }
+    return { ok: true, path: cleanPath, value: phone };
+  }
+
+  return { ok: true, path: cleanPath, value: raw };
+}
+
+function normalizeLeadMemoryField(path) {
+  const key = String(path || "").trim().toLowerCase().split(".").pop();
+  if (["name", "nombre", "fullname", "full_name"].includes(key)) return "name";
+  if (["phone", "cel", "celular", "telefono", "tel"].includes(key)) return "phone";
+  return "";
+}
+
+function normalizeLeadName(value) {
+  return String(value || "")
+    .replace(/\b(mi\s+nombre\s+es|me\s+llamo|soy|i\s+am|my\s+name\s+is)\b/gi, "")
+    .replace(/[0-9+()[\]{}_=<>/\\|@#$%^&*~]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80);
+}
+
+function normalizeLeadPhone(value) {
+  const raw = String(value || "").trim();
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length < 7 || digits.length > 15) return "";
+  return raw.replace(/[^\d+()\-\s]/g, "").replace(/\s+/g, " ").trim().slice(0, 32);
+}
+
+function isPhoneSkipInput(value) {
+  const clean = normalize(value || "");
+  return clean.includes("prefiero") || clean.includes("prefer not") || clean.includes("no dejar");
+}
+
+function isLikelyNonNameInput(value) {
+  const clean = normalize(value || "");
+  if (!clean) return true;
+
+  const words = clean.split(" ").filter(Boolean);
+  if (words.length > 4) return true;
+
+  const blockedExact = new Set([
+    "menu",
+    "inicio",
+    "hola",
+    "buenas",
+    "gracias",
+    "ok",
+    "si",
+    "no",
+    "prefiero",
+    "prefiero no dejarlo",
+    "prefer not to share"
+  ]);
+  if (blockedExact.has(clean)) return true;
+
+  const intentWords = [
+    "cuanto",
+    "cuesta",
+    "costo",
+    "precio",
+    "valor",
+    "vale",
+    "curso",
+    "clase",
+    "clases",
+    "taller",
+    "talleres",
+    "informacion",
+    "info",
+    "horario",
+    "horarios",
+    "inscripcion",
+    "matricula",
+    "mensualidad",
+    "domicilio",
+    "presencial",
+    "virtual",
+    "sede",
+    "canto",
+    "baile",
+    "bateria",
+    "guitarra",
+    "piano",
+    "danza",
+    "teatro",
+    "musica",
+    "artes",
+    "bogota",
+    "ofrecen",
+    "tienen",
+    "quiero",
+    "interesa",
+    "interesada",
+    "interesado"
+  ];
+
+  return intentWords.some((word) => wordBoundaryIncludes(clean, word));
+}
+
+function buildInvalidLeadFieldReply(field, state) {
+  const isEn = getStateLang(state) === "en";
+  const text = field === "phone"
+    ? (isEn
+        ? "That does not look like a phone number. Please send a number with at least 7 digits, or choose to skip it."
+        : "Eso no parece un numero de celular. Enviame un numero de al menos 7 digitos, o elige no dejarlo.")
+    : (isEn
+        ? "I think that was a question, not your name. I will keep it as part of the conversation, but please tell me your name or choose to skip it."
+        : "Creo que eso era una pregunta, no tu nombre. La guardo como parte de la conversacion, pero por favor dime tu nombre o elige no dejarlo.");
+
+  const msg = makeBotMessage(text);
+  msg._flow = {
+    allowFreeText: true,
+    leadValidation: field
+  };
+  return msg;
 }
 
 /* =========================

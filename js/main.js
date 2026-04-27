@@ -355,6 +355,56 @@ function clearLeadExplorationMemory() {
   });
 }
 
+function rememberUserQuestion(text = "") {
+  if (!state) return;
+  const value = String(text || "").trim().replace(/\s+/g, " ");
+  if (!value) return;
+
+  const blocked = new Set([
+    "menu",
+    "menÃº",
+    "inicio",
+    "home",
+    "volver",
+    "volver al menÃº",
+    "prefiero no dejarlo",
+    "prefer not to share"
+  ]);
+  if (blocked.has(normalizeLite(value))) return;
+
+  state.memory = state.memory || {};
+  state.memory.training = state.memory.training || {};
+
+  const items = Array.isArray(state.memory.training.userQuestions)
+    ? state.memory.training.userQuestions
+    : [];
+  const last = items[items.length - 1];
+  if (last?.text && normalizeLite(last.text) === normalizeLite(value)) return;
+
+  items.push({
+    text: value.slice(0, 220),
+    at: new Date().toISOString()
+  });
+
+  state.memory.training.userQuestions = items.slice(-12);
+  state.memory.training.lastUserQuestion = value.slice(0, 220);
+  state.memory.training.userMessageCount = Number(state.memory.training.userMessageCount || 0) + 1;
+}
+
+function getTrainingMemorySummary() {
+  const training = state?.memory?.training || {};
+  const items = Array.isArray(training.userQuestions) ? training.userQuestions : [];
+  const questions = items
+    .map((item) => String(item?.text || "").trim())
+    .filter(Boolean);
+
+  return {
+    lastUserQuestion: String(training.lastUserQuestion || "").trim(),
+    userMessageCount: Number(training.userMessageCount || questions.length || 0),
+    userQuestionsSummary: questions.map((q, idx) => `${idx + 1}. ${q}`).join("\n")
+  };
+}
+
 // Dedupe extra en memoria para evitar llamadas repetidas en loops raros
 function getLeadSyncFlags() {
   if (!state) return {};
@@ -388,6 +438,11 @@ async function syncLeadFromState() {
     firstNodeName,
     firstSource
   } = readFirstLeadFieldsFromState();
+  const {
+    lastUserQuestion,
+    userMessageCount,
+    userQuestionsSummary
+  } = getTrainingMemorySummary();
   const flags = getLeadSyncFlags();
 
   if (isLeadDebug()) {
@@ -402,6 +457,11 @@ async function syncLeadFromState() {
         firstNodeId,
         firstNodeName,
         firstSource
+      },
+      training: {
+        lastUserQuestion,
+        userMessageCount,
+        userQuestionsSummary
       },
       memLead: state?.memory?.lead,
       memLegacy: {
@@ -476,6 +536,18 @@ async function syncLeadFromState() {
     if (firstSource && flags.primer_origen !== firstSource) {
       await leadSync.saveField("primer_origen", firstSource, { maxLen: 120 });
       flags.primer_origen = firstSource;
+    }
+    if (lastUserQuestion && flags.ultimo_texto_usuario !== lastUserQuestion) {
+      await leadSync.saveField("ultimo_texto_usuario", lastUserQuestion, { maxLen: 280 });
+      flags.ultimo_texto_usuario = lastUserQuestion;
+    }
+    if (userMessageCount && flags.conteo_mensajes_usuario !== userMessageCount) {
+      await leadSync.saveField("conteo_mensajes_usuario", String(userMessageCount), { maxLen: 20 });
+      flags.conteo_mensajes_usuario = userMessageCount;
+    }
+    if (userQuestionsSummary && flags.historial_usuario !== userQuestionsSummary) {
+      await leadSync.saveField("historial_usuario", userQuestionsSummary, { maxLen: 1600 });
+      flags.historial_usuario = userQuestionsSummary;
     }
   } catch (e) {
     console.warn("[MusiBot] No se pudo sincronizar lead:", e?.message || e);
@@ -1035,10 +1107,17 @@ function findNearbySeasonalWorkshopTopics(text = "", limit = 2) {
 
 function applyInlineKnowledgeLeadHint(hit) {
   if (!hit || !state) return;
-  if (String(hit?.category || "") !== "seasonal_workshop") return;
 
   state.memory = state.memory || {};
   state.memory.lead = state.memory.lead || {};
+
+  if (String(hit?.id || "") === "prices" && !normalizeServicioValue(state.memory.lead.servicio)) {
+    state.memory.lead.servicio = getLang() === "en" ? "pricing inquiry" : "consulta de precios";
+    state.memory.servicio = state.memory.servicio || state.memory.lead.servicio;
+    return;
+  }
+
+  if (String(hit?.category || "") !== "seasonal_workshop") return;
 
   const lang = getLang();
   const serviceName =
@@ -1174,6 +1253,48 @@ function getIntentSuggestionLabel(intent, lang = getLang()) {
   return String(patterns[0] || intent?.id || "").trim();
 }
 
+function isPriceQuestionText(text = "") {
+  const clean = normalizeLite(text);
+  if (!clean) return false;
+
+  const priceSignals = [
+    "cuanto cuesta",
+    "cuanto vale",
+    "precio",
+    "precios",
+    "valor",
+    "tarifa",
+    "costo",
+    "costos",
+    "how much",
+    "price",
+    "cost",
+    "pricing"
+  ];
+
+  return priceSignals.some((signal) => clean.includes(signal));
+}
+
+function makePriceQuestionHit(text = "") {
+  if (!kbCache?.intents || shouldBypassKnowledgeInterrupt(text) || !isPriceQuestionText(text)) return null;
+
+  const lang = getLang();
+  const intent = getKBIntents().find((item) => String(item?.id || "") === "prices");
+  const response = getLocalizedKBText(intent?.response, lang);
+  if (!intent || !response) return null;
+
+  return {
+    intent,
+    id: "prices",
+    response,
+    score: 2000,
+    category: getKnowledgeCategory(intent),
+    faqTitle: getFAQTitleForIntent(intent, lang),
+    advisorPrompt: getLocalizedKBText(intent?.advisorPrompt, lang),
+    suggestionLabel: getIntentSuggestionLabel(intent, lang)
+  };
+}
+
 function findInlineKnowledgeIntent(text = "") {
   if (!kbCache?.intents || shouldBypassKnowledgeInterrupt(text)) return null;
 
@@ -1277,12 +1398,6 @@ function getResumePromptAfterInterrupt() {
   const lang = getLang();
   const captureStage = String(state?.memory?.capture?.stage || "").toLowerCase();
 
-  if (captureStage === "name") {
-    return lang === "en"
-      ? "When you're ready, we can continue with your name."
-      : "Cuando quieras, seguimos con tu nombre.";
-  }
-
   if (captureStage === "phone") {
     return lang === "en"
       ? "When you're ready, we can continue with your phone number."
@@ -1300,6 +1415,29 @@ function getResumePromptAfterInterrupt() {
   return lang === "en"
     ? "When you're ready, we can continue from the same point."
     : "Cuando quieras, seguimos desde el mismo punto.";
+}
+
+function isWaitingForLeadName() {
+  const nodeId = String(state?.currentNodeId || state?.awaitingNodeId || "").trim();
+  const stage = String(state?.memory?.capture?.stage || "").trim().toLowerCase();
+  return nodeId === "ask_name" || stage === "name";
+}
+
+function skipLeadNameAfterInterrupt() {
+  if (!state || !isWaitingForLeadName()) return null;
+
+  state.memory = state.memory || {};
+  state.memory.lead = state.memory.lead || {};
+  state.memory.lead.nameSkipped = true;
+  state.memory.capture = state.memory.capture || {};
+  state.memory.capture.stage = null;
+  state.awaitingNodeId = null;
+
+  try {
+    return runNode("ask_phone", state);
+  } catch {
+    return null;
+  }
 }
 
 function buildInlineKnowledgeReply(hit) {
@@ -1324,7 +1462,7 @@ function buildInlineKnowledgeReply(hit) {
 }
 
 function handleInlineKnowledgeInterrupt(text = "") {
-  const hit = findInlineSeasonalWorkshopIntent(text) || findInlineKnowledgeIntent(text);
+  const hit = makePriceQuestionHit(text) || findInlineSeasonalWorkshopIntent(text) || findInlineKnowledgeIntent(text);
   if (!hit) return null;
 
   applyInlineKnowledgeLeadHint(hit);
@@ -1599,12 +1737,19 @@ function onUserSubmit(text) {
   const userMsg = makeUserMessage(value);
   state.history.push(userMsg);
   appendMessage(userMsg);
+  rememberUserQuestion(value);
 
   const knowledgeInterrupt = handleInlineKnowledgeInterrupt(value);
   if (knowledgeInterrupt?.botReply) {
     state.history.push(knowledgeInterrupt.botReply);
     appendMessage(knowledgeInterrupt.botReply);
     freezeFirstLeadSnapshot({ userText: value });
+
+    const nextLeadStep = skipLeadNameAfterInterrupt();
+    if (nextLeadStep) {
+      state.history.push(nextLeadStep);
+      appendMessage(nextLeadStep);
+    }
 
     if (knowledgeInterrupt.hit?.category === "faq" && knowledgeInterrupt.hit?.faqTitle) {
       openFAQQuestionContains(knowledgeInterrupt.hit.faqTitle);
@@ -1663,6 +1808,7 @@ function onChipClick(value, kind, label) {
     const userMsg = makeUserMessage(visibleValue);
     state.history.push(userMsg);
     appendMessage(userMsg);
+    rememberUserQuestion(visibleValue);
 
     const botReply = handleUserInput(value, state);
     if (botReply) {
@@ -1683,6 +1829,7 @@ function onChipClick(value, kind, label) {
   const userMsg = makeUserMessage(visibleValue);
   state.history.push(userMsg);
   appendMessage(userMsg);
+  rememberUserQuestion(visibleValue);
 
   const botReply = handleUserInput(value, state);
   if (botReply) {
