@@ -234,7 +234,13 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "🎟️ Estos son los planes disponibles para la *Semana de Vacaciones Artísticas*:\n\n✨ *Plan de 16 horas:* *$424.000*\n✨ *Plan de 20 horas:* *$478.000*\n\n💡 Tenemos descuentos si se inscriben hermanitos, primos o referidos 💕\nY si deseas tomar más de una semana, también hay beneficio por continuidad 🫶\n\n🎨 Grupos por edades:\n👶 *Musicalitos* (4 a 6)\n🧒 *Musikids* (7 a 11)\n👦 *Musiteens* (12 a 15)\n\nSi quieres, te paso el paso a paso para asegurar el cupo 👇",
+          "media": [
+            {
+              "type": "image",
+              "url": "assets/vacacionales.png"
+            }
+          ],
+          "textMessage": "🎟️ Estos son los planes disponibles para los *Talleres Vacacionales*:\n\n✨ *Plan de 16 horas* (4 días a la semana): *$314.000*\n✨ *Plan de 20 horas* (5 días a la semana): *$392.000*\n\n💡 Tenemos descuentos si se inscriben hermanitos, primos o referidos 💕\nY si deseas tomar más de una semana, también hay beneficio por continuidad 🫶\n\n🎨 Grupos por edades:\n👶 *Musicalitos* (4 a 6)\n🧒 *Musikids* (7 a 11)\n👦 *Musiteens* (12 a 15)\n\nSi quieres, te paso el paso a paso para asegurar el cupo 👇",
           "options": [
             "Paso a paso inscripción",
             {

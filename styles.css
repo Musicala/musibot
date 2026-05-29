@@ -39,9 +39,117 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   background:
-    radial-gradient(circle at 15% 12%, rgba(206, 0, 113, 0.20) 0%, rgba(206,0,113,0) 55%),
-    radial-gradient(circle at 85% 18%, rgba(12, 65, 196, 0.25) 0%, rgba(12,65,196,0) 55%),
-    radial-gradient(circle at 48% 95%, rgba(104, 13, 191, 0.22) 0%, rgba(104,13,191,0) 60%);
+    radial-gradient(circle at 15% 12%, var(--glow-1, rgba(206, 0, 113, 0.20)) 0%, rgba(206,0,113,0) 55%),
+    radial-gradient(circle at 85% 18%, var(--glow-2, rgba(12, 65, 196, 0.25)) 0%, rgba(12,65,196,0) 55%),
+    radial-gradient(circle at 48% 95%, var(--glow-3, rgba(104, 13, 191, 0.22)) 0%, rgba(104,13,191,0) 60%);
+}
+
+/* =========================
+   SKINS POR TEMPORADA / FIESTAS
+   Activados por <body data-season="..."> (ver js/seasonSkin.js).
+   Cada skin solo redefine acentos (--mozart/--beethoven/--brahms) y los
+   resplandores de fondo (--glow-1/2/3). El resto de la UI no cambia.
+   Para probar manualmente: agrega ?skin=halloween a la URL.
+========================= */
+
+/* San Valentín (7–14 feb): rojo/rosa romántico */
+body[data-season="san_valentin"]{
+  --mozart:#E11D74;
+  --beethoven:#C81D5A;
+  --brahms:#FF6FA5;
+  --glow-1: rgba(225, 29, 116, 0.22);
+  --glow-2: rgba(255, 111, 165, 0.20);
+  --glow-3: rgba(200, 29, 90, 0.18);
+}
+
+/* Día del Niño (Colombia, último sábado de abril): colores vivos y alegres */
+body[data-season="dia_nino"]{
+  --mozart:#2D9CDB;
+  --beethoven:#9B51E0;
+  --brahms:#F2C94C;
+  --glow-1: rgba(45, 156, 219, 0.20);
+  --glow-2: rgba(155, 81, 224, 0.18);
+  --glow-3: rgba(242, 201, 76, 0.20);
+}
+
+/* Semana Santa: tonos sobrios y cálidos (morado/vino/oro suave) */
+body[data-season="semana_santa"]{
+  --mozart:#6B2E86;
+  --beethoven:#8C2F39;
+  --brahms:#B08D57;
+  --glow-1: rgba(140, 47, 57, 0.16);
+  --glow-2: rgba(107, 46, 134, 0.18);
+  --glow-3: rgba(176, 141, 87, 0.16);
+}
+
+/* Día de la Madre (Colombia, 2º domingo de mayo): rosados suaves y cálidos */
+body[data-season="dia_madre"]{
+  --mozart:#D6336C;
+  --beethoven:#A61E4D;
+  --brahms:#FFA8C5;
+  --glow-1: rgba(214, 51, 108, 0.18);
+  --glow-2: rgba(255, 168, 197, 0.20);
+  --glow-3: rgba(166, 30, 77, 0.16);
+}
+
+/* Día del Padre (Colombia, 3er domingo de junio): azules serenos + dorado */
+body[data-season="dia_padre"]{
+  --mozart:#1B6CA8;
+  --beethoven:#13507D;
+  --brahms:#C9A227;
+  --glow-1: rgba(27, 108, 168, 0.20);
+  --glow-2: rgba(19, 80, 125, 0.18);
+  --glow-3: rgba(201, 162, 39, 0.16);
+}
+
+/* Amor y Amistad (Colombia, 3er sábado de sept): festivo, multicolor cálido */
+body[data-season="amor_amistad"]{
+  --mozart:#0EA5A5;
+  --beethoven:#E11D74;
+  --brahms:#F59E0B;
+  --glow-1: rgba(225, 29, 116, 0.18);
+  --glow-2: rgba(14, 165, 165, 0.20);
+  --glow-3: rgba(245, 158, 11, 0.18);
+}
+
+/* Halloween (24–31 oct): naranja calabaza + morado noche */
+body[data-season="halloween"]{
+  --mozart:#6A1B9A;
+  --beethoven:#E07B00;
+  --brahms:#C2410C;
+  --glow-1: rgba(224, 123, 0, 0.22);
+  --glow-2: rgba(106, 27, 154, 0.22);
+  --glow-3: rgba(194, 65, 12, 0.18);
+}
+
+/* Velitas (7–8 dic): cálido, dorado y ámbar (velas) */
+body[data-season="velitas"]{
+  --mozart:#E08A1E;
+  --beethoven:#C2410C;
+  --brahms:#F2C94C;
+  --glow-1: rgba(242, 201, 76, 0.24);
+  --glow-2: rgba(224, 138, 30, 0.20);
+  --glow-3: rgba(194, 65, 12, 0.16);
+}
+
+/* Año Nuevo (31 dic – 1 ene): dorado y azul noche festivo */
+body[data-season="ano_nuevo"]{
+  --mozart:#1B2A6B;
+  --beethoven:#3B3FA1;
+  --brahms:#E8C547;
+  --glow-1: rgba(232, 197, 71, 0.24);
+  --glow-2: rgba(59, 63, 161, 0.20);
+  --glow-3: rgba(27, 42, 107, 0.18);
+}
+
+/* Navidad / fin de año (1 dic – 6 ene): rojo, verde y dorado */
+body[data-season="navidad"]{
+  --mozart:#0E7A3C;        /* verde pino */
+  --beethoven:#B3122B;     /* rojo navidad */
+  --brahms:#C9A227;        /* dorado */
+  --glow-1: rgba(179, 18, 43, 0.20);
+  --glow-2: rgba(14, 122, 60, 0.22);
+  --glow-3: rgba(201, 162, 39, 0.20);
 }
 
 /* ===== VARIABLES ===== */
@@ -72,8 +180,8 @@ body {
 
   /* Tipografía */
   --fs-msg: 0.94rem;
-  --lh-msg: 1.62;
-  --pad-msg-y: 12px;
+  --lh-msg: 1.66;
+  --pad-msg-y: 13px;
   --pad-msg-x: 16px;
 
   /* Targets / UX */
@@ -243,15 +351,27 @@ body {
   text-decoration: none;
   padding: 8px 12px;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--beethoven), var(--brahms));
+  /* Verde WhatsApp FIJO: se reconoce siempre, sin importar el skin de temporada. */
+  background: linear-gradient(135deg, #25D366, #128C7E);
   color: #fff;
   font-size: 0.85rem;
+  font-weight: 800;
   box-shadow: var(--shadow-1);
-  border: 1px solid rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.18);
   white-space: nowrap;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Íconos SVG de los botones del topbar: se alinean y heredan el color del texto. */
+.wa-ic,
+.top-link-ic{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.wa-ic svg{ display: block; }
+.top-link-ic svg{ display: block; }
 
 .wa-btn:hover{ opacity: .95; }
 .wa-btn:focus-visible{
@@ -393,11 +513,11 @@ body {
 .chat{
   flex: 1;
   min-height: 0;
-  padding: 12px;
+  padding: 14px 14px 16px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
@@ -413,15 +533,15 @@ body {
 .row.bot{ align-items: flex-start; }
 
 .bubble{
-  max-width: 85%;
+  max-width: 86%;
   padding: var(--pad-msg-y) var(--pad-msg-x);
-  border-radius: 14px;
+  border-radius: 18px;
   font-size: var(--fs-msg);
   line-height: var(--lh-msg);
   word-wrap: break-word;
   white-space: pre-wrap;
   letter-spacing: 0.01em;
-  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  box-shadow: 0 6px 18px rgba(15,18,34,.05);
 }
 
 .bubble.bot{
@@ -518,11 +638,11 @@ body {
    COMPOSER
 ========================= */
 .composer{
-  padding: 10px;
+  padding: 12px 12px 14px;
   border-top: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   background: linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.80));
 }
 
@@ -814,7 +934,7 @@ body {
     0 0;
   background-size: 6px 6px, 6px 6px, 100% 100%;
   background-repeat: no-repeat;
-  box-shadow: 0 8px 18px rgba(0,0,0,.06);
+  box-shadow: 0 4px 12px rgba(15,18,34,.05);
 }
 
 .quick-select:focus{
@@ -1286,4 +1406,68 @@ details.faq-item > .faq-a a:active{
 .faq-a a{
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* =========================
+   MÓVIL: layout más respirado (v6.4)
+   - Quita el "doble marco" (títulos/bordes redundantes).
+   - La Ayuda pesa menos y deja más alto para la conversación.
+========================= */
+@media (max-width: 899px){
+  /* (2) Quitar doble marco: el título "Chat" es redundante.
+     Lo ocultamos visualmente pero lo dejamos accesible para lectores de pantalla. */
+  .chat-panel > .panel-head{
+    padding: 6px 10px 6px 14px;
+    border-bottom: none;
+    min-height: 0;
+  }
+  .chat-panel > .panel-head .panel-title{
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .chat-panel > .panel-head .panel-actions{
+    margin-left: auto;
+  }
+
+  /* Tarjetas más suaves: menos sombra dura para que no se sientan cajas pesadas. */
+  .panel{
+    box-shadow: 0 8px 24px rgba(15,18,34,.10);
+    border-radius: 20px;
+  }
+
+  /* (1) Ayuda colapsada y ligera:
+     - Sin header propio "Ayuda" (las pestañas ya dicen qué son).
+     - La superficie del panel se funde con el fondo (no segundo marco). */
+  .side-panel{
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    max-height: min(30vh, 280px);
+  }
+  .side-panel > .panel-head{
+    display: none;
+  }
+  .side-content{
+    padding: 4px 2px 2px;
+    gap: 8px;
+  }
+
+  /* Pestañas de ayuda/FAQ: un poco más de aire y look "pill". */
+  .help-collapsible{
+    border-radius: 16px;
+    background: rgba(255,255,255,.72);
+  }
+
+  /* Más separación entre burbujas en pantallas chicas. */
+  .chat{
+    gap: 14px;
+  }
+  .bubble{
+    max-width: 90%;
+  }
 }
