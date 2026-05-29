@@ -41,9 +41,11 @@ import {
   relocalizeHistory
 } from "./flowEngine.js";
 import { initIntro } from "./intro.js";
+import { applySeasonSkin } from "./seasonSkin.js";
 
 // ✅ Lead sync (Google Sheets)
-import { createLeadSync } from "./leadSync.js";
+import { createLeadSync } from "./leadStore.js";
+import { logEvent, logKnowledgeGap } from "./firebaseClient.js";
 
 // Diccionarios UI ES/EN (labels / panel ayuda / placeholders)
 import I18N_ES_RAW from "./i18n/es.js";
@@ -74,18 +76,13 @@ function isLeadDebug() {
 ========================= */
 
 const leadSync = (() => {
-  const url = (CONFIG.SHEETS_API_URL || "").trim();
-  if (!url) {
-    console.warn("[MusiBot] CONFIG.SHEETS_API_URL no está configurado. LeadSync deshabilitado.");
-    return null;
-  }
   try {
+    // Ahora el backend es Firestore (ver leadStore.js / firebaseClient.js).
     return createLeadSync({
-      apiUrl: url,
       debug: isLeadDebug()
     });
   } catch (e) {
-    console.warn("[MusiBot] LeadSync no pudo inicializar:", e?.message || e);
+    console.warn("[MusiBot] LeadSync (Firestore) no pudo inicializar:", e?.message || e);
     return null;
   }
 })();
@@ -744,6 +741,8 @@ function bindLangUI() {
 function openHelpPanel(target = "") {
   const help = document.getElementById("helpDetails");
   if (!help) return;
+
+  logAction("open_panel", { panel: target === "faq" ? "faq" : "help" });
 
   help.open = true;
 
@@ -1654,6 +1653,7 @@ function startFlowIfNeeded() {
   if (firstMsg) {
     state.history.push(firstMsg);
     appendMessage(firstMsg);
+    logBotView(firstMsg);
   }
 
   renderChips(state);
@@ -1671,6 +1671,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     bindLangUI();
 
+    // Skin de temporada (colores/detalles según la época del año)
+    const activeSkin = applySeasonSkin();
+
+    // Tracking: inicio de sesión (qué dispositivo, de dónde llega, etc.)
+    logAction("session_start", {
+      skin: activeSkin,
+      url: (location?.href || "").slice(0, 500),
+      referrer: (document?.referrer || "").slice(0, 500),
+      user_agent: (navigator?.userAgent || "").slice(0, 300),
+      screen: (typeof screen !== "undefined") ? `${screen.width}x${screen.height}` : null
+    });
+
     // Estado
     state = normalizeStateShape(loadState() || getInitialState());
 
@@ -1680,7 +1692,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Escuchar idioma elegido desde INTRO
     window.addEventListener("musibot:lang", (e) => {
       const lang = e?.detail?.lang;
-      if (lang === "es" || lang === "en") applyUILang(lang);
+      if (lang === "es" || lang === "en") {
+        applyUILang(lang);
+        logAction("lang_change", { lang, source: "intro" });
+      }
     });
 
     // Render inicial (para que no se vea vacío mientras carga flow)
@@ -1743,17 +1758,28 @@ function onUserSubmit(text) {
   if (knowledgeInterrupt?.botReply) {
     state.history.push(knowledgeInterrupt.botReply);
     appendMessage(knowledgeInterrupt.botReply);
+    logBotView(knowledgeInterrupt.botReply);
     freezeFirstLeadSnapshot({ userText: value });
 
     const nextLeadStep = skipLeadNameAfterInterrupt();
     if (nextLeadStep) {
       state.history.push(nextLeadStep);
       appendMessage(nextLeadStep);
+      logBotView(nextLeadStep);
     }
 
     if (knowledgeInterrupt.hit?.category === "faq" && knowledgeInterrupt.hit?.faqTitle) {
       openFAQQuestionContains(knowledgeInterrupt.hit.faqTitle);
     }
+
+    try {
+      logEvent("user_message", {
+        text: String(value || "").slice(0, 500),
+        answered_by: "knowledge",
+        category: knowledgeInterrupt.hit?.category || null,
+        lang: (typeof getLang === "function" ? getLang() : "es")
+      });
+    } catch {}
 
     renderChips(state);
     updateComposerModeFromFlow();
@@ -1778,7 +1804,11 @@ function onUserSubmit(text) {
     if (action === "WHATSAPP") openWhatsAppFinal(); // 👈 SOLO cuando el flow lo pida (normalmente en cierre)
     if (action === "FAQ") openHelpPanel("faq");
     if (action === "MENU") openHelpPanel();
+
+    logBotView(botReply);
   }
+
+  logTurnEvent("user_message", value, botReply);
 
   renderChips(state);
   updateComposerModeFromFlow();
@@ -1787,8 +1817,80 @@ function onUserSubmit(text) {
   saveState(state);
 }
 
+/* =========================
+   TRACKING DE EVENTOS (Firestore)
+========================= */
+
+// Registra LO QUE EL USUARIO VE: cada mensaje/nodo que el bot le muestra.
+function logBotView(msg) {
+  try {
+    if (!msg) return;
+    const flow = msg._flow || {};
+    const options = Array.isArray(msg.options)
+      ? msg.options.map((o) => o?.label).filter(Boolean).slice(0, 20)
+      : [];
+    logEvent("bot_view", {
+      node_id: flow.nodeId || null,
+      node_name: flow.nodeName || null,
+      text: String(msg.text || "").slice(0, 500),
+      options_shown: options,
+      has_media: Boolean(msg.media && msg.media.length),
+      media: Array.isArray(msg.media)
+        ? msg.media.map((m) => m?.url || m?.type).filter(Boolean).slice(0, 6)
+        : [],
+      lang: (typeof getLang === "function" ? getLang() : "es")
+    });
+  } catch {}
+}
+
+// Registra acciones varias (abrir panel, whatsapp, reset, idioma, inicio...).
+function logAction(type, data = {}) {
+  try {
+    logEvent(type, {
+      ...data,
+      lang: (typeof getLang === "function" ? getLang() : "es")
+    });
+  } catch {}
+}
+
+function logTurnEvent(type, text, botReply) {
+  try {
+    const flow = botReply?._flow || {};
+    logEvent(type, {
+      text: String(text || "").slice(0, 500),
+      node_id: flow.nodeId || null,
+      node_name: flow.nodeName || null,
+      lang: (typeof getLang === "function" ? getLang() : "es")
+    });
+
+    // ¿El bot NO entendió? -> guardamos como knowledge_gap para mejorar el kb.
+    const fallbackId = CONFIG?.FLOW_SPECIAL?.FALLBACK_NODE_ID || "menu_fallback";
+    const landedOnFallback = flow.nodeId && flow.nodeId === fallbackId;
+    if (type === "user_message" && landedOnFallback) {
+      logKnowledgeGap({
+        text,
+        lang: (typeof getLang === "function" ? getLang() : "es"),
+        nodeId: flow.nodeId,
+        nodeName: flow.nodeName
+      });
+    }
+  } catch (e) {
+    // nunca rompemos la UX por tracking
+  }
+}
+
 function onChipClick(value, kind, label) {
   if (!value) return;
+
+  // Tracking: cada clic de chip (qué oprime el cliente)
+  try {
+    logEvent("chip_click", {
+      value: String(value).slice(0, 200),
+      label: String(label || "").slice(0, 200),
+      kind: kind || "option",
+      lang: (typeof getLang === "function" ? getLang() : "es")
+    });
+  } catch {}
 
   // Chips UI: idioma
   if (kind === "ui:lang") {
@@ -1815,6 +1917,7 @@ function onChipClick(value, kind, label) {
       state.history.push(botReply);
       appendMessage(botReply);
       applyUIHintsAfterBotReply();
+      logBotView(botReply);
     }
 
     renderChips(state);
@@ -1842,6 +1945,8 @@ function onChipClick(value, kind, label) {
     if (action === "WHATSAPP") openWhatsAppFinal();
     if (action === "FAQ") openHelpPanel("faq");
     if (action === "MENU") openHelpPanel();
+
+    logBotView(botReply);
   }
 
   renderChips(state);
@@ -1852,6 +1957,7 @@ function onChipClick(value, kind, label) {
 }
 
 function onReset() {
+  logAction("reset", {});
   state = normalizeStateShape(resetConversationKeepMemory(state));
   state.memory.ui = state.memory.ui || {};
   state.memory.ui.lang = getLang();
@@ -1943,7 +2049,17 @@ function setupWhatsAppTopBtn() {
   el.classList.remove("muted");
 
   el.href = `https://wa.me/${number}?text=${encodeURIComponent(String(text).trim())}`;
+
+  if (!waTopLogBound) {
+    waTopLogBound = true;
+    el.addEventListener("click", () => {
+      if (el.getAttribute("href") !== "#") {
+        logAction("whatsapp_click", { source: "top_button" });
+      }
+    });
+  }
 }
+let waTopLogBound = false;
 
 function getWebsiteUrl() {
   const url = String(CONFIG.WEBSITE_URL || "").trim();
@@ -2025,6 +2141,7 @@ function openWhatsAppFinal() {
 
   const text = buildWhatsAppFinalText();
   const href = `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+  logAction("whatsapp_click", { source: "flow", node_id: state?.currentNodeId || null });
   window.open(href, "_blank", "noopener");
 }
 

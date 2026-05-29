@@ -157,8 +157,8 @@ function buildSeasonForYear(id, year) {
     case "mid_year":
       return {
         id,
-        start: { year, month: 6, day: 15 },
-        end: { year, month: 7, day: 15 }
+        start: { year, month: 6, day: 9 },
+        end: { year, month: 8, day: 7 }
       };
     case "october_break":
       return {
@@ -366,8 +366,8 @@ function buildVacacionesArtisticasPricingText(ctx) {
       intro,
       `Dates: ${ctx.dateRange}.`,
       "",
-      "- 16-hour plan: $424,000",
-      "- 20-hour plan: $478,000",
+      "- 16-hour plan (4 days a week): $314,000",
+      "- 20-hour plan (5 days a week): $392,000",
       "",
       note,
       "",
@@ -391,8 +391,8 @@ function buildVacacionesArtisticasPricingText(ctx) {
     intro,
     `Fechas: ${ctx.dateRange}.`,
     "",
-    "- Plan de 16 horas: $424.000",
-    "- Plan de 20 horas: $478.000",
+    "- Plan de 16 horas (4 dias a la semana): $314.000",
+    "- Plan de 20 horas (5 dias a la semana): $392.000",
     "",
     note,
     "",
