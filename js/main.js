@@ -1735,6 +1735,22 @@ function startApp() {
 
   scheduleLeadSync();
   saveState(state);
+
+  // Registrar cuándo el usuario abandona la página (cierra tab, cambia de pestaña, etc.)
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden" && state) {
+      try {
+        const { nombre, cel, servicio } = readLeadFieldsFromState();
+        logAction("page_leave", {
+          last_node:   state?.progress?.lastNodeId  || null,
+          last_node_n: state?.progress?.lastNodeName || null,
+          has_name:    Boolean(nombre),
+          has_phone:   Boolean(cel),
+          has_service: Boolean(servicio),
+        });
+      } catch {}
+    }
+  });
 }
 
 /* =========================
@@ -1867,12 +1883,23 @@ function logTurnEvent(type, text, botReply) {
     const fallbackId = CONFIG?.FLOW_SPECIAL?.FALLBACK_NODE_ID || "menu_fallback";
     const landedOnFallback = flow.nodeId && flow.nodeId === fallbackId;
     if (type === "user_message" && landedOnFallback) {
-      logKnowledgeGap({
-        text,
-        lang: (typeof getLang === "function" ? getLang() : "es"),
-        nodeId: flow.nodeId,
-        nodeName: flow.nodeName
-      });
+      // Ignorar textos sin sentido: 1 caracter, solo números (p.ej. "1", "2"),
+      // o comandos de navegación que el motor no pudo rutear.
+      const cleanGapText = normalizeLite(text || "");
+      const isMeaningless = cleanGapText.length < 3 || /^\d+$/.test(cleanGapText.trim());
+
+      if (!isMeaningless) {
+        const { nombre, arte, servicio, modalidad } = readLeadFieldsFromState();
+        logKnowledgeGap({
+          text,
+          lang: (typeof getLang === "function" ? getLang() : "es"),
+          nodeId: flow.nodeId,
+          nodeName: flow.nodeName,
+          // Contexto: qué decía el bot justo antes y qué datos había dado el lead
+          lastBotText: String(botReply?.text || "").slice(0, 500),
+          nombre, arte, servicio, modalidad,
+        });
+      }
     }
   } catch (e) {
     // nunca rompemos la UX por tracking

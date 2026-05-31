@@ -155,7 +155,13 @@ export async function logKnowledgeGap(data = {}) {
       lang: data.lang || "es",
       node_id: data.nodeId || null,
       node_name: data.nodeName || null,
-      reviewed: false,        // <- el proyecto de explotación marcará esto en true
+      // Contexto extra para entender el gap en el panel
+      last_bot_text: String(data.lastBotText || "").slice(0, 500),
+      nombre:    String(data.nombre    || ""),
+      arte:      String(data.arte      || ""),
+      servicio:  String(data.servicio  || ""),
+      modalidad: String(data.modalidad || ""),
+      reviewed: false,
       status: "new",          // new | reviewed | added_to_kb | ignored
       ts: serverTimestamp(),
       client_ts: new Date().toISOString()
