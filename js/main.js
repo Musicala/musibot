@@ -45,7 +45,7 @@ import { applySeasonSkin } from "./seasonSkin.js";
 
 // ✅ Lead sync (Google Sheets)
 import { createLeadSync } from "./leadStore.js";
-import { logEvent, logKnowledgeGap } from "./firebaseClient.js";
+import { logEvent, logKnowledgeGap, saveSessionFields } from "./firebaseClient.js";
 
 // Diccionarios UI ES/EN (labels / panel ayuda / placeholders)
 import I18N_ES_RAW from "./i18n/es.js";
@@ -2082,6 +2082,7 @@ function setupWhatsAppTopBtn() {
     el.addEventListener("click", () => {
       if (el.getAttribute("href") !== "#") {
         logAction("whatsapp_click", { source: "top_button" });
+        saveSessionFields({ whatsapp_clicked: true }).catch(() => {});
       }
     });
   }
@@ -2169,6 +2170,7 @@ function openWhatsAppFinal() {
   const text = buildWhatsAppFinalText();
   const href = `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
   logAction("whatsapp_click", { source: "flow", node_id: state?.currentNodeId || null });
+  saveSessionFields({ whatsapp_clicked: true }).catch(() => {});
   window.open(href, "_blank", "noopener");
 }
 
