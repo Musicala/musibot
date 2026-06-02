@@ -13,22 +13,37 @@
       "id": "webhook",
       "name": "webhook node",
       "type": "webhook",
-      "position": [0, 0],
-      "parameters": { "path": "MUSIBOT" }
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "path": "MUSIBOT"
+      }
     },
     {
       "id": "ask_name",
       "name": "01 - Audio + Pedir nombre",
       "type": "autobotAction",
-      "position": [220, 0],
+      "position": [
+        220,
+        0
+      ],
       "parameters": {
         "options": {
           "allowFreeText": true,
           "textMessage": "Gracias por comunicarte con Musicala, escuela de formación artística 🥰🎶💃🏽🎨. Antes de empezar, ¿podrías decirnos tu nombre?",
           "waitResponse": true,
           "typeMessage": "text",
-          "options": ["Prefiero no dejarlo"],
-          "media": [{ "type": "audio", "url": "assets/introaudio.mp3" }]
+          "options": [
+            "Prefiero no dejarlo"
+          ],
+          "media": [
+            {
+              "type": "audio",
+              "url": "assets/introaudio.mp3"
+            }
+          ]
         }
       }
     },
@@ -36,7 +51,10 @@
       "id": "ask_name_filter",
       "name": "02 - Guardar nombre",
       "type": "filter",
-      "position": [700, 0],
+      "position": [
+        700,
+        0
+      ],
       "parameters": {
         "options": {
           "filterConditions": [
@@ -67,7 +85,10 @@
       "id": "ask_phone",
       "name": "03 - Pedir celular",
       "type": "autobotAction",
-      "position": [940, 0],
+      "position": [
+        940,
+        0
+      ],
       "parameters": {
         "options": {
           "allowFreeText": true,
@@ -81,7 +102,10 @@
       "id": "ask_phone_filter",
       "name": "04 - Guardar celular",
       "type": "filter",
-      "position": [1180, 0],
+      "position": [
+        1180,
+        0
+      ],
       "parameters": {
         "options": {
           "filterConditions": [
@@ -105,7 +129,10 @@
       "id": "show_program_options",
       "name": "05 - Menú opciones (Programas / Modalidades)",
       "type": "autobotAction",
-      "position": [1420, 0],
+      "position": [
+        1420,
+        0
+      ],
       "parameters": {
         "options": {
           "allowFreeText": false,
@@ -126,7 +153,10 @@
       "id": "show_program_options_filter",
       "name": "06 - Ruteo menú opciones (y guardar service)",
       "type": "filter",
-      "position": [1660, 0],
+      "position": [
+        1660,
+        0
+      ],
       "parameters": {
         "options": {
           "filterConditions": [
@@ -178,7 +208,10 @@
       "id": "menu_fallback",
       "name": "07 - Fallback menú",
       "type": "autobotAction",
-      "position": [1900, -120],
+      "position": [
+        1900,
+        -120
+      ],
       "parameters": {
         "options": {
           "allowFreeText": false,
@@ -197,45 +230,116 @@
     },
     {
       "id": "return_to_menu_filter",
-      "name": "Return to menu (simple filter)",
+      "name": "Return to men? (simple filter)",
       "type": "filter",
-      "position": [2380, 280],
+      "position": [
+        2380,
+        280
+      ],
       "parameters": {
         "options": {
           "filterConditions": [
-            { "operator": "contains", "value": "volver", "targetNodeId": "show_program_options" }
+            {
+              "operator": "contains",
+              "value": "volver",
+              "targetNodeId": "show_program_options"
+            }
           ],
-          "filterDefaultCondition": { "targetNodeId": "show_program_options" }
+          "filterDefaultCondition": {
+            "targetNodeId": "show_program_options"
+          }
         }
       }
     }
   ],
   "connections": [
-    { "source": "webhook", "target": "ask_name" },
-    { "source": "ask_name", "target": "ask_name_filter" },
-    { "source": "ask_name_filter", "target": "ask_phone" },
-    { "source": "ask_phone", "target": "ask_phone_filter" },
-    { "source": "ask_phone_filter", "target": "show_program_options" },
-
-    { "source": "show_program_options", "target": "show_program_options_filter" },
-    { "source": "show_program_options", "target": "show_program_options_filter" },
-    { "source": "show_program_options", "target": "show_program_options_filter" },
-    { "source": "show_program_options", "target": "show_program_options_filter" },
-    { "source": "show_program_options", "target": "show_program_options_filter" },
-
-    { "source": "show_program_options_filter", "target": "menu_fallback" },
-    { "source": "show_program_options_filter", "target": "flow_vacacionales" },
-    { "source": "show_program_options_filter", "target": "flow_presencial" },
-    { "source": "show_program_options_filter", "target": "flow_virtual" },
-    { "source": "show_program_options_filter", "target": "flow_domicilio" },
-    { "source": "show_program_options_filter", "target": "flow_otros_servicios" },
-
-    { "source": "menu_fallback", "target": "show_program_options_filter" },
-    { "source": "menu_fallback", "target": "show_program_options_filter" },
-    { "source": "menu_fallback", "target": "show_program_options_filter" },
-    { "source": "menu_fallback", "target": "show_program_options_filter" },
-    { "source": "menu_fallback", "target": "show_program_options_filter" },
-
-    { "source": "menu_fallback", "target": "return_to_menu_filter" }
+    {
+      "source": "webhook",
+      "target": "ask_name"
+    },
+    {
+      "source": "ask_name",
+      "target": "ask_name_filter"
+    },
+    {
+      "source": "ask_name_filter",
+      "target": "ask_phone"
+    },
+    {
+      "source": "ask_phone",
+      "target": "ask_phone_filter"
+    },
+    {
+      "source": "ask_phone_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "show_program_options",
+      "target": "show_program_options_filter"
+    },
+    {
+      "source": "show_program_options",
+      "target": "show_program_options_filter"
+    },
+    {
+      "source": "show_program_options",
+      "target": "show_program_options_filter"
+    },
+    {
+      "source": "show_program_options",
+      "target": "show_program_options_filter"
+    },
+    {
+      "source": "show_program_options",
+      "target": "show_program_options_filter"
+    },
+    {
+      "source": "show_program_options_filter",
+      "target": "menu_fallback"
+    },
+    {
+      "source": "show_program_options_filter",
+      "target": "flow_vacacionales"
+    },
+    {
+      "source": "show_program_options_filter",
+      "target": "flow_presencial"
+    },
+    {
+      "source": "show_program_options_filter",
+      "target": "flow_virtual"
+    },
+    {
+      "source": "show_program_options_filter",
+      "target": "flow_domicilio"
+    },
+    {
+      "source": "show_program_options_filter",
+      "target": "flow_otros_servicios"
+    },
+    {
+      "source": "menu_fallback",
+      "target": "show_program_options_filter"
+    },
+    {
+      "source": "menu_fallback",
+      "target": "show_program_options_filter"
+    },
+    {
+      "source": "menu_fallback",
+      "target": "show_program_options_filter"
+    },
+    {
+      "source": "menu_fallback",
+      "target": "show_program_options_filter"
+    },
+    {
+      "source": "menu_fallback",
+      "target": "show_program_options_filter"
+    },
+    {
+      "source": "menu_fallback",
+      "target": "return_to_menu_filter"
+    }
   ]
 }

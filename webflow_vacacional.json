@@ -266,7 +266,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "📝 *¡Ya casi están dentro!* Para finalizar la inscripción:\n\n1️⃣ Completar el formulario con los datos del estudiante.\n2️⃣ Realizar el pago del plan elegido y enviarnos el comprobante por este mismo medio 💳\n\nCon eso aseguramos el cupo 🎉\n\n¿Quieres que te envíe el formulario ahora o prefieres hablar con un asesor? 👇",
+          "textMessage": "📝 *¡Ya casi están dentro!* Para finalizar la inscripción:\n\n1️⃣ Completar el formulario con los datos del estudiante.\n2️⃣ Realizar el pago del plan elegido y enviarnos el comprobante por este mismo medio 💳\n\nCon eso aseguramos el cupo 🎉\n\n¿Quieres qu? te envíe el formulario ahora o prefieres hablar con un asesor? 👇",
           "options": [
             "Enviar formulario",
             "Hablar con asesor",
@@ -450,7 +450,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "💥 Cursos Intensivos Musicala 🎶\n\nUna opción perfecta para aprender, avanzar o retomar lo que más te apasiona: música, danza, artes plásticas o teatro 🎭✨\n\nHorarios flexibles, clases personalizadas o en grupos pequeños, y descuentos de temporada 💸\n\n🎯 ¿Qué te gustaría aprender?",
+          "textMessage": "💥 Cursos Intensivos Musicala 🎶\n\nUna opción perfecta para aprender, avanzar o retomar lo qu? más te apasiona: música, danza, artes plásticas o teatro 🎭✨\n\nHorarios flexibles, clases personalizadas o en grupos pequeños, y descuentos de temporada 💸\n\n🎯 ¿Qué te gustaría aprender?",
           "options": [
             "🎶 Música",
             "💃 Danza",

@@ -1240,10 +1240,10 @@ function buildInvalidLeadFieldReply(field, state) {
   const text = field === "phone"
     ? (isEn
         ? "That does not look like a phone number. Please send a number with at least 7 digits, or choose to skip it."
-        : "Eso no parece un numero de celular. Enviame un numero de al menos 7 digitos, o elige no dejarlo.")
+        : "Eso no parece un número de celular. Envíame un número de al menos 7 dígitos, o elige no dejarlo.")
     : (isEn
         ? "I think that was a question, not your name. I will keep it as part of the conversation, but please tell me your name or choose to skip it."
-        : "Creo que eso era una pregunta, no tu nombre. La guardo como parte de la conversacion, pero por favor dime tu nombre o elige no dejarlo.");
+        : "Creo que eso era una pregunta, no tu nombre. La guardo como parte de la conversación, pero por favor dime tu nombre o elige no dejarlo.");
 
   const msg = makeBotMessage(text);
   msg._flow = {
@@ -1303,7 +1303,7 @@ function handleAwaitedResponse(cleanText, state) {
     }
 
     if (next?.length) return safeRun(next[0], state);
-    return makeBotMessage(flowText(state, "doneWhatElse", "Listo. Que mas necesitas?"));
+    return makeBotMessage(flowText(state, "doneWhatElse", "Listo. ¿Qué más necesitas?"));
     return makeBotMessage("Listo 😊 ¿Qué más necesitas?");
   }
 
@@ -1780,12 +1780,12 @@ function buildButtonsOnlyFallback(node, state, seed = null) {
 
   let fallbackText =
     String(p.buttonsOnlyMessage || "").trim() ||
-    "Para continuar, elige una opcion con los botones, escribe el nombre o envia el numero.";
+    "Para continuar, elige una opción con los botones, escribe el nombre o envía el número.";
 
   // ✅ Aquí también preservamos options completas
   fallbackText =
     String(p.buttonsOnlyMessage || "").trim() ||
-    flowText(state, "buttonsOnly", "Para continuar, elige una opcion con los botones, escribe el nombre o envia el numero.");
+    flowText(state, "buttonsOnly", "Para continuar, elige una opción con los botones, escribe el nombre o envía el número.");
 
   const msg = seed
     ? { ...seed, text: fallbackText }

@@ -35,7 +35,7 @@ const SEASON_COPY = {
   holy_week: {
     es: {
       name: "Semana Santa",
-      theme: "una pausa creativa para explorar musica, danza, teatro y artes plasticas con juego, expresion y mucho disfrute"
+      theme: "una pausa creativa para explorar música, danza, teatro y artes plásticas con juego, expresión y mucho disfrute"
     },
     en: {
       name: "Holy Week",
@@ -44,8 +44,8 @@ const SEASON_COPY = {
   },
   mid_year: {
     es: {
-      name: "Mitad de ano",
-      theme: "una temporada ideal para descubrir nuevas habilidades, crear proyectos artisticos y aprovechar el receso largo con mucho arte"
+      name: "Mitad de año",
+      theme: "una temporada ideal para descubrir nuevas habilidades, crear proyectos artísticos y aprovechar el receso largo con mucho arte"
     },
     en: {
       name: "Mid-year Break",
@@ -55,7 +55,7 @@ const SEASON_COPY = {
   october_break: {
     es: {
       name: "Semana de receso de octubre",
-      theme: "una experiencia corta pero poderosa para recargar energia, probar nuevas artes y vivir una semana diferente"
+      theme: "una experiencia corta pero poderosa para recargar energía, probar nuevas artes y vivir una semana diferente"
     },
     en: {
       name: "October Break",
@@ -64,8 +64,8 @@ const SEASON_COPY = {
   },
   year_end: {
     es: {
-      name: "Fin de ano e inicio de ano",
-      theme: "una temporada para cerrar y comenzar ciclo con arte, alegria, proyectos creativos y experiencias para compartir"
+      name: "Fin de año e inicio de año",
+      theme: "una temporada para cerrar y comenzar ciclo con arte, alegría, proyectos creativos y experiencias para compartir"
     },
     en: {
       name: "Year-end and New-year Season",
@@ -158,7 +158,7 @@ function buildSeasonForYear(id, year) {
       return {
         id,
         start: { year, month: 6, day: 9 },
-        end: { year, month: 8, day: 7 }
+        end: { year, month: 8, day: 6 }
       };
     case "october_break":
       return {
@@ -257,25 +257,25 @@ function buildMainVacationalText(ctx) {
   }
 
   const intro = ctx.status === "active"
-    ? `En este momento esta activa nuestra temporada de ${ctx.seasonName}.`
-    : `Nuestra proxima temporada de vacacionales sera ${ctx.seasonName}.`;
+    ? `En este momento está activa nuestra temporada de ${ctx.seasonName}.`
+    : `Nuestra próxima temporada de vacacionales será ${ctx.seasonName}.`;
 
   return [
     intro,
     `Fechas: ${ctx.dateRange}.`,
-    `Tematica: ${ctx.theme}.`,
+    `Temática: ${ctx.theme}.`,
     "",
-    "Segun la edad del estudiante, aqui puedes explorar:",
-    "- Vacaciones Artisticas para 4 a 15 anos",
-    "- Cursos Intensivos por disciplina para otras edades o procesos mas enfocados",
+    "Según la edad del estudiante, aquí puedes explorar:",
+    "- Vacaciones Artísticas para 4 a 15 años",
+    "- Cursos Intensivos por disciplina para otras edades o procesos más enfocados",
     "",
     "Modalidades disponibles:",
     "- En sede (Pasadena)",
     "- A domicilio",
     "- Virtual en vivo",
     "",
-    "Grupos pequenos o clases personalizadas.",
-    "Cuentanos la edad del estudiante y te comparto la mejor opcion."
+    "Grupos pequeños o clases personalizadas.",
+    "Cuéntanos la edad del estudiante y te comparto la mejor opción."
   ].join("\n");
 }
 
@@ -297,17 +297,17 @@ function buildVacacionesArtisticasOfferText(ctx) {
   }
 
   return [
-    `Para ${ctx.seasonName}, tenemos dos caminos buenisimos para esta edad.`,
+    `Para ${ctx.seasonName}, tenemos dos caminos buenísimos para esta edad.`,
     "",
-    "Vacaciones Artisticas",
-    "4 horas diarias de arte en la manana (lun a vie), con actividades de musica, danza, teatro y artes plasticas.",
+    "Vacaciones Artísticas",
+    "4 horas diarias de arte en la mañana (lun a vie), con actividades de música, danza, teatro y artes plásticas.",
     "",
     "Cursos Intensivos",
     "Clases enfocadas en una disciplina, con horarios flexibles y beneficios de temporada.",
     "",
-    `Esta temporada esta pensada como ${ctx.theme}.`,
+    `Esta temporada está pensada como ${ctx.theme}.`,
     "",
-    "Cual te interesa mas?"
+    "¿Cuál te interesa más?"
   ].join("\n");
 }
 
@@ -334,20 +334,20 @@ function buildVacacionesArtisticasSummaryText(ctx) {
   }
 
   const intro = ctx.status === "active"
-    ? `Durante ${ctx.dateRange}, ninos y ninas de 4 a 15 anos viven una experiencia creativa pensada para ${ctx.seasonName}.`
-    : `Para ${ctx.seasonName} (${ctx.dateRange}), ninos y ninas de 4 a 15 anos pueden vivir una experiencia creativa inspirada en esta temporada.`;
+    ? `Durante ${ctx.dateRange}, niños y niñas de 4 a 15 años viven una experiencia creativa pensada para ${ctx.seasonName}.`
+    : `Para ${ctx.seasonName} (${ctx.dateRange}), niños y niñas de 4 a 15 años pueden vivir una experiencia creativa inspirada en esta temporada.`;
 
   return [
-    `Vacaciones Artisticas - ${ctx.seasonName}`,
+    `Vacaciones Artísticas - ${ctx.seasonName}`,
     "",
     intro,
     `Esta temporada se vive como ${ctx.theme}.`,
     "",
-    "Jornadas en la manana: 9:00 a.m. a 1:00 p.m.",
-    "- Artes plasticas: pintura, escultura y manualidades",
-    "- Musica: ritmo, melodias y creacion",
-    "- Danza y teatro: expresion corporal y confianza",
-    "- Trabajo en equipo: colaboracion y companerismo",
+    "Jornadas en la mañana: 9:00 a.m. a 1:00 p.m.",
+    "- Artes plásticas: pintura, escultura y manualidades",
+    "- Música: ritmo, melodías y creación",
+    "- Danza y teatro: expresión corporal y confianza",
+    "- Trabajo en equipo: colaboración y compañerismo",
     "",
     "Cuando quieras, te muestro los planes."
   ].join("\n");
@@ -384,15 +384,15 @@ function buildVacacionesArtisticasPricingText(ctx) {
     ? `Estos son los planes disponibles para ${ctx.seasonName}:`
     : `Estos son los planes de referencia que estamos manejando para ${ctx.seasonName}:`;
   const note = ctx.status === "active"
-    ? "Tambien tenemos beneficios para hermanitos, primos, referidos y continuidad."
-    : "Si hay algun ajuste final para esta temporada, te lo confirmamos antes de abrir inscripciones oficialmente.";
+    ? "También tenemos beneficios para hermanitos, primos, referidos y continuidad."
+    : "Si hay algún ajuste final para esta temporada, te lo confirmamos antes de abrir inscripciones oficialmente.";
 
   return [
     intro,
     `Fechas: ${ctx.dateRange}.`,
     "",
-    "- Plan de 16 horas (4 dias a la semana): $314.000",
-    "- Plan de 20 horas (5 dias a la semana): $392.000",
+    "- Plan de 16 horas (4 días a la semana): $314.000",
+    "- Plan de 20 horas (5 días a la semana): $392.000",
     "",
     note,
     "",
@@ -425,8 +425,8 @@ function buildIntensivosText(ctx) {
   }
 
   const intro = ctx.status === "active"
-    ? `Si buscas un proceso mas enfocado durante ${ctx.seasonName}, esta es una gran opcion.`
-    : `Si quieres prepararte desde ya para ${ctx.seasonName}, esta es una gran opcion.`;
+    ? `Si buscas un proceso más enfocado durante ${ctx.seasonName}, esta es una gran opción.`
+    : `Si quieres prepararte desde ya para ${ctx.seasonName}, esta es una gran opción.`;
 
   return [
     `Cursos Intensivos Musicala - ${ctx.seasonName}`,
@@ -434,10 +434,10 @@ function buildIntensivosText(ctx) {
     intro,
     `Fechas: ${ctx.dateRange}.`,
     "",
-    "Una opcion perfecta para aprender, avanzar o retomar lo que mas te apasiona: musica, danza, teatro o artes plasticas.",
-    "Horarios flexibles, clases personalizadas o en grupos pequenos, y beneficios de temporada.",
+    "Una opción perfecta para aprender, avanzar o retomar lo que más te apasiona: música, danza, teatro o artes plásticas.",
+    "Horarios flexibles, clases personalizadas o en grupos pequeños, y beneficios de temporada.",
     "",
-    "Que te gustaria aprender?"
+    "¿Qué te gustaría aprender?"
   ].join("\n");
 }
 

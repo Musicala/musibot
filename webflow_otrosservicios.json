@@ -14,11 +14,14 @@
       "id": "flow_otros_servicios",
       "name": "Otros servicios - Info + Opciones",
       "type": "autobotAction",
-      "position": [2140, 560],
+      "position": [
+        2140,
+        560
+      ],
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "🎶 Gracias por tu interés en los servicios adicionales de Musicala 😊\n\nAquí van algunas opciones que manejamos:\n\n🏢 Alquiler de espacios\n🎻 Tienda / accesorios e instrumentos\n🤝 Alianzas empresariales\n🌍 Convenios académicos y sociales\n\nSi ya sabes cuál te interesa, lo más rápido es que nos escribas por WhatsApp y nos digas:\n1) ¿Cuál servicio necesitas?\n2) ¿Eres empresa o persona natural?\n\nTambién puedes volver al menú o pedir que un asesor te contacte 👇",
+          "textMessage": "🎶 Gracias por tu interés en los servicios adicionales de Musicala 😊\n\nAquí van algunas opciones qu? manejamos:\n\n🏢 Alquiler de espacios\n🎻 Tienda / accesorios e instrumentos\n🤝 Alianzas empresariales\n🌍 Convenios académicos y sociales\n\nSi ya sabes cuál te interesa, lo más rápido es qu? nos escribas por WhatsApp y nos digas:\n1) ¿Cuál servicio necesitas?\n2) ¿Eres empresa o persona natural?\n\nTambién puedes volver al menú o pedir qu? un asesor te contacte 👇",
           "options": [
             "Menú inicial",
             "Continuar a asesor",
@@ -38,15 +41,32 @@
       "id": "otros_servicios_filter",
       "name": "Otros servicios - Ruteo opciones",
       "type": "filter",
-      "position": [2380, 560],
+      "position": [
+        2380,
+        560
+      ],
       "parameters": {
         "options": {
           "filterConditions": [
-            { "operator": "contains", "value": "Continuar", "targetNodeId": "flow_otros_asesor" },
-            { "operator": "contains", "value": "Menú", "targetNodeId": "show_program_options" },
-            { "operator": "contains", "value": "Volver", "targetNodeId": "show_program_options" }
+            {
+              "operator": "contains",
+              "value": "Continuar",
+              "targetNodeId": "flow_otros_asesor"
+            },
+            {
+              "operator": "contains",
+              "value": "Menú",
+              "targetNodeId": "show_program_options"
+            },
+            {
+              "operator": "contains",
+              "value": "Volver",
+              "targetNodeId": "show_program_options"
+            }
           ],
-          "filterDefaultCondition": { "targetNodeId": "show_program_options" }
+          "filterDefaultCondition": {
+            "targetNodeId": "show_program_options"
+          }
         }
       }
     },
@@ -54,7 +74,10 @@
       "id": "flow_otros_asesor",
       "name": "Otros servicios - Continuar a asesor",
       "type": "autobotAction",
-      "position": [2400, 720],
+      "position": [
+        2400,
+        720
+      ],
       "parameters": {
         "options": {
           "allowFreeText": false,
@@ -74,15 +97,37 @@
     }
   ],
   "connections": [
-    { "source": "flow_otros_servicios", "target": "otros_servicios_filter" },
-    { "source": "flow_otros_servicios", "target": "otros_servicios_filter" },
-    { "source": "flow_otros_servicios", "target": "show_program_options" },
-    { "source": "flow_otros_servicios", "target": "otros_servicios_filter" },
-
-    { "source": "otros_servicios_filter", "target": "show_program_options" },
-    { "source": "otros_servicios_filter", "target": "flow_otros_asesor" },
-
-    { "source": "flow_otros_asesor", "target": "show_program_options" },
-    { "source": "flow_otros_asesor", "target": "show_program_options" }
+    {
+      "source": "flow_otros_servicios",
+      "target": "otros_servicios_filter"
+    },
+    {
+      "source": "flow_otros_servicios",
+      "target": "otros_servicios_filter"
+    },
+    {
+      "source": "flow_otros_servicios",
+      "target": "show_program_options"
+    },
+    {
+      "source": "flow_otros_servicios",
+      "target": "otros_servicios_filter"
+    },
+    {
+      "source": "otros_servicios_filter",
+      "target": "show_program_options"
+    },
+    {
+      "source": "otros_servicios_filter",
+      "target": "flow_otros_asesor"
+    },
+    {
+      "source": "flow_otros_asesor",
+      "target": "show_program_options"
+    },
+    {
+      "source": "flow_otros_asesor",
+      "target": "show_program_options"
+    }
   ]
 }

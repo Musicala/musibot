@@ -764,10 +764,379 @@ function normalizeLite(s = "") {
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s]/gi, " ")
+      .replace(/\s+/g, " ")
       .trim();
   } catch {
-    return String(s || "").toLowerCase().trim();
+    return String(s || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/gi, " ")
+      .replace(/\s+/g, " ")
+      .trim();
   }
+}
+
+/* =========================
+   MEMORIA CONVERSACIONAL
+========================= */
+
+function getConversationalSession() {
+  state.memory = state.memory || {};
+  state.memory.session = state.memory.session || {};
+  state.memory.session.collected = state.memory.session.collected || {};
+
+  const session = state.memory.session;
+  const collected = session.collected;
+
+  session.lastMenu = String(session.lastMenu || "").trim();
+  session.expectedInput = String(session.expectedInput || "").trim();
+
+  collected.name = pickFirstNonEmpty(collected.name, state.memory?.lead?.name, state.memory?.nombre);
+  collected.phone = pickFirstNonEmpty(collected.phone, state.memory?.lead?.phone, state.memory?.cel, state.memory?.phone);
+  collected.age = pickFirstNonEmpty(collected.age, state.memory?.lead?.edad, state.memory?.edad, state.memory?.age);
+  collected.service = pickFirstNonEmpty(collected.service, state.memory?.lead?.servicio, state.memory?.servicio);
+  collected.modality = pickFirstNonEmpty(collected.modality, state.memory?.lead?.modalidad, state.memory?.modalidad);
+  collected.intent = String(collected.intent || "").trim();
+
+  return session;
+}
+
+function rememberCollectedField(field, value) {
+  const cleanValue = String(value || "").trim();
+  if (!cleanValue) return;
+
+  const session = getConversationalSession();
+  session.collected[field] = cleanValue;
+
+  state.memory.lead = state.memory.lead || {};
+
+  if (field === "name") {
+    state.memory.lead.name = cleanValue;
+    state.memory.nombre = cleanValue;
+  }
+  if (field === "phone") {
+    state.memory.lead.phone = cleanValue;
+    state.memory.cel = cleanValue;
+    state.memory.phone = cleanValue;
+  }
+  if (field === "age") {
+    state.memory.lead.edad = cleanValue;
+    state.memory.edad = cleanValue;
+    state.memory.age = cleanValue;
+  }
+  if (field === "service") {
+    state.memory.lead.servicio = cleanValue;
+    state.memory.servicio = cleanValue;
+  }
+  if (field === "modality") {
+    state.memory.lead.modalidad = cleanValue;
+    state.memory.modalidad = cleanValue;
+  }
+  if (field === "intent") {
+    state.memory.intent = cleanValue;
+  }
+}
+
+function normalizePhoneCandidate(text = "") {
+  const raw = String(text || "").trim();
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length < 7 || digits.length > 15) return "";
+  return raw.replace(/[^\d+()\-\s]/g, "").replace(/\s+/g, " ").trim().slice(0, 32);
+}
+
+function extractPhoneFromText(text = "") {
+  const matches = String(text || "").match(/(?:\+?\d[\d\s().-]{5,}\d)/g) || [];
+  for (const match of matches) {
+    const phone = normalizePhoneCandidate(match);
+    if (phone) return phone;
+  }
+  return "";
+}
+
+function extractAgeFromText(text = "") {
+  const clean = normalizeLite(text);
+  const patterns = [
+    /\b(?:tiene|de|edad|age|aged)\s+(\d{1,2})\s*(?:anos|years?)?\b/,
+    /\b(\d{1,2})\s*(?:anos|years?)\b/
+  ];
+
+  for (const re of patterns) {
+    const match = clean.match(re);
+    if (!match) continue;
+    const age = Number(match[1]);
+    if (Number.isFinite(age) && age >= 0 && age <= 99) return `${age} años`;
+  }
+
+  return "";
+}
+
+function extractNameFromText(text = "") {
+  const raw = String(text || "").trim();
+  if (!raw) return "";
+
+  const asciiRaw = raw
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  const match = asciiRaw.match(/\b(?:me\s+llamo|mi\s+nombre\s+es|soy)\s+([A-Za-z]+(?:\s+[A-Za-z]+){0,3})/i);
+  if (match?.[1]) {
+    return match[1]
+      .replace(/\b(?:mi|hija|hijo|tiene|anos|que|costos?|precios?|vale|valor)\b.*$/i, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 80);
+  }
+
+  const clean = normalizeLite(raw);
+  const expected = String(state?.memory?.session?.expectedInput || state?.memory?.capture?.stage || "").toLowerCase();
+  if (expected === "phone" && /^[a-zA-Z]+(?:\s+[a-zA-Z]+){0,3}$/.test(asciiRaw) && !isPoliteSkipInput(clean)) {
+    return raw.slice(0, 80);
+  }
+
+  return "";
+}
+
+function isPoliteSkipInput(cleanText = "") {
+  return [
+    "prefiero no dejarlo",
+    "no",
+    "despues",
+    "sin datos",
+    "continuar sin dejarlo",
+    "prefer not to share"
+  ].some((item) => cleanText === item || cleanText.includes(item));
+}
+
+function detectConversationalIntent(text = "") {
+  const clean = normalizeLite(text);
+  if (!clean) return "";
+
+  if (/\b(precio|precios|costo|costos|tarifa|tarifas|valor|cuanto vale|cuanto cuesta|pricing|price|cost)\b/.test(clean)) return "prices";
+  if (/\b(vacacional|vacacionales|vacacionalea|vacasional|vacasionales|vacaciones|vacaciones artisticas|curso vacaciones|holiday)\b/.test(clean)) return "vacacionales";
+  if (/\b(ubicacion|direccion|donde estan|donde quedan|maps|location|address)\b/.test(clean)) return "location";
+  if (/\b(academia de arte|escuela de arte|artes plasticas|musica danza arte teatro|art academy)\b/.test(clean)) return "arts";
+  if (/\b(clase de prueba|clase gratis|cortesia|prueba|trial|free class)\b/.test(clean)) return "trial";
+  if (/\b(whatsapp|asesor|asesora|agendar|cupo|disponibilidad|pagar|pago|inscripcion|matricula|advisor)\b/.test(clean)) return "advisor";
+
+  return "";
+}
+
+function rememberConversationContextFromBot(botReply) {
+  if (!botReply || !state) return;
+
+  const options = Array.isArray(botReply.options) ? botReply.options : [];
+  const session = getConversationalSession();
+  const labels = options.map((opt) => normalizeLite(opt?.label || opt?.value || opt)).filter(Boolean);
+
+  if (labels.length) {
+    session.expectedInput = "menu_option";
+    if (
+      labels.some((label) => label.includes("cursos vacacionales")) &&
+      labels.some((label) => label.includes("clases presenciales")) &&
+      labels.some((label) => label.includes("clases virtuales"))
+    ) {
+      session.lastMenu = "main_menu";
+    } else {
+      session.lastMenu = String(botReply?._flow?.nodeId || state.currentNodeId || "flow_menu").trim();
+    }
+  } else if (botReply?._flow?.allowFreeText === true) {
+    session.expectedInput = state?.memory?.capture?.stage || "free_text";
+  }
+}
+
+function buildMainMenuReply(prefix = "") {
+  const text = [
+    prefix || "Te dejo las opciones principales:",
+    "1. Cursos Vacacionales",
+    "2. Clases Presenciales",
+    "3. Clases Virtuales",
+    "4. Clases a Domicilio",
+    "5. Otros Servicios",
+    "6. Ver precios",
+    "7. Hablar con un asesor por WhatsApp"
+  ].join("\n");
+
+  const msg = makeBotMessage(text, [
+    { label: "Cursos Vacacionales", value: "1", kind: "option" },
+    { label: "Clases Presenciales", value: "2", kind: "option" },
+    { label: "Clases Virtuales", value: "3", kind: "option" },
+    { label: "Clases a Domicilio", value: "4", kind: "option" },
+    { label: "Otros Servicios", value: "5", kind: "option" },
+    { label: "Ver precios", value: "6", kind: "option" },
+    { label: "Hablar por WhatsApp", value: "WHATSAPP", kind: "global:WHATSAPP" }
+  ]);
+  msg._flow = { allowFreeText: true, conversationalMenu: true };
+
+  const session = getConversationalSession();
+  session.lastMenu = "main_menu";
+  session.expectedInput = "menu_option";
+
+  return msg;
+}
+
+function resolveMainMenuOption(cleanText = "") {
+  const option = String(cleanText || "").trim();
+
+  if (option === "6") return buildConversationalPricesReply();
+  if (option === "7") {
+    const msg = makeBotMessage(
+      "Para continuar por WhatsApp con nuestro equipo, puedes escribirnos al 319 3529475.",
+      [{ label: "Hablar por WhatsApp", value: "WHATSAPP", kind: "global:WHATSAPP" }]
+    );
+    msg._flow = { allowFreeText: true, isClosing: true, action: "WHATSAPP" };
+    return msg;
+  }
+
+  if (/^[1-5]$/.test(option)) {
+    try {
+      state.currentNodeId = "show_program_options";
+      state.awaitingNodeId = "show_program_options";
+      return handleUserInput(option, state);
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+}
+
+function resolveNumberFromVisibleOptions(cleanText = "") {
+  const number = Number(String(cleanText || "").trim());
+  if (!Number.isFinite(number) || number < 1) return null;
+
+  const lastBotWithOptions = getLastBotWithOptions();
+  const options = Array.isArray(lastBotWithOptions?.options) ? lastBotWithOptions.options : [];
+  const option = options[number - 1];
+  if (!option) return null;
+
+  const value =
+    typeof option === "string"
+      ? option
+      : String(option.value || option.label || option.text || "").trim();
+  if (!value) return null;
+
+  return handleUserInput(value, state);
+}
+
+function buildConversationalPricesReply() {
+  const session = getConversationalSession();
+  const name = session.collected.name;
+  const age = session.collected.age;
+  const greeting = name ? `Gracias, ${name}. ` : "";
+  const ageHint = age ? `Para un estudiante de ${age}, puedo orientarte mejor con edad y modalidad ya en mente.\n\n` : "";
+
+  const msg = makeBotMessage(
+    `${greeting}${ageHint}Tenemos opciones desde $56.000 y la matrícula anual cuesta $60.000.\n\n` +
+      "Rangos principales:\n" +
+      "- Virtual / Automusicala: desde $56.000\n" +
+      "- A domicilio / Musifamiliar: desde $288.000\n" +
+      "- En sede, grupales o personalizadas: desde $280.000\n" +
+      "- Preuniversitario / talleres creativos: desde $150.000\n\n" +
+      "Para recomendarte bien, dime el arte que le interesa y si prefieren sede, domicilio o virtual.",
+    [
+      { label: "Cursos Vacacionales", value: "vacacionales", kind: "option" },
+      { label: "Clases en sede", value: "presencial", kind: "option" },
+      { label: "Clases virtuales", value: "virtual", kind: "option" },
+      { label: "Hablar por WhatsApp", value: "WHATSAPP", kind: "global:WHATSAPP" }
+    ]
+  );
+  msg._flow = { allowFreeText: true, inlineKnowledge: true, knowledgeIntentId: "prices" };
+  return msg;
+}
+
+function buildVacationCoursesReply() {
+  const msg = makeBotMessage(
+    "Creo que te refieres a Cursos Vacacionales. Para mitad de año tendremos Vacaciones Artísticas del 9 de junio al 6 de agosto de 2026, para niños, niñas y jóvenes de 4 a 15 años.\n\n" +
+      "Tenemos opciones en sede Pasadena, a domicilio y virtual en vivo.\n\n" +
+      "Para orientarte bien, dime la edad del estudiante.",
+    [
+      { label: "Ver precios vacacionales", value: "precios vacacionales", kind: "option" },
+      { label: "En sede Pasadena", value: "vacacionales sede", kind: "option" },
+      { label: "A domicilio", value: "vacacionales domicilio", kind: "option" },
+      { label: "Hablar por WhatsApp", value: "WHATSAPP", kind: "global:WHATSAPP" }
+    ]
+  );
+  msg._flow = { allowFreeText: true, inlineKnowledge: true, knowledgeIntentId: "vacacionales" };
+  rememberCollectedField("service", "Cursos Vacacionales");
+  return msg;
+}
+
+function handleConversationalStateBeforeFlow(text = "") {
+  const raw = String(text || "").trim();
+  const clean = normalizeLite(raw);
+  if (!clean) return null;
+
+  const session = getConversationalSession();
+  const captureStage = String(state?.memory?.capture?.stage || "").trim().toLowerCase();
+
+  if (/^\d{1,2}$/.test(clean) && !captureStage && getLastBotWithOptions()) {
+    const routed = resolveNumberFromVisibleOptions(clean) || handleUserInput(clean, state);
+    if (routed) return { botReply: routed, handled: true };
+  }
+
+  if (/^\d{1,2}$/.test(clean) && session.lastMenu === "main_menu") {
+    const resolved = resolveMainMenuOption(clean);
+    if (resolved) return { botReply: resolved, handled: true };
+  }
+
+  const phone = extractPhoneFromText(raw);
+  if (phone) {
+    rememberCollectedField("phone", phone);
+    state.memory.capture = state.memory.capture || {};
+    state.memory.capture.stage = null;
+    state.awaitingNodeId = null;
+
+    const msg = makeBotMessage(
+      "Gracias. Guardé ese número como contacto. Ahora seguimos justo donde íbamos.",
+      getLastBotWithOptions()?.options || []
+    );
+    msg._flow = { allowFreeText: true, conversationalCapture: "phone" };
+    return { botReply: msg, handled: true };
+  }
+
+  const name = extractNameFromText(raw);
+  if (name && !session.collected.name) {
+    rememberCollectedField("name", name);
+  }
+
+  const age = extractAgeFromText(raw);
+  if (age) rememberCollectedField("age", age);
+
+  if (isPoliteSkipInput(clean)) {
+    state.memory.capture = state.memory.capture || {};
+    state.memory.capture.stage = null;
+    session.expectedInput = "free_text";
+  }
+
+  const intent = detectConversationalIntent(raw);
+  if (intent) rememberCollectedField("intent", intent);
+
+  if (name && String(state?.memory?.capture?.stage || session.expectedInput).toLowerCase() === "phone") {
+    state.memory.capture = state.memory.capture || {};
+    state.memory.capture.stage = null;
+    state.awaitingNodeId = null;
+    const msg = makeBotMessage(
+      `Gracias, ${name}. Ya guardé tu nombre. Si quieres, también puedes dejar tu celular para que un asesor te contacte, o puedes seguir sin dejarlo.`,
+      [
+        { label: "Prefiero no dejarlo", value: "Prefiero no dejarlo", kind: "option" },
+        { label: "Ver programas", value: "menu", kind: "global:MENU" }
+      ]
+    );
+    msg._flow = { allowFreeText: true, conversationalCapture: "name" };
+    return { botReply: msg, handled: true };
+  }
+
+  if (/^\d{1,2}$/.test(clean) && !getLastBotWithOptions() && !session.lastMenu) {
+    return {
+      botReply: buildMainMenuReply("Creo que elegiste una opción del menú, pero necesito retomarlo para ubicarte bien."),
+      handled: true
+    };
+  }
+
+  if (intent === "prices") return { botReply: buildConversationalPricesReply(), handled: true };
+  if (intent === "vacacionales") return { botReply: buildVacationCoursesReply(), handled: true };
+
+  return { handled: false };
 }
 
 function openFAQQuestionContains(qNeedle = "") {
@@ -1180,6 +1549,11 @@ function isCurrentFlowOptionText(text = "") {
 function shouldBypassKnowledgeInterrupt(text = "") {
   const clean = normalizeLite(text);
   if (!clean) return true;
+  if (
+    /^\d{1,2}$/.test(clean) &&
+    !String(state?.memory?.capture?.stage || "").trim() &&
+    getLastBotWithOptions()
+  ) return true;
 
   if (clean === "menu" || clean === "menú" || clean === "home" || clean === "inicio") return true;
   if (clean === "reset" || clean === "reiniciar") return true;
@@ -1400,7 +1774,7 @@ function getResumePromptAfterInterrupt() {
   if (captureStage === "phone") {
     return lang === "en"
       ? "When you're ready, we can continue with your phone number."
-      : "Cuando quieras, seguimos con tu numero de celular.";
+      : "Cuando quieras, seguimos con tu número de celular.";
   }
 
   const lastBotWithOptions = getLastBotWithOptions();
@@ -1770,10 +2144,27 @@ function onUserSubmit(text) {
   appendMessage(userMsg);
   rememberUserQuestion(value);
 
+  const conversationalTurn = handleConversationalStateBeforeFlow(value);
+  if (conversationalTurn?.botReply) {
+    state.history.push(conversationalTurn.botReply);
+    appendMessage(conversationalTurn.botReply);
+    rememberConversationContextFromBot(conversationalTurn.botReply);
+    logBotView(conversationalTurn.botReply);
+    logTurnEvent("user_message", value, conversationalTurn.botReply);
+
+    renderChips(state);
+    updateComposerModeFromFlow();
+
+    scheduleLeadSync();
+    saveState(state);
+    return;
+  }
+
   const knowledgeInterrupt = handleInlineKnowledgeInterrupt(value);
   if (knowledgeInterrupt?.botReply) {
     state.history.push(knowledgeInterrupt.botReply);
     appendMessage(knowledgeInterrupt.botReply);
+    rememberConversationContextFromBot(knowledgeInterrupt.botReply);
     logBotView(knowledgeInterrupt.botReply);
     freezeFirstLeadSnapshot({ userText: value });
 
@@ -1781,6 +2172,7 @@ function onUserSubmit(text) {
     if (nextLeadStep) {
       state.history.push(nextLeadStep);
       appendMessage(nextLeadStep);
+      rememberConversationContextFromBot(nextLeadStep);
       logBotView(nextLeadStep);
     }
 
@@ -1812,6 +2204,7 @@ function onUserSubmit(text) {
   if (botReply) {
     state.history.push(botReply);
     appendMessage(botReply);
+    rememberConversationContextFromBot(botReply);
     applyUIHintsAfterBotReply();
     freezeFirstLeadSnapshot({ userText: value });
 
@@ -1943,6 +2336,7 @@ function onChipClick(value, kind, label) {
     if (botReply) {
       state.history.push(botReply);
       appendMessage(botReply);
+      rememberConversationContextFromBot(botReply);
       applyUIHintsAfterBotReply();
       logBotView(botReply);
     }
@@ -1965,6 +2359,7 @@ function onChipClick(value, kind, label) {
   if (botReply) {
     state.history.push(botReply);
     appendMessage(botReply);
+    rememberConversationContextFromBot(botReply);
     applyUIHintsAfterBotReply();
     freezeFirstLeadSnapshot({ userText: visibleValue });
 

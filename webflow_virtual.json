@@ -21,7 +21,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Clases Virtuales Musicala te permiten aprender desde cualquier lugar con dos caminos: clases en vivo con docente en tiempo real o Plataforma Online para avanzar a tu ritmo.\n\nTrabajamos Musica, Danza, Teatro y Artes Plasticas con una experiencia cercana, flexible y creativa.\n\nPara orientarte mejor, cuentanos la edad del estudiante:",
+          "textMessage": "Clases Virtuales Musicala te permiten aprender desde cualquier lugar con dos caminos: clases en vivo con docente en tiempo real o Plataforma Online para avanzar a tu ritmo.\n\nTrabajamos M?sica, Danza, Teatro y Artes Plasticas con una experiencia cercana, flexible y creativa.\n\nPara orientarte mejor, cu?ntanos la edad del estudiante:",
           "options": [
             "1 a 3",
             "4 a 6",
@@ -117,7 +117,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Musibabies Virtual es una experiencia de estimulacion artistica para peques de 1 a 3 anos que integra musica, danza, teatro desde el cuerpo y artes plasticas.\n\nCreamos sesiones amorosas y muy guiadas para acompanar a las familias en casa.\n\nSi quieres conocer mas sobre estas edades, puedes verlo aqui:\nhttps://musicala.github.io/musiedades/\n\nComo te gustaria vivir esta experiencia virtual?",
+          "textMessage": "Musibabies Virtual es una experiencia de estimulaci?n art?stica para peques de 1 a 3 a?os qu? integra m?sica, danza, teatro desde el cuerpo y artes pl?sticas.\n\nCreamos sesiones amorosas y muy guiadas para acompa?ar a las familias en casa.\n\nSi quieres conocer m?s sobre estas edades, puedes verlo aqu?:\nhttps://musicala.github.io/musiedades/\n\nC?mo te gustar?a vivir esta experiencia virtual?",
           "options": [
             "Clases en vivo",
             {
@@ -143,10 +143,10 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Musicalitos Virtual invita a peques de 4 a 6 anos a descubrir el arte desde casa con experiencias llenas de juego, imaginacion y movimiento.\n\nTrabajamos Musica, Danza, Teatro y Artes Plasticas con propuestas cercanas y muy creativas.\n\nQue area te gustaria conocer mejor?",
+          "textMessage": "Musicalitos Virtual invita a peques de 4 a 6 a?os a descubrir el arte desde casa con experiencias llenas de juego, imaginaci?n y movimiento.\n\nTrabajamos M?sica, Danza, Teatro y Artes Plasticas con propuestas cercanas y muy creativas.\n\nQu? area te gustar?a conocer mejor?",
           "options": [
             {
-              "label": "Musica",
+              "label": "M?sica",
               "value": "musica"
             },
             {
@@ -184,10 +184,10 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Musikids Virtual acompana a ninas y ninos de 7 a 11 anos en procesos artisticos mas profundos, flexibles y motivantes desde cualquier lugar.\n\nAqui pueden explorar Musica, Danza, Teatro y Artes Plasticas con clases en vivo o apoyos virtuales a su ritmo.\n\nQue area artistica te gustaria explorar?",
+          "textMessage": "Musikids Virtual acompa?a a ni?as y ni?os de 7 a 11 a?os en procesos art?sticos m?s profundos, flexibles y motivantes desde cualquier lugar.\n\nAqu? pueden explorar M?sica, Danza, Teatro y Artes Plasticas con clases en vivo o apoyos virtuales a su ritmo.\n\nQu? area art?stica te gustar?a explorar?",
           "options": [
             {
-              "label": "Musica",
+              "label": "M?sica",
               "value": "musica"
             },
             {
@@ -225,10 +225,10 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Musiteens Virtual esta pensado para adolescentes de 12 a 15 anos que quieren explorar el arte con mayor autonomia, creatividad y acompanamiento.\n\nTrabajamos Musica, Danza, Teatro y Artes Plasticas con experiencias virtuales dinamicas y adaptadas a sus objetivos.\n\nQue area artistica te gustaria explorar?",
+          "textMessage": "Musiteens Virtual esta pensado para adolescentes de 12 a 15 a?os qu? quieren explorar el arte con mayor autonom?a, creatividad y acompa?amiento.\n\nTrabajamos M?sica, Danza, Teatro y Artes Plasticas con experiencias virtuales din?micas y adaptadas a sus objetivos.\n\nQu? area art?stica te gustar?a explorar?",
           "options": [
             {
-              "label": "Musica",
+              "label": "M?sica",
               "value": "musica"
             },
             {
@@ -266,10 +266,10 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Musigrandes Virtual es nuestra ruta para jovenes y adultos de 16 a 50 anos que quieren aprender arte con flexibilidad, profundidad y acompanamiento desde cualquier lugar.\n\nPuedes explorar Musica, Danza, Teatro y Artes Plasticas con clases en vivo o procesos virtuales segun tu ritmo.\n\nQue area artistica te gustaria explorar?",
+          "textMessage": "Musigrandes Virtual es nuestra ruta para j?venes y adultos de 16 a 50 a?os qu? quieren aprender arte con flexibilidad, profundidad y acompa?amiento desde cualquier lugar.\n\nPuedes explorar M?sica, Danza, Teatro y Artes Plasticas con clases en vivo o procesos virtuales seg?n tu ritmo.\n\nQu? area art?stica te gustar?a explorar?",
           "options": [
             {
-              "label": "Musica",
+              "label": "M?sica",
               "value": "musica"
             },
             {
@@ -307,10 +307,10 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Musiadultos Virtual esta pensado para personas de 50 anos en adelante que quieren aprender, retomar o disfrutar el arte con flexibilidad, cercania y confianza.\n\nDesde cualquier lugar, trabajamos Musica, Danza, Teatro y Artes Plasticas con rutas virtuales claras y humanas.\n\nQue area artistica te gustaria explorar?",
+          "textMessage": "Musiadultos Virtual esta pensado para personas de 50 a?os en adelante qu? quieren aprender, retomar o disfrutar el arte con flexibilidad, cercania y confianza.\n\nDesde cualquier lugar, trabajamos M?sica, Danza, Teatro y Artes Plasticas con rutas virtuales claras y humanas.\n\nQu? area art?stica te gustar?a explorar?",
           "options": [
             {
-              "label": "Musica",
+              "label": "M?sica",
               "value": "musica"
             },
             {
@@ -460,7 +460,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En Musicalitos Virtual, la musica se vive con cuerpo, voz e instrumentos adaptados a esta etapa.\n\nFortalecemos ritmo, escucha y creatividad en una experiencia cercana y divertida.\n\nComo te gustaria vivir esta ruta?",
+          "textMessage": "En Musicalitos Virtual, la m?sica se vive con cuerpo, voz e instrumentos adaptados a esta etapa.\n\nFortalecemos ritmo, escucha y creatividad en una experiencia cercana y divertida.\n\nC?mo te gustar?a vivir esta ruta?",
           "options": [
             "Clases en vivo",
             "Plataforma online",
@@ -487,7 +487,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En Musicalitos Virtual, la danza se explora con movimiento, expresion corporal y juegos ritmicos adaptados a esta edad.\n\nEs un espacio para desarrollar coordinacion, confianza y disfrute artistico desde casa.\n\nComo te gustaria vivir esta ruta?",
+          "textMessage": "En Musicalitos Virtual, la danza se explora con movimiento, expresi?n corporal y juegos ritmicos adaptados a esta edad.\n\nEs un espacio para desarrollar coordinaci?n, confianza y disfrute art?stico desde casa.\n\nC?mo te gustar?a vivir esta ruta?",
           "options": [
             "Clases en vivo",
             "Plataforma online",
@@ -514,7 +514,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En Musicalitos Virtual, el teatro invita a imaginar, jugar y contar historias con la voz, el cuerpo y las emociones.\n\nFortalecemos creatividad, comunicacion y seguridad en un proceso lleno de juego.\n\nComo te gustaria vivir esta ruta?",
+          "textMessage": "En Musicalitos Virtual, el teatro invita a imaginar, jugar y contar historias con la voz, el cuerpo y las emociones.\n\nFortalecemos creatividad, comunicaci?n y seguridad en un proceso lleno de juego.\n\nC?mo te gustar?a vivir esta ruta?",
           "options": [
             "Clases en vivo",
             "Plataforma online",
@@ -541,7 +541,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En Musicalitos Virtual, las artes plasticas abren un espacio para crear, experimentar con materiales y expresar ideas con libertad.\n\nAcompanamos la creatividad y la motricidad fina con propuestas claras para casa.\n\nComo te gustaria vivir esta ruta?",
+          "textMessage": "En Musicalitos Virtual, las artes pl?sticas abren un espacio para crear, experimentar con materiales y expresar ideas con libertad.\n\nAcompa?amos la creatividad y la motricidad fina con propuestas claras para casa.\n\nC?mo te gustar?a vivir esta ruta?",
           "options": [
             "Clases en vivo",
             "Plataforma online",
@@ -568,7 +568,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En nuestras clases virtuales de musica, trabajamos canto, instrumento, tecnica y creatividad con acompanamiento cercano y procesos claros.\n\nPuedes avanzar con clases en vivo o combinar tu proceso con apoyo virtual segun tus metas.\n\nEscoge el instrumento que deseas aprender:",
+          "textMessage": "En nuestras clases virtuales de m?sica, trabajamos canto, instrumento, t?cnica y creatividad con acompa?amiento cercano y procesos claros.\n\nPuedes avanzar con clases en vivo o combinar tu proceso con apoyo virtual seg?n tus metas.\n\nEscoge el instrumento qu? deseas aprender:",
           "options": [
             "Piano/Teclado",
             "Guitarra",
@@ -635,7 +635,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En nuestras clases virtuales de danza, trabajamos tecnica, musicalidad, expresion y entrenamiento corporal con sesiones dinamicas y acompanamiento real.\n\nEscoge el estilo de baile que mas te llama la atencion:",
+          "textMessage": "En nuestras clases virtuales de danza, trabajamos t?cnica, musicalidad, expresi?n y entrenamiento corporal con sesiones din?micas y acompa?amiento real.\n\nEscoge el estilo de baile qu? m?s te llama la atencion:",
           "options": [
             "Bailes Latinos",
             "Danza clasica/Ballet",
@@ -697,7 +697,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En nuestras clases virtuales de artes plasticas, combinamos tecnica, observacion y creatividad para que cada estudiante avance con guia y libertad.\n\nQue tecnica te gustaria aprender?",
+          "textMessage": "En nuestras clases virtuales de artes pl?sticas, combinamos t?cnica, observaci?n y creatividad para qu? cada estudiante avance con guia y libertad.\n\nQu? t?cnica te gustar?a aprender?",
           "options": [
             "Dibujo",
             "Pintura",
@@ -758,7 +758,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En nuestras clases virtuales de teatro, trabajamos actuacion, voz, improvisacion y expresion corporal en procesos cercanos y muy creativos.\n\nEs una ruta ideal para fortalecer presencia, comunicacion y confianza desde cualquier lugar.\n\nComo te gustaria vivir esta ruta?",
+          "textMessage": "En nuestras clases virtuales de teatro, trabajamos actuaci?n, voz, improvisaci?n y expresi?n corporal en procesos cercanos y muy creativos.\n\nEs una ruta ideal para fortalecer presencia, comunicaci?n y confianza desde cualquier lugar.\n\nC?mo te gustar?a vivir esta ruta?",
           "options": [
             "Clases en vivo",
             "Plataforma online",
@@ -785,7 +785,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En virtual tienes dos caminos para aprender con Musicala:\n\nClases en vivo: sesiones en tiempo real con docente, retroalimentacion y acompanamiento cercano.\n\nPlataforma online: acceso para avanzar a tu ritmo, repasar y sostener tu proceso desde cualquier lugar.\n\nCual te interesa mas?",
+          "textMessage": "En virtual tienes dos caminos para aprender con Musicala:\n\nClases en vivo: sesiones en tiempo real con docente, retroalimentaci?n y acompa?amiento cercano.\n\nPlataforma online: acceso para avanzar a tu ritmo, repasar y sostener tu proceso desde cualquier lugar.\n\nCu?l te interesa m?s?",
           "options": [
             "Clases en vivo",
             "Plataforma online",
@@ -849,7 +849,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Aqui te compartimos los planes de Clases Virtuales en Vivo.\n\nAntes de hablar con nuestro equipo, te invitamos a explorar nuestras Preguntas Frecuentes. Alli encontraras informacion clave sobre horarios, precios y metodologia.\n\nSi quieres conocer otras opciones, puedes volver al menu. Y si prefieres continuar ya mismo, tambien puedes escribirnos por WhatsApp.",
+          "textMessage": "Aqu? te compartimos los planes de Clases Virtuales en Vivo.\n\nAntes de hablar con nuestro equipo, te invitamos a explorar nuestras Preguntas Frecuentes. All? encontraras informaci?n clave sobre horarios, precios y metodolog?a.\n\nSi quieres conocer otras opciones, puedes volver al men?. Y si prefieres continuar ya mismo, tambi?n puedes escribirnos por WhatsApp.",
           "options": [
             {
               "label": "Hablar por WhatsApp",
@@ -880,7 +880,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Plataforma Online Musicala te permite avanzar a tu ritmo, repasar contenidos y sostener tu proceso artistico desde cualquier lugar.\n\nPlanes para estudiantes nuevos:\n- Plataforma Online 1 mes: $56.000\n- Plataforma Online 2 meses: $110.000\n- Plataforma Online 3 meses: $160.000\n- Plataforma Online 6 meses: $322.000\n- Plataforma Online 12 meses: $454.000\n\nQue plan te gustaria tomar?",
+          "textMessage": "Plataforma Online Musicala te permite avanzar a tu ritmo, repasar contenidos y sostener tu proceso art?stico desde cualquier lugar.\n\nPlanes para estudiantes nuevos:\n- Plataforma Online 1 mes: $56.000\n- Plataforma Online 2 meses: $110.000\n- Plataforma Online 3 meses: $160.000\n- Plataforma Online 6 meses: $322.000\n- Plataforma Online 12 meses: $454.000\n\nQu? plan te gustar?a tomar?",
           "options": [
             "Plataforma Online 1 mes",
             "Plataforma Online 2 meses",
@@ -968,7 +968,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Super. Ya con esto podemos orientarte mejor sobre Plataforma Online.\n\nAntes de hablar con nuestro equipo, te invitamos a revisar nuestras Preguntas Frecuentes. Y si quieres continuar ya mismo, puedes escribirnos por WhatsApp para completar el proceso.\n\nSi quieres conocer otras opciones, tambien puedes volver al menu.",
+          "textMessage": "Super. Ya con esto podemos orientarte mejor sobre Plataforma Online.\n\nAntes de hablar con nuestro equipo, te invitamos a revisar nuestras Preguntas Frecuentes. Y si quieres continuar ya mismo, puedes escribirnos por WhatsApp para completar el proceso.\n\nSi quieres conocer otras opciones, tambi?n puedes volver al men?.",
           "options": [
             {
               "label": "Hablar por WhatsApp",

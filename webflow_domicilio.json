@@ -21,7 +21,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Musicala Hogar lleva el arte hasta tu casa con clases personalizadas, cercanas y pensadas para avanzar a tu ritmo.\n\nTrabajamos Musica, Danza, Teatro y Artes Plasticas con acompanamiento docente y una experiencia hecha a la medida del estudiante y su familia.\n\nPara orientarte mejor, cuentanos la edad del estudiante:",
+          "textMessage": "Musicala Hogar lleva el arte hasta tu casa con clases personalizadas, cercanas y pensadas para avanzar a tu ritmo.\n\nTrabajamos M?sica, Danza, Teatro y Artes Plasticas con acompa?amiento docente y una experiencia hecha a la medida del estudiante y su familia.\n\nPara orientarte mejor, cu?ntanos la edad del estudiante:",
           "options": [
             "1 a 3",
             "4 a 6",
@@ -117,7 +117,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Musibabies Hogar es nuestro plan de estimulacion artistica personalizada para peques de 1 a 3 anos.\n\nTrabajamos musica, danza, teatro desde el cuerpo y artes plasticas en una experiencia amorosa, sensorial y creativa dentro de casa.\n\nEs ideal para fortalecer vinculo, exploracion y desarrollo integral desde los primeros anos.\n\nSi quieres conocer mas sobre lo que hacemos en estas edades, puedes verlo aqui:\nhttps://musicala.github.io/musiedades/\n\nQue plan te gustaria tomar en Musicala Hogar?",
+          "textMessage": "Musibabies Hogar es nuestro plan de estimulaci?n art?stica personalizada para peques de 1 a 3 a?os.\n\nTrabajamos m?sica, danza, teatro desde el cuerpo y artes pl?sticas en una experiencia amorosa, sensorial y creativa dentro de casa.\n\nEs ideal para fortalecer v?nculo, exploraci?n y desarrollo integral desde los primeros a?os.\n\nSi quieres conocer m?s sobre lo qu? hacemos en estas edades, puedes verlo aqu?:\nhttps://musicala.github.io/musiedades/\n\nQu? plan te gustar?a tomar en Musicala Hogar?",
           "options": [
             "Paquete de 4 clases",
             "Paquete de 8 clases",
@@ -203,10 +203,10 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Musicalitos Hogar lleva la exploracion artistica a casa para peques de 4 a 6 anos.\n\nEn estas clases viven experiencias llenas de juego, imaginacion y descubrimiento en Musica, Danza, Teatro y Artes Plasticas.\n\nQue area te gustaria conocer mejor?",
+          "textMessage": "Musicalitos Hogar lleva la exploraci?n art?stica a casa para peques de 4 a 6 a?os.\n\nEn estas clases viven experiencias llenas de juego, imaginaci?n y descubrimiento en M?sica, Danza, Teatro y Artes Plasticas.\n\nQu? area te gustar?a conocer mejor?",
           "options": [
             {
-              "label": "Musica",
+              "label": "M?sica",
               "value": "musica"
             },
             {
@@ -244,10 +244,10 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Musikids Hogar esta pensado para ninas y ninos de 7 a 11 anos que quieren aprender arte desde casa con mas profundidad.\n\nAqui pueden explorar Musica, Danza, Teatro y Artes Plasticas con clases personalizadas que combinan tecnica, creatividad y disfrute.\n\nQue area artistica te gustaria explorar?",
+          "textMessage": "Musikids Hogar esta pensado para ni?as y ni?os de 7 a 11 a?os qu? quieren aprender arte desde casa con m?s profundidad.\n\nAqu? pueden explorar M?sica, Danza, Teatro y Artes Plasticas con clases personalizadas qu? combinan t?cnica, creatividad y disfrute.\n\nQu? area art?stica te gustar?a explorar?",
           "options": [
             {
-              "label": "Musica",
+              "label": "M?sica",
               "value": "musica"
             },
             {
@@ -285,10 +285,10 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Musiteens Hogar acompana a adolescentes de 12 a 15 anos en procesos artisticos mas conscientes, creativos y expresivos.\n\nTrabajamos Musica, Danza, Teatro y Artes Plasticas en casa con metas claras, flexibilidad y acompanamiento cercano.\n\nQue area artistica te gustaria explorar?",
+          "textMessage": "Musiteens Hogar acompa?a a adolescentes de 12 a 15 a?os en procesos art?sticos m?s conscientes, creativos y expresivos.\n\nTrabajamos M?sica, Danza, Teatro y Artes Plasticas en casa con metas claras, flexibilidad y acompa?amiento cercano.\n\nQu? area art?stica te gustar?a explorar?",
           "options": [
             {
-              "label": "Musica",
+              "label": "M?sica",
               "value": "musica"
             },
             {
@@ -326,10 +326,10 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Musigrandes Hogar es nuestra ruta para jovenes y adultos de 16 a 50 anos que quieren aprender arte desde casa, a su ritmo y con acompanamiento personalizado.\n\nPuedes explorar Musica, Danza, Teatro y Artes Plasticas en un proceso disenado para potenciar tecnica, expresion y bienestar.\n\nQue area artistica te gustaria explorar?",
+          "textMessage": "Musigrandes Hogar es nuestra ruta para j?venes y adultos de 16 a 50 a?os qu? quieren aprender arte desde casa, a su ritmo y con acompa?amiento personalizado.\n\nPuedes explorar M?sica, Danza, Teatro y Artes Plasticas en un proceso dise?ado para potenciar t?cnica, expresi?n y bienestar.\n\nQu? area art?stica te gustar?a explorar?",
           "options": [
             {
-              "label": "Musica",
+              "label": "M?sica",
               "value": "musica"
             },
             {
@@ -367,10 +367,10 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Musiadultos Hogar esta pensado para personas de 50 anos en adelante que desean aprender, retomar o disfrutar el arte con calma y confianza.\n\nDesde casa, trabajamos Musica, Danza, Teatro y Artes Plasticas con experiencias cercanas, retadoras y muy humanas.\n\nQue area artistica te gustaria explorar?",
+          "textMessage": "Musiadultos Hogar esta pensado para personas de 50 a?os en adelante qu? desean aprender, retomar o disfrutar el arte con calma y confianza.\n\nDesde casa, trabajamos M?sica, Danza, Teatro y Artes Plasticas con experiencias cercanas, retadoras y muy humanas.\n\nQu? area art?stica te gustar?a explorar?",
           "options": [
             {
-              "label": "Musica",
+              "label": "M?sica",
               "value": "musica"
             },
             {
@@ -520,7 +520,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En Musicalitos Hogar, la musica se vive con cuerpo, voz e instrumentos adaptados a esta etapa.\n\nLos peques fortalecen ritmo, escucha, coordinacion y creatividad en una experiencia divertida y cercana.\n\nAqui te compartimos los planes de Musicala Hogar para seguir este proceso desde casa.",
+          "textMessage": "En Musicalitos Hogar, la m?sica se vive con cuerpo, voz e instrumentos adaptados a esta etapa.\n\nLos peques fortalecen ritmo, escucha, coordinaci?n y creatividad en una experiencia divertida y cercana.\n\nAqu? te compartimos los planes de Musicala Hogar para seguir este proceso desde casa.",
           "options": [
             {
               "label": "Hablar por WhatsApp",
@@ -551,7 +551,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En Musicalitos Hogar, la danza se explora a traves del movimiento, la expresion corporal y juegos ritmicos pensados para esta edad.\n\nEs un espacio para desarrollar coordinacion, seguridad y disfrute artistico desde casa.\n\nAqui te compartimos los planes de Musicala Hogar para seguir este proceso desde casa.",
+          "textMessage": "En Musicalitos Hogar, la danza se explora a traves del movimiento, la expresi?n corporal y juegos ritmicos pensados para esta edad.\n\nEs un espacio para desarrollar coordinaci?n, seguridad y disfrute art?stico desde casa.\n\nAqu? te compartimos los planes de Musicala Hogar para seguir este proceso desde casa.",
           "options": [
             {
               "label": "Hablar por WhatsApp",
@@ -582,7 +582,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En Musicalitos Hogar, el teatro invita a imaginar, jugar y contar historias con el cuerpo, la voz y las emociones.\n\nFortalecemos comunicacion, creatividad y confianza en un proceso artistico lleno de juego.\n\nAqui te compartimos los planes de Musicala Hogar para seguir este proceso desde casa.",
+          "textMessage": "En Musicalitos Hogar, el teatro invita a imaginar, jugar y contar historias con el cuerpo, la voz y las emociones.\n\nFortalecemos comunicaci?n, creatividad y confianza en un proceso art?stico lleno de juego.\n\nAqu? te compartimos los planes de Musicala Hogar para seguir este proceso desde casa.",
           "options": [
             {
               "label": "Hablar por WhatsApp",
@@ -613,7 +613,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En Musicalitos Hogar, las artes plasticas abren un espacio para crear, experimentar con materiales y expresar ideas con libertad.\n\nAcompanamos el desarrollo de motricidad fina, percepcion y creatividad en una experiencia cercana y amorosa.\n\nAqui te compartimos los planes de Musicala Hogar para seguir este proceso desde casa.",
+          "textMessage": "En Musicalitos Hogar, las artes pl?sticas abren un espacio para crear, experimentar con materiales y expresar ideas con libertad.\n\nAcompa?amos el desarrollo de motricidad fina, percepci?n y creatividad en una experiencia cercana y amorosa.\n\nAqu? te compartimos los planes de Musicala Hogar para seguir este proceso desde casa.",
           "options": [
             {
               "label": "Hablar por WhatsApp",
@@ -644,7 +644,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En Musicala Hogar, la musica se trabaja de manera personalizada con canto, instrumento, tecnica y disfrute del proceso.\n\nCada clase se adapta al ritmo, experiencia e intereses del estudiante para avanzar con claridad y motivacion.\n\nEscoge el instrumento que deseas aprender:",
+          "textMessage": "En Musicala Hogar, la m?sica se trabaja de manera personalizada con canto, instrumento, t?cnica y disfrute del proceso.\n\nCada clase se adapta al ritmo, experiencia e intereses del estudiante para avanzar con claridad y motivaci?n.\n\nEscoge el instrumento qu? deseas aprender:",
           "options": [
             "Piano/Teclado",
             "Guitarra",
@@ -711,7 +711,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En Musicala Hogar, la danza se vive desde la tecnica, la musicalidad, la expresion y el disfrute del movimiento.\n\nTrabajamos procesos personalizados para que cada estudiante avance con seguridad y conexion corporal.\n\nEscoge el estilo de baile que mas te llama la atencion:",
+          "textMessage": "En Musicala Hogar, la danza se vive desde la t?cnica, la musicalidad, la expresi?n y el disfrute del movimiento.\n\nTrabajamos procesos personalizados para qu? cada estudiante avance con seguridad y conexi?n corporal.\n\nEscoge el estilo de baile qu? m?s te llama la atencion:",
           "options": [
             "Bailes Latinos",
             "Danza clasica/Ballet",
@@ -773,7 +773,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En Musicala Hogar, las artes plasticas se trabajan con procesos personalizados que combinan observacion, tecnica, creatividad y estilo propio.\n\nLas clases se adaptan a los intereses del estudiante para que cada creacion tenga sentido y disfrute.\n\nQue tecnica te gustaria aprender?",
+          "textMessage": "En Musicala Hogar, las artes pl?sticas se trabajan con procesos personalizados qu? combinan observaci?n, t?cnica, creatividad y estilo propio.\n\nLas clases se adaptan a los intereses del estudiante para qu? cada creaci?n tenga sentido y disfrute.\n\nQu? t?cnica te gustar?a aprender?",
           "options": [
             "Dibujo",
             "Pintura",
@@ -834,7 +834,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "En Musicala Hogar, el teatro se vive desde la actuacion, la voz, la improvisacion y la expresion corporal.\n\nEs una ruta personalizada para fortalecer presencia, comunicacion, creatividad y confianza desde casa.\n\nAqui te compartimos los planes de Musicala Hogar para continuar este proceso.",
+          "textMessage": "En Musicala Hogar, el teatro se vive desde la actuaci?n, la voz, la improvisaci?n y la expresi?n corporal.\n\nEs una ruta personalizada para fortalecer presencia, comunicaci?n, creatividad y confianza desde casa.\n\nAqu? te compartimos los planes de Musicala Hogar para continuar este proceso.",
           "options": [
             {
               "label": "Hablar por WhatsApp",
@@ -865,7 +865,7 @@
       "parameters": {
         "options": {
           "allowFreeText": false,
-          "textMessage": "Aqui te compartimos los planes de Musicala Hogar Personalizado.\n\nAntes de hablar con nuestro equipo, te invitamos a explorar nuestras Preguntas Frecuentes. Alli encontraras informacion clave sobre horarios, cobertura, precios y metodologia.\n\nSi quieres conocer otras opciones, puedes volver al menu. Y si prefieres continuar ya mismo, tambien puedes escribirnos por WhatsApp.",
+          "textMessage": "Aqu? te compartimos los planes de Musicala Hogar Personalizado.\n\nAntes de hablar con nuestro equipo, te invitamos a explorar nuestras Preguntas Frecuentes. All? encontraras informaci?n clave sobre horarios, cobertura, precios y metodolog?a.\n\nSi quieres conocer otras opciones, puedes volver al men?. Y si prefieres continuar ya mismo, tambi?n puedes escribirnos por WhatsApp.",
           "options": [
             {
               "label": "Hablar por WhatsApp",
