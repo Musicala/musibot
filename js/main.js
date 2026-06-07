@@ -794,6 +794,7 @@ function getConversationalSession() {
   collected.name = pickFirstNonEmpty(collected.name, state.memory?.lead?.name, state.memory?.nombre);
   collected.phone = pickFirstNonEmpty(collected.phone, state.memory?.lead?.phone, state.memory?.cel, state.memory?.phone);
   collected.age = pickFirstNonEmpty(collected.age, state.memory?.lead?.edad, state.memory?.edad, state.memory?.age);
+  collected.art = pickFirstNonEmpty(collected.art, state.memory?.lead?.arte, state.memory?.arte, state.memory?.art);
   collected.service = pickFirstNonEmpty(collected.service, state.memory?.lead?.servicio, state.memory?.servicio);
   collected.modality = pickFirstNonEmpty(collected.modality, state.memory?.lead?.modalidad, state.memory?.modalidad);
   collected.intent = String(collected.intent || "").trim();
@@ -823,6 +824,10 @@ function rememberCollectedField(field, value) {
     state.memory.lead.edad = cleanValue;
     state.memory.edad = cleanValue;
     state.memory.age = cleanValue;
+  }
+  if (field === "art") {
+    state.memory.lead.arte = cleanValue;
+    state.memory.arte = cleanValue;
   }
   if (field === "service") {
     state.memory.lead.servicio = cleanValue;
@@ -870,6 +875,65 @@ function extractAgeFromText(text = "") {
   return "";
 }
 
+function extractArtFromText(text = "") {
+  const clean = normalizeLite(text);
+  if (!clean) return "";
+
+  const arts = [
+    ["Piano/Teclado", ["piano", "teclado"]],
+    ["Canto", ["canto", "voz", "vocal"]],
+    ["Violin", ["violin"]],
+    ["Guitarra", ["guitarra"]],
+    ["Bateria", ["bateria", "percusion"]],
+    ["Danza", ["danza", "baile", "ballet", "hip hop"]],
+    ["Teatro", ["teatro", "actuacion"]],
+    ["Artes plasticas", ["artes plasticas", "pintura", "dibujo", "manualidades"]]
+  ];
+
+  const hit = arts.find(([, patterns]) => patterns.some((pattern) => clean.includes(pattern)));
+  return hit?.[0] || "";
+}
+
+function extractModalityFromText(text = "") {
+  const clean = normalizeLite(text);
+  if (!clean) return "";
+  if (/\b(en sede|sede|presencial|pasadena)\b/.test(clean)) return "En sede";
+  if (/\b(domicilio|hogar|casa)\b/.test(clean)) return "A domicilio";
+  if (/\b(virtual|online|linea|en vivo)\b/.test(clean)) return "Virtual";
+  return "";
+}
+
+function extractBetterAgeFromText(text = "") {
+  const clean = normalizeLite(text);
+  const pair = clean.match(/\b(\d{1,2})\s+y\s+(\d{1,2})\s*(?:anos|years?)?\b/);
+  if (pair) {
+    const ages = pair.slice(1).map((item) => Number(item)).filter((age) => Number.isFinite(age) && age >= 0 && age <= 99);
+    if (ages.length > 1) return ages.map((age) => `${age} anos`).join(" y ");
+  }
+
+  const family = clean.match(/\b(?:mi\s+)?(?:hija|hijo|nina|nino|estudiante)\s+(?:tiene|de)?\s*(\d{1,2})\s*(?:anos|years?)?\b/);
+  if (family) {
+    const age = Number(family[1]);
+    if (Number.isFinite(age) && age >= 0 && age <= 99) return `${age} anos`;
+  }
+
+  return "";
+}
+
+function isSoftFlowInterrupt(text = "") {
+  const clean = normalizeLite(text);
+  if (!clean) return false;
+
+  return (
+    isPriceQuestionText(clean) ||
+    /\b(ubicacion|direccion|donde estan|donde quedan|donde se ubican|ciudad|pasadena|maps)\b/.test(clean) ||
+    /\b(horario|horarios|dias|disponibilidad|a que horas)\b/.test(clean) ||
+    /\b(academia de arte|escuela de arte|que ensenan|que artes|artes|musica|danza|teatro|artes plasticas)\b/.test(clean) ||
+    /\b(whatsapp|whapst|wsp|asesor|asesora|humano|agendar|inscripcion|matricula)\b/.test(clean) ||
+    /\b(clase de prueba|cortesia|gratis|prueba)\b/.test(clean)
+  );
+}
+
 function extractNameFromText(text = "") {
   const raw = String(text || "").trim();
   if (!raw) return "";
@@ -882,6 +946,8 @@ function extractNameFromText(text = "") {
   if (match?.[1]) {
     return match[1]
       .replace(/\b(?:mi|hija|hijo|tiene|anos|que|costos?|precios?|vale|valor)\b.*$/i, "")
+      .replace(/\b(?:ni\s+hija|ni\s+hijo|mi\s+hija|mi\s+hijo)\b.*$/i, "")
+      .replace(/\b(?:mi|ni)\s*$/i, "")
       .replace(/\s+/g, " ")
       .trim()
       .slice(0, 80);
@@ -913,10 +979,11 @@ function detectConversationalIntent(text = "") {
 
   if (/\b(precio|precios|costo|costos|tarifa|tarifas|valor|cuanto vale|cuanto cuesta|pricing|price|cost)\b/.test(clean)) return "prices";
   if (/\b(vacacional|vacacionales|vacacionalea|vacasional|vacasionales|vacaciones|vacaciones artisticas|curso vacaciones|holiday)\b/.test(clean)) return "vacacionales";
-  if (/\b(ubicacion|direccion|donde estan|donde quedan|maps|location|address)\b/.test(clean)) return "location";
-  if (/\b(academia de arte|escuela de arte|artes plasticas|musica danza arte teatro|art academy)\b/.test(clean)) return "arts";
+  if (/\b(ubicacion|direccion|donde estan|donde quedan|donde se ubican|ciudad|maps|location|address)\b/.test(clean)) return "location";
+  if (/\b(horario|horarios|dias|disponibilidad|a que horas|schedule|hours)\b/.test(clean)) return "schedules";
+  if (/\b(academia de arte|escuela de arte|artes plasticas|musica danza arte teatro|clases de piano|clases de canto|clases de violin|art academy)\b/.test(clean)) return "arts";
   if (/\b(clase de prueba|clase gratis|cortesia|prueba|trial|free class)\b/.test(clean)) return "trial";
-  if (/\b(whatsapp|asesor|asesora|agendar|cupo|disponibilidad|pagar|pago|inscripcion|matricula|advisor)\b/.test(clean)) return "advisor";
+  if (/\b(whatsapp|whapst|wsp|asesor|asesora|agendar|cupo|disponibilidad|pagar|pago|inscripcion|matricula|advisor)\b/.test(clean)) return "advisor";
 
   return "";
 }
@@ -1022,8 +1089,25 @@ function buildConversationalPricesReply() {
   const session = getConversationalSession();
   const name = session.collected.name;
   const age = session.collected.age;
+  const art = session.collected.art;
+  const modality = session.collected.modality;
   const greeting = name ? `Gracias, ${name}. ` : "";
-  const ageHint = age ? `Para un estudiante de ${age}, puedo orientarte mejor con edad y modalidad ya en mente.\n\n` : "";
+  const context = [
+    age ? `edad: ${age}` : "",
+    art ? `arte: ${art}` : "",
+    modality ? `modalidad: ${modality}` : ""
+  ].filter(Boolean);
+  const ageHint = context.length
+    ? `Con lo que me cuentas (${context.join(", ")}), puedo orientarte mejor.\n\n`
+    : "";
+  const missingContext = [
+    !art ? "el arte que le interesa" : "",
+    !modality ? "si prefieren sede, domicilio o virtual" : "",
+    !age ? "la edad del estudiante" : ""
+  ].filter(Boolean);
+  const recommendationPrompt = missingContext.length
+    ? `Para recomendarte bien, dime ${joinHumanList(missingContext)}.`
+    : "Con esos datos ya podemos aterrizar mejor el plan ideal; si quieres, te paso con un asesor para confirmar cupos y horario.";
 
   const msg = makeBotMessage(
     `${greeting}${ageHint}Tenemos opciones desde $56.000 y la matrícula anual cuesta $60.000.\n\n` +
@@ -1032,7 +1116,7 @@ function buildConversationalPricesReply() {
       "- A domicilio / Musifamiliar: desde $288.000\n" +
       "- En sede, grupales o personalizadas: desde $280.000\n" +
       "- Preuniversitario / talleres creativos: desde $150.000\n\n" +
-      "Para recomendarte bien, dime el arte que le interesa y si prefieren sede, domicilio o virtual.",
+      recommendationPrompt,
     [
       { label: "Cursos Vacacionales", value: "vacacionales", kind: "option" },
       { label: "Clases en sede", value: "presencial", kind: "option" },
@@ -1061,6 +1145,21 @@ function buildVacationCoursesReply() {
   return msg;
 }
 
+function buildAdvisorReply(prefix = "") {
+  const msg = makeBotMessage(
+    [
+      prefix || "Claro. Si prefieres que una persona del equipo te ayude, puedes continuar por WhatsApp.",
+      "Te recomiendo enviar: edad del estudiante, arte de interes y modalidad preferida para que te respondan mas rapido."
+    ].join("\n\n"),
+    [
+      { label: "Hablar por WhatsApp", value: "WHATSAPP", kind: "global:WHATSAPP" },
+      { label: "Ver programas", value: "menu", kind: "global:MENU" }
+    ]
+  );
+  msg._flow = { allowFreeText: true, isClosing: true, action: "WHATSAPP", conversationalAdvisor: true };
+  return msg;
+}
+
 function handleConversationalStateBeforeFlow(text = "") {
   const raw = String(text || "").trim();
   const clean = normalizeLite(raw);
@@ -1081,10 +1180,19 @@ function handleConversationalStateBeforeFlow(text = "") {
 
   const phone = extractPhoneFromText(raw);
   if (phone) {
+    const wasCollectingPhone =
+      String(state?.awaitingNodeId || state?.currentNodeId || "").trim() === "ask_phone" ||
+      String(state?.memory?.capture?.stage || "").trim().toLowerCase() === "phone";
     rememberCollectedField("phone", phone);
     state.memory.capture = state.memory.capture || {};
     state.memory.capture.stage = null;
     state.awaitingNodeId = null;
+
+    if (wasCollectingPhone) {
+      try {
+        return { botReply: runNode("show_program_options", state), handled: true };
+      } catch {}
+    }
 
     const msg = makeBotMessage(
       "Gracias. Guardé ese número como contacto. Ahora seguimos justo donde íbamos.",
@@ -1099,8 +1207,14 @@ function handleConversationalStateBeforeFlow(text = "") {
     rememberCollectedField("name", name);
   }
 
-  const age = extractAgeFromText(raw);
+  const age = extractBetterAgeFromText(raw) || extractAgeFromText(raw);
   if (age) rememberCollectedField("age", age);
+
+  const art = extractArtFromText(raw);
+  if (art) rememberCollectedField("art", art);
+
+  const modality = extractModalityFromText(raw);
+  if (modality) rememberCollectedField("modality", modality);
 
   if (isPoliteSkipInput(clean)) {
     state.memory.capture = state.memory.capture || {};
@@ -1110,6 +1224,10 @@ function handleConversationalStateBeforeFlow(text = "") {
 
   const intent = detectConversationalIntent(raw);
   if (intent) rememberCollectedField("intent", intent);
+
+  if (intent === "advisor") {
+    return { botReply: buildAdvisorReply(), handled: true };
+  }
 
   if (name && String(state?.memory?.capture?.stage || session.expectedInput).toLowerCase() === "phone") {
     state.memory.capture = state.memory.capture || {};
@@ -1135,6 +1253,13 @@ function handleConversationalStateBeforeFlow(text = "") {
 
   if (intent === "prices") return { botReply: buildConversationalPricesReply(), handled: true };
   if (intent === "vacacionales") return { botReply: buildVacationCoursesReply(), handled: true };
+
+  if (isSoftFlowInterrupt(raw)) {
+    const knowledgeInterrupt = handleInlineKnowledgeInterrupt(raw);
+    if (knowledgeInterrupt?.botReply) {
+      return { botReply: knowledgeInterrupt.botReply, handled: true };
+    }
+  }
 
   return { handled: false };
 }
