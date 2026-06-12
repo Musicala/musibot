@@ -861,6 +861,7 @@ function extractPhoneFromText(text = "") {
 function extractAgeFromText(text = "") {
   const clean = normalizeLite(text);
   const patterns = [
+    /\b(?:tengo|para|for)\s+(?:un|una|mi)?\s*(?:bebe|beb[eé]|pequeno|pequeño|hija|hijo|nina|niña|nino|niño|estudiante)?\s*(?:de)?\s*(\d{1,2})\s*(?:anos|years?)?\b/,
     /\b(?:tiene|de|edad|age|aged)\s+(\d{1,2})\s*(?:anos|years?)?\b/,
     /\b(\d{1,2})\s*(?:anos|years?)\b/
   ];
@@ -927,8 +928,9 @@ function isSoftFlowInterrupt(text = "") {
   return (
     isPriceQuestionText(clean) ||
     /\b(ubicacion|direccion|donde estan|donde quedan|donde se ubican|ciudad|pasadena|maps)\b/.test(clean) ||
-    /\b(horario|horarios|dias|disponibilidad|a que horas)\b/.test(clean) ||
-    /\b(academia de arte|escuela de arte|que ensenan|que artes|artes|musica|danza|teatro|artes plasticas)\b/.test(clean) ||
+    /\b(horario|horarios|dias|disponibilidad|a que horas|schedule|hours)\b/.test(clean) ||
+    /\b(academia de arte|escuela de arte|que ensenan|que artes|artes|musica|danza|teatro|artes plasticas|piano|canto|violin|bateria|guitarra|dibujo)\b/.test(clean) ||
+    /\b(virtual|online|domicilio|hogar|presencial|sede|on site|on-site|at home)\b/.test(clean) ||
     /\b(whatsapp|whapst|wsp|asesor|asesora|humano|agendar|inscripcion|matricula)\b/.test(clean) ||
     /\b(clase de prueba|cortesia|gratis|prueba)\b/.test(clean)
   );
@@ -978,10 +980,14 @@ function detectConversationalIntent(text = "") {
   if (!clean) return "";
 
   if (/\b(precio|precios|costo|costos|tarifa|tarifas|valor|cuanto vale|cuanto cuesta|pricing|price|cost)\b/.test(clean)) return "prices";
+  if (/\b(usd|dolar|dolares|dólar|dólares|aprox en usd|approx in usd|conversion|conversi[oó]n)\b/.test(clean)) return "usd";
   if (/\b(vacacional|vacacionales|vacacionalea|vacasional|vacasionales|vacaciones|vacaciones artisticas|curso vacaciones|holiday)\b/.test(clean)) return "vacacionales";
   if (/\b(ubicacion|direccion|donde estan|donde quedan|donde se ubican|ciudad|maps|location|address)\b/.test(clean)) return "location";
   if (/\b(horario|horarios|dias|disponibilidad|a que horas|schedule|hours)\b/.test(clean)) return "schedules";
-  if (/\b(academia de arte|escuela de arte|artes plasticas|musica danza arte teatro|clases de piano|clases de canto|clases de violin|art academy)\b/.test(clean)) return "arts";
+  if (/\b(virtual|online|plataforma|clases virtuales|live online)\b/.test(clean)) return "virtual";
+  if (/\b(domicilio|hogar|en casa|a casa|at home|home classes)\b/.test(clean)) return "home";
+  if (/\b(presencial|sede|en sede|pasadena|on site|on-site|in person)\b/.test(clean)) return "onsite";
+  if (/\b(academia de arte|escuela de arte|artes plasticas|musica danza arte teatro|clases de piano|clases de canto|clases de violin|clases de bateria|curso de bateria|curso de dibujo|dibujo|piano|canto|violin|bateria|guitarra|art academy)\b/.test(clean)) return "arts";
   if (/\b(clase de prueba|clase gratis|cortesia|prueba|trial|free class)\b/.test(clean)) return "trial";
   if (/\b(whatsapp|whapst|wsp|asesor|asesora|agendar|cupo|disponibilidad|pagar|pago|inscripcion|matricula|advisor)\b/.test(clean)) return "advisor";
 
@@ -1128,6 +1134,116 @@ function buildConversationalPricesReply() {
   return msg;
 }
 
+function buildLocationReply() {
+  const msg = makeBotMessage(
+    getLang() === "en"
+      ? "We are in *Bogotá*, in Pasadena: *Carrera 45A #103B-34*.\n\nOn Maps you can search: _MUSICALA ESCUELA DE MUSICA, DANZA Y ARTE_.\nPhone/WhatsApp: *+57 319 3529475*.\n\nWe are close to Calle 106 TransMilenio, with motorcycle and bike parking."
+      : "Estamos en *Bogotá*, barrio Pasadena: *Carrera 45A #103B-34*.\n\nEn Maps nos encuentras como: _MUSICALA ESCUELA DE MUSICA, DANZA Y ARTE_.\nTel/WhatsApp: *319 3529475*.\n\nEstamos cerca de TransMilenio calle 106 y hay parqueo para moto y bici.",
+    [
+      { label: getLang() === "en" ? "See schedules" : "Ver horarios", value: "horarios", kind: "option" },
+      { label: getLang() === "en" ? "Talk on WhatsApp" : "Hablar por WhatsApp", value: "WHATSAPP", kind: "global:WHATSAPP" }
+    ]
+  );
+  msg._flow = { allowFreeText: true, inlineKnowledge: true, knowledgeIntentId: "location" };
+  return msg;
+}
+
+function buildSchedulesReply() {
+  const msg = makeBotMessage(
+    getLang() === "en"
+      ? "*Support:* Mon-Fri 8:00 a.m.-6:00 p.m.; Sat 9:00 a.m.-1:00 p.m.\n\n*Online and at-home classes:* Mon-Sun 8:00 a.m.-8:00 p.m.\n\n*On-site classes:* personalized classes Mon-Fri 11:00 a.m.-8:00 p.m. and Sat 8:00 a.m.-5:00 p.m.; group classes are scheduled Mon-Sat by age and level.\n\nTell me the student's age and the days that work for you, and I can guide you better."
+      : "*Atención:* lunes a viernes 8:00 a.m.-6:00 p.m.; sábados 9:00 a.m.-1:00 p.m.\n\n*Virtual y Hogar:* lunes a domingo 8:00 a.m.-8:00 p.m.\n\n*En sede:* personalizadas lunes a viernes 11:00 a.m.-8:00 p.m. y sábados 8:00 a.m.-5:00 p.m.; grupales de lunes a sábado según edad y nivel.\n\nSi me dices la edad y qué días te sirven, te oriento mejor.",
+    [
+      { label: getLang() === "en" ? "See prices" : "Ver precios", value: "precios", kind: "option" },
+      { label: getLang() === "en" ? "Talk on WhatsApp" : "Hablar por WhatsApp", value: "WHATSAPP", kind: "global:WHATSAPP" }
+    ]
+  );
+  msg._flow = { allowFreeText: true, inlineKnowledge: true, knowledgeIntentId: "schedules" };
+  return msg;
+}
+
+function buildModalityDetailReply(intent = "") {
+  const lang = getLang();
+  let text = "";
+  let rememberedModality = "";
+
+  if (intent === "virtual") {
+    rememberedModality = "Virtual";
+    text = lang === "en"
+      ? "For *online classes*, we have live guidance and, depending on the program, online platform options. Scheduling can usually be coordinated from 8:00 a.m. to 8:00 p.m.\n\nIt works well for music, visual arts, theatre and some dance processes when the goal and age fit the format."
+      : "En *clases virtuales* tenemos acompañamiento en vivo y, según el programa, opciones de plataforma online. Normalmente se pueden coordinar horarios entre 8:00 a.m. y 8:00 p.m.\n\nFunciona bien para música, artes plásticas, teatro y algunos procesos de danza cuando la edad y el objetivo encajan con el formato.";
+  } else if (intent === "home") {
+    rememberedModality = "A domicilio";
+    text = lang === "en"
+      ? "For *at-home classes*, we coordinate according to neighborhood, teacher availability and the student's goal. We cover Bogotá and nearby areas, subject to logistics.\n\nShare neighborhood/municipality, art area and age so an advisor can confirm availability and final price."
+      : "En *clases a domicilio*, coordinamos según barrio, disponibilidad docente y objetivo del estudiante. Cubrimos Bogotá y alrededores, sujeto a logística.\n\nLo ideal es compartir barrio/municipio, arte y edad para confirmar disponibilidad y precio final.";
+  } else {
+    rememberedModality = "En sede";
+    text = lang === "en"
+      ? "For *on-site classes*, we welcome students at our Pasadena location. There are personalized and small-group options depending on age, art area and level.\n\nThe exact schedule depends on the program, but on-site personalized classes usually run Mon-Fri and Saturdays."
+      : "En *clases presenciales*, atendemos en nuestra sede de Pasadena. Hay opciones personalizadas y grupos pequeños según edad, arte y nivel.\n\nEl horario exacto depende del programa; las personalizadas en sede suelen funcionar entre semana y sábados.";
+  }
+
+  rememberCollectedField("modality", rememberedModality);
+  const msg = makeBotMessage(text, [
+    { label: lang === "en" ? "See prices" : "Ver precios", value: "precios", kind: "option" },
+    { label: lang === "en" ? "Talk on WhatsApp" : "Hablar por WhatsApp", value: "WHATSAPP", kind: "global:WHATSAPP" }
+  ]);
+  msg._flow = { allowFreeText: true, inlineKnowledge: true, knowledgeIntentId: intent || "modalities" };
+  return msg;
+}
+
+function buildArtsReply() {
+  const session = getConversationalSession();
+  const art = session.collected.art;
+  const age = session.collected.age;
+  const prefix = art
+    ? `Sí, manejamos *${art}* en Musicala. `
+    : "En Musicala trabajamos música, danza, teatro y artes plásticas. ";
+  const ageLine = age
+    ? `Para ${age}, lo importante es elegir formato y ritmo adecuados. `
+    : "";
+  const msg = makeBotMessage(
+    `${prefix}${ageLine}Podemos orientar el proceso según edad, modalidad y objetivo: explorar, iniciar desde cero, reforzar técnica o preparar un proyecto.\n\n` +
+      "Si me dices si prefieren sede, virtual o domicilio, te recomiendo el camino más lógico.",
+    [
+      { label: "En sede", value: "presencial", kind: "option" },
+      { label: "Virtual", value: "virtual", kind: "option" },
+      { label: "A domicilio", value: "domicilio", kind: "option" },
+      { label: "Ver precios", value: "precios", kind: "option" }
+    ]
+  );
+  msg._flow = { allowFreeText: true, inlineKnowledge: true, knowledgeIntentId: "arts" };
+  return msg;
+}
+
+function buildTrialReply() {
+  const msg = makeBotMessage(
+    "Tenemos dos caminos:\n\n1. *Clase de prueba con valor* de 60 minutos, disponible durante el año.\n2. *Clase de cortesía gratis* de 60 minutos cuando hay fechas o promociones especiales.\n\nPara confirmar si hoy aplica cortesía, lo mejor es validar cupo y modalidad con un asesor.",
+    [
+      { label: "Hablar por WhatsApp", value: "WHATSAPP", kind: "global:WHATSAPP" },
+      { label: "Ver precios", value: "precios", kind: "option" }
+    ]
+  );
+  msg._flow = { allowFreeText: true, inlineKnowledge: true, knowledgeIntentId: "trial_or_courtesy" };
+  return msg;
+}
+
+function buildUsdApproxFallbackReply() {
+  const lang = getLang();
+  const msg = makeBotMessage(
+    lang === "en"
+      ? "Approximate conversion using *COP 4,000 = USD 1*:\n\n- Virtual / online from COP $56,000: about *USD $14*\n- On-site from COP $280,000: about *USD $70*\n- At home from COP $288,000: about *USD $72*\n- Personalized 4-class plans around COP $314,000: about *USD $79*\n- At-home 24-class plans around COP $1,912,000: about *USD $478*\n\nIt is an estimate; the final COP price is the official reference."
+      : "Conversión aproximada usando *COP 4.000 = USD 1*:\n\n- Virtual / online desde $56.000: aprox. *USD $14*\n- En sede desde $280.000: aprox. *USD $70*\n- A domicilio desde $288.000: aprox. *USD $72*\n- Planes personalizados de 4 clases alrededor de $314.000: aprox. *USD $79*\n- Planes hogar de 24 clases alrededor de $1.912.000: aprox. *USD $478*\n\nEs una referencia; el precio oficial final se confirma en COP.",
+    [
+      { label: lang === "en" ? "Talk on WhatsApp" : "Hablar por WhatsApp", value: "WHATSAPP", kind: "global:WHATSAPP" },
+      { label: lang === "en" ? "See prices" : "Ver precios", value: "precios", kind: "option" }
+    ]
+  );
+  msg._flow = { allowFreeText: true, inlineKnowledge: true, knowledgeIntentId: "usd_approx" };
+  return msg;
+}
+
 function buildVacationCoursesReply() {
   const msg = makeBotMessage(
     "Creo que te refieres a Cursos Vacacionales. Para mitad de año tendremos Vacaciones Artísticas del 9 de junio al 6 de agosto de 2026, para niños, niñas y jóvenes de 4 a 15 años.\n\n" +
@@ -1252,7 +1368,13 @@ function handleConversationalStateBeforeFlow(text = "") {
   }
 
   if (intent === "prices") return { botReply: buildConversationalPricesReply(), handled: true };
+  if (intent === "usd") return { botReply: buildUsdApproxFallbackReply(), handled: true };
   if (intent === "vacacionales") return { botReply: buildVacationCoursesReply(), handled: true };
+  if (intent === "location") return { botReply: buildLocationReply(), handled: true };
+  if (intent === "schedules") return { botReply: buildSchedulesReply(), handled: true };
+  if (intent === "virtual" || intent === "home" || intent === "onsite") return { botReply: buildModalityDetailReply(intent), handled: true };
+  if (intent === "arts") return { botReply: buildArtsReply(), handled: true };
+  if (intent === "trial") return { botReply: buildTrialReply(), handled: true };
 
   if (isSoftFlowInterrupt(raw)) {
     const knowledgeInterrupt = handleInlineKnowledgeInterrupt(raw);
@@ -2457,7 +2579,13 @@ function onChipClick(value, kind, label) {
     appendMessage(userMsg);
     rememberUserQuestion(visibleValue);
 
-    const botReply = handleUserInput(value, state);
+    let botReply = handleUserInput(value, state);
+    if (
+      !botReply ||
+      /no logr[eÃ©] identificar|couldn.t identify|todav[iÃ­]a no pude calcular|couldn.t calculate/i.test(String(botReply?.text || ""))
+    ) {
+      botReply = buildUsdApproxFallbackReply();
+    }
     if (botReply) {
       state.history.push(botReply);
       appendMessage(botReply);

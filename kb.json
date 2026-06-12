@@ -208,7 +208,10 @@
           "estan en que ciudad",
           "en que ciudad estan",
           "en donde estan ubicados",
-          "soy sharon daniela y me gustaria saber donde se ubican"
+          "soy sharon daniela y me gustaria saber donde se ubican",
+          "D?nde est?n ubicados",
+          "Donde est?n ubicados",
+          "D?nde se ubican"
         ],
         "en": [
           "location",
@@ -256,7 +259,15 @@
           "hola me gustaria saber que precios tiene las clases de canto",
           "ustedes son academia de arte",
           "academia de arte",
-          "escuela de arte"
+          "escuela de arte",
+          "Curso de bateria",
+          "Curso de bater?a",
+          "Mas informacion para curso de dibujo",
+          "M?s informaci?n para curso de dibujo",
+          "Dibujo",
+          "Manejan canto",
+          "Tengo un pequeno de 6 anos autista y me gustaria que tomara clase de musica especialmente canto y piano",
+          "Tengo un peque?o de 6 a?os autista y me gustar?a que tomara clase de m?sica especialmente canto y piano"
         ],
         "en": [
           "arts",
@@ -268,8 +279,8 @@
         ]
       },
       "response": {
-        "es": "En Musicala trabajamos cuatro artes principales:\n- 🎶 *Música*\n- 💃 *Danza*\n- 🎭 *Teatro*\n- 🖌️ *Artes plásticas*\n\nSi quieres ver una explicación más completa (enfoques, ejemplos y cómo se viven en clase), mira esto: https://musicala.github.io/explicacionartes/",
-        "en": "At Musicala we teach four main arts:\n- 🎶 *Music*\n- 💃 *Dance*\n- 🎭 *Theatre*\n- 🖌️ *Visual arts*\n\nIf you want a deeper explanation (approaches, examples and what classes feel like), check this: https://musicala.github.io/explicacionartes/"
+        "es": "S? ? En Musicala trabajamos *M?sica, Danza, Teatro y Artes Pl?sticas*.\n\nEn m?sica orientamos procesos como piano, canto, guitarra, bater?a, viol?n y otros instrumentos seg?n disponibilidad. En artes pl?sticas puede incluir dibujo, pintura y creaci?n visual.\n\nPara recomendarte bien, dime edad del estudiante y si prefieren sede, virtual o domicilio.",
+        "en": "Yes ? At Musicala we work with *Music, Dance, Theatre and Visual Arts*.\n\nIn music we can guide piano, voice, guitar, drums, violin and other instruments depending on availability. Visual arts may include drawing, painting and creative projects.\n\nTo guide you well, tell me the student age and whether you prefer on-site, online or at-home classes."
       }
     },
     {
@@ -291,7 +302,14 @@
           "cuentame bien horarios para mi hija",
           "horarios para mi hija",
           "precios y dias del curso",
-          "dias del curso"
+          "dias del curso",
+          "Horarios de las clases de musica para bebes",
+          "Horarios de las clases de m?sica para beb?s",
+          "Cuentame bien horarios para mi hija de 5 a?os",
+          "Cu?ntame bien horarios para mi hija de 5 a?os",
+          "dias disponibles",
+          "qu? d?as manejan",
+          "que dias manejan"
         ],
         "en": [
           "schedule",
@@ -320,7 +338,13 @@
           "en sede",
           "cómo son las clases",
           "como son las clases",
-          "presencial"
+          "presencial",
+          "Clases virtuales",
+          "Presencial clases",
+          "Quiero que sea presencial",
+          "Clases presencial",
+          "Quiero clases virtuales",
+          "quiero clase en sede"
         ],
         "en": [
           "modalities",
@@ -335,8 +359,8 @@
         ]
       },
       "response": {
-        "es": "Modalidades Musicala:\n- *En sede* 🏫\n- *A domicilio* 🏡\n- *Virtual* 💻\n\nTodas con acompañamiento cercano y una experiencia artística cuidada.",
-        "en": "Musicala modalities:\n- *On-site* 🏫\n- *At home* 🏡\n- *Online* 💻\n\nAll include close guidance and a caring artistic experience."
+        "es": "Modalidades Musicala:\n- *En sede* ?? en Pasadena, con opciones personalizadas y grupos peque?os.\n- *A domicilio* ?? en Bogot? y alrededores seg?n zona y disponibilidad docente.\n- *Virtual* ?? en vivo o con apoyo de plataforma, seg?n el programa.\n\nTodas incluyen acompa?amiento cercano. Si me dices edad + arte + modalidad preferida, te doy una orientaci?n m?s precisa.",
+        "en": "Musicala modalities:\n- *On-site* ?? at our Pasadena location, with personalized and small-group options.\n- *At home* ?? in Bogot? and nearby areas, subject to area and teacher availability.\n- *Online* ?? live or with platform support depending on the program.\n\nAll include close guidance. Tell me age + art area + preferred modality and I can guide you more precisely."
       }
     },
     {
@@ -398,7 +422,13 @@
           "precio de canto",
           "precio de piano",
           "precio de violin",
-          "costos para mi hija"
+          "costos para mi hija",
+          "Hola me gustaria saber que precios tiene las clases de canto",
+          "Que precio tienen las clases de violin",
+          "Precios y d?as del curso",
+          "Mas informacion para curso de dibujo",
+          "Curso de bateria",
+          "Manejan canto"
         ],
         "en": [
           "prices",
@@ -411,8 +441,8 @@
         ]
       },
       "response": {
-        "es": "Tenemos opciones desde *$56.000* y la *matrícula anual* cuesta *$60.000*.\n\nRangos (desde):\n- 💻 Virtual / Automusicala: *$56.000*\n- 🏡 Hogar / Musifamiliar: *$288.000*\n- 🏫 Grupales o personalizadas en sede: *$280.000*\n- 📚 Preuniversitario / Taller creativo: *$150.000*\n\nSi me dices modalidad + edad + objetivo, te recomiendo el plan más lógico.",
-        "en": "Options start from *COP $56,000*, and the *annual enrollment fee* is *COP $60,000*.\n\nTell me modality + age + goal and I’ll recommend the best plan."
+        "es": "Tenemos opciones desde *$56.000 COP* y la *matr?cula anual* cuesta *$60.000 COP*.\n\nRangos orientativos:\n- ?? *Virtual / Automusicala:* desde *$56.000*\n- ?? *Hogar / Musifamiliar:* desde *$288.000*\n- ?? *En sede grupal o personalizada:* desde *$280.000*\n- ?? *Preuniversitario / taller creativo:* desde *$150.000*\n\nEn planes por paquete, las tablas pueden variar por modalidad: por ejemplo, hay paquetes de 4, 8, 12 y 24 clases, y el precio final depende de edad, arte, modalidad y frecuencia. Si me dices esos datos, te recomiendo el camino m?s l?gico.",
+        "en": "Options start from *COP $56,000*, and the *annual enrollment fee* is *COP $60,000*.\n\nGeneral ranges:\n- ?? *Online / Automusicala:* from *COP $56,000*\n- ?? *At home / Musifamiliar:* from *COP $288,000*\n- ?? *On-site group or personalized:* from *COP $280,000*\n- ?? *Pre-university / creative workshop:* from *COP $150,000*\n\nPackage prices may vary by modality and frequency. Tell me age, art area and modality and I can guide you better."
       }
     },
     {
@@ -540,7 +570,11 @@
           "clase gratis",
           "clase de cortesía",
           "sesión de prueba",
-          "sesion de prueba"
+          "sesion de prueba",
+          "Hay clases de cortesia",
+          "Hay clases de cortes?a",
+          "hoy aplica cortesia",
+          "hoy aplica cortes?a"
         ],
         "en": [
           "trial class",
@@ -627,7 +661,9 @@
           "hablar con asesor",
           "hablar por whatsapp",
           "para que",
-          "que paso"
+          "que paso",
+          "quiero asesor",
+          "me comunican con alguien"
         ],
         "en": [
           "human",
@@ -1282,7 +1318,13 @@
           "como funcionan las clases a domicilio",
           "cómo funcionan las clases a domicilio",
           "como manejan domicilio",
-          "cómo sería a domicilio"
+          "cómo sería a domicilio",
+          "A domicilio",
+          "Hogar",
+          "clases en casa",
+          "profesor en casa",
+          "c?mo manejan las clases en casa",
+          "como manejan las clases en casa"
         ],
         "en": [
           "how does at home work",
@@ -1292,8 +1334,8 @@
         ]
       },
       "response": {
-        "es": "En modalidad a domicilio, el proceso se coordina según la zona, la disponibilidad y el objetivo del estudiante.\nLa idea es llevar el acompañamiento artístico hasta casa, pero la logística puede variar según ubicación.\nSi quieres revisar tu caso, lo ideal es confirmarlo con un asesor.",
-        "en": "For the at-home modality, the process is coordinated according to the area, availability and the student's goal.\nThe idea is to bring the artistic guidance home, but logistics can vary by location.\nIf you want to review your case, the best step is to confirm it with an advisor."
+        "es": "En modalidad *a domicilio*, llevamos el proceso art?stico a casa seg?n la zona, la disponibilidad docente y el objetivo del estudiante.\n\nSirve para m?sica, danza, teatro o artes pl?sticas, y se ajusta por edad. Para confirmar disponibilidad real necesitamos barrio/municipio, arte, edad y frecuencia deseada.",
+        "en": "For the *at-home* modality, we bring the artistic process to your home depending on area, teacher availability and the student goal.\n\nIt can work for music, dance, theatre or visual arts, adjusted by age. To confirm real availability we need neighborhood/municipality, art area, age and desired frequency."
       }
     },
     {
@@ -1311,7 +1353,11 @@
           "cómo son las clases virtuales",
           "como funciona online",
           "cómo funciona online",
-          "como manejan virtual"
+          "como manejan virtual",
+          "Clases virtuales",
+          "clases online",
+          "plataforma online",
+          "virtual en vivo"
         ],
         "en": [
           "how does online work",
@@ -1321,8 +1367,8 @@
         ]
       },
       "response": {
-        "es": "En virtual, el proceso se acompaña de forma cercana y se ajusta según el arte, la edad y el objetivo del estudiante.\nLa dinámica puede variar un poco según el caso, pero sí hay seguimiento y orientación.\nSi quieres, te doy una guía general o un asesor te confirma la opción más adecuada.",
-        "en": "In the online modality, the process is guided closely and adjusted according to the art area, age and student goal.\nThe dynamic can vary a bit depending on the case, but there is guidance and follow-up.\nIf you want, I can give you a general overview or an advisor can confirm the most suitable option."
+        "es": "En modalidad *virtual*, el proceso puede ser en vivo y, seg?n el programa, apoyarse en plataforma online.\n\nEs ?til cuando la familia necesita flexibilidad de lugar y horario. Los horarios suelen coordinarse entre 8:00 a.m. y 8:00 p.m., seg?n disponibilidad.",
+        "en": "In the *online* modality, the process can be live and, depending on the program, supported by an online platform.\n\nIt works well when the family needs location and schedule flexibility. Schedules are usually coordinated between 8:00 a.m. and 8:00 p.m., subject to availability."
       }
     },
     {
