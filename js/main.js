@@ -2358,19 +2358,26 @@ function startApp() {
   saveState(state);
 
   // Registrar cuándo el usuario abandona la página (cierra tab, cambia de pestaña, etc.)
+  // OJO: en móvil, abrir WhatsApp u otra app también dispara "hidden".
+  // Por eso registramos también "page_return": si hay un page_return después
+  // del page_leave, la persona NO abandonó — solo se distrajo o fue a WhatsApp.
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden" && state) {
-      try {
-        const { nombre, cel, servicio } = readLeadFieldsFromState();
-        logAction("page_leave", {
-          last_node:   state?.progress?.lastNodeId  || null,
-          last_node_n: state?.progress?.lastNodeName || null,
-          has_name:    Boolean(nombre),
-          has_phone:   Boolean(cel),
-          has_service: Boolean(servicio),
-        });
-      } catch {}
-    }
+    if (!state) return;
+    try {
+      const { nombre, cel, servicio } = readLeadFieldsFromState();
+      const payload = {
+        last_node:   state?.progress?.lastNodeId  || null,
+        last_node_n: state?.progress?.lastNodeName || null,
+        has_name:    Boolean(nombre),
+        has_phone:   Boolean(cel),
+        has_service: Boolean(servicio),
+      };
+      if (document.visibilityState === "hidden") {
+        logAction("page_leave", payload);
+      } else if (document.visibilityState === "visible") {
+        logAction("page_return", payload);
+      }
+    } catch {}
   });
 }
 
@@ -2378,13 +2385,15 @@ function startApp() {
    HANDLERS
 ========================= */
 
-function isTextAllowedNow() {
-  return true;
-}
-
 function onUserSubmit(text) {
   const value = String(text || "").trim();
   if (!value) return;
+
+  // Nodo que el usuario está respondiendo (el último que vio antes de escribir).
+  const answeredNode = {
+    nodeId: String(state?.progress?.lastNodeId || state?.awaitingNodeId || state?.currentNodeId || "").trim() || null,
+    nodeName: String(state?.progress?.lastNodeName || "").trim() || null,
+  };
 
   const userMsg = makeUserMessage(value);
   state.history.push(userMsg);
@@ -2396,8 +2405,8 @@ function onUserSubmit(text) {
     state.history.push(conversationalTurn.botReply);
     appendMessage(conversationalTurn.botReply);
     rememberConversationContextFromBot(conversationalTurn.botReply);
+    logTurnEvent("user_message", value, conversationalTurn.botReply, answeredNode);
     logBotView(conversationalTurn.botReply);
-    logTurnEvent("user_message", value, conversationalTurn.botReply);
 
     renderChips(state);
     updateComposerModeFromFlow();
@@ -2412,6 +2421,18 @@ function onUserSubmit(text) {
     state.history.push(knowledgeInterrupt.botReply);
     appendMessage(knowledgeInterrupt.botReply);
     rememberConversationContextFromBot(knowledgeInterrupt.botReply);
+
+    try {
+      logEvent("user_message", {
+        text: String(value || "").slice(0, 500),
+        node_id: answeredNode.nodeId,
+        node_name: answeredNode.nodeName,
+        answered_by: "knowledge",
+        category: knowledgeInterrupt.hit?.category || null,
+        lang: (typeof getLang === "function" ? getLang() : "es")
+      });
+    } catch {}
+
     logBotView(knowledgeInterrupt.botReply);
     freezeFirstLeadSnapshot({ userText: value });
 
@@ -2427,15 +2448,6 @@ function onUserSubmit(text) {
       openFAQQuestionContains(knowledgeInterrupt.hit.faqTitle);
     }
 
-    try {
-      logEvent("user_message", {
-        text: String(value || "").slice(0, 500),
-        answered_by: "knowledge",
-        category: knowledgeInterrupt.hit?.category || null,
-        lang: (typeof getLang === "function" ? getLang() : "es")
-      });
-    } catch {}
-
     renderChips(state);
     updateComposerModeFromFlow();
 
@@ -2448,6 +2460,7 @@ function onUserSubmit(text) {
     value,
     handleUserInput(value, state)
   );
+  logTurnEvent("user_message", value, botReply, answeredNode);
   if (botReply) {
     state.history.push(botReply);
     appendMessage(botReply);
@@ -2463,8 +2476,6 @@ function onUserSubmit(text) {
 
     logBotView(botReply);
   }
-
-  logTurnEvent("user_message", value, botReply);
 
   renderChips(state);
   updateComposerModeFromFlow();
@@ -2509,13 +2520,17 @@ function logAction(type, data = {}) {
   } catch {}
 }
 
-function logTurnEvent(type, text, botReply) {
+function logTurnEvent(type, text, botReply, answeredNode = null) {
   try {
     const flow = botReply?._flow || {};
     logEvent(type, {
       text: String(text || "").slice(0, 500),
-      node_id: flow.nodeId || null,
-      node_name: flow.nodeName || null,
+      // Nodo que el usuario estaba respondiendo (no el de la respuesta del bot)
+      node_id: answeredNode?.nodeId || flow.nodeId || null,
+      node_name: answeredNode?.nodeName || flow.nodeName || null,
+      // Nodo al que llevó este mensaje (la respuesta del bot)
+      reply_node_id: flow.nodeId || null,
+      reply_node_name: flow.nodeName || null,
       lang: (typeof getLang === "function" ? getLang() : "es")
     });
 
@@ -2549,12 +2564,15 @@ function logTurnEvent(type, text, botReply) {
 function onChipClick(value, kind, label) {
   if (!value) return;
 
-  // Tracking: cada clic de chip (qué oprime el cliente)
+  // Tracking: cada clic de chip (qué oprime el cliente),
+  // con el nodo que estaba viendo al oprimirlo.
   try {
     logEvent("chip_click", {
       value: String(value).slice(0, 200),
       label: String(label || "").slice(0, 200),
       kind: kind || "option",
+      node_id: String(state?.progress?.lastNodeId || "").trim() || null,
+      node_name: String(state?.progress?.lastNodeName || "").trim() || null,
       lang: (typeof getLang === "function" ? getLang() : "es")
     });
   } catch {}
@@ -2653,7 +2671,7 @@ function onReset() {
   renderChips(state);
   updateComposerModeFromFlow();
 
-  if (isTextAllowedNow()) focusInput();
+  focusInput();
 
   saveState(state);
 

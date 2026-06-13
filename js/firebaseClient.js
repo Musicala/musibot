@@ -35,6 +35,16 @@ const firebaseConfig = {
 
 const SESSION_KEY = "musibot_session_id";
 
+// "dev" cuando se corre en local (pruebas), "prod" cuando está publicado.
+// El Lector puede filtrar por este campo para no mezclar pruebas con leads reales.
+function getEnv() {
+  try {
+    const h = location.hostname;
+    if (h === "localhost" || h === "127.0.0.1" || h === "" || location.protocol === "file:") return "dev";
+  } catch {}
+  return "prod";
+}
+
 let app = null;
 let db = null;
 let ready = false;
@@ -90,6 +100,7 @@ export async function saveSessionFields(fields = {}) {
 
   const payload = {
     session_id: sid,
+    env: getEnv(),
     updated_at: serverTimestamp(),
     ...fields
   };
@@ -123,6 +134,7 @@ export async function logEvent(type, data = {}) {
     await addDoc(collection(database, "sessions", sid, "events"), {
       type: String(type || "event"),
       ...data,
+      env: getEnv(),
       ts: serverTimestamp(),
       client_ts: new Date().toISOString()
     });
@@ -151,6 +163,7 @@ export async function logKnowledgeGap(data = {}) {
   try {
     await addDoc(collection(database, "knowledge_gaps"), {
       session_id: sid,
+      env: getEnv(),
       text: String(data.text || "").slice(0, 1000),
       lang: data.lang || "es",
       node_id: data.nodeId || null,
