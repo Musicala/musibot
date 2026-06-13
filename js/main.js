@@ -776,6 +776,60 @@ function normalizeLite(s = "") {
   }
 }
 
+const COLOMBIAN_GREETING_PATTERNS = Object.freeze([
+  "hola",
+  "holaa",
+  "holaaa",
+  "holas",
+  "holis",
+  "holi",
+  "hello",
+  "hi",
+  "hey",
+  "buenas",
+  "buenas tardes",
+  "buenos dias",
+  "buen dia",
+  "buenas noches",
+  "que mas",
+  "que mas pues",
+  "q mas",
+  "q mas pues",
+  "qmas",
+  "qmas pues",
+  "que hubo",
+  "que hubo pues",
+  "q hubo",
+  "qhubo",
+  "kiubo",
+  "kubo",
+  "quiubo",
+  "quiubo pues",
+  "quihubo",
+  "quihubo pues",
+  "que onda",
+  "como estan",
+  "como estas",
+  "como van",
+  "como vamos"
+]);
+
+function isGreetingOnlyText(text = "") {
+  const clean = normalizeLite(text);
+  if (!clean) return false;
+
+  const filler = new Set(["pues", "parce", "musicala", "equipo", "buenas"]);
+  if (/^hola+s?$/.test(clean)) return true;
+  if (COLOMBIAN_GREETING_PATTERNS.includes(clean)) return true;
+
+  return COLOMBIAN_GREETING_PATTERNS.some((greeting) => {
+    if (!clean.startsWith(`${greeting} `)) return false;
+    const rest = clean.slice(greeting.length).trim();
+    const restWords = rest.split(" ").filter(Boolean);
+    return restWords.length > 0 && restWords.length <= 2 && restWords.every((word) => filler.has(word));
+  });
+}
+
 /* =========================
    MEMORIA CONVERSACIONAL
 ========================= */
@@ -939,6 +993,7 @@ function isSoftFlowInterrupt(text = "") {
 function extractNameFromText(text = "") {
   const raw = String(text || "").trim();
   if (!raw) return "";
+  if (isGreetingOnlyText(raw)) return "";
 
   const asciiRaw = raw
     .normalize("NFD")
@@ -1045,6 +1100,10 @@ function buildMainMenuReply(prefix = "") {
   session.expectedInput = "menu_option";
 
   return msg;
+}
+
+function buildGreetingReply() {
+  return buildMainMenuReply("¡Hola! Qué bueno tenerte por aquí. ¿Qué te gustaría conocer de Musicala?");
 }
 
 function resolveMainMenuOption(cleanText = "") {
@@ -1340,6 +1399,10 @@ function handleConversationalStateBeforeFlow(text = "") {
 
   const intent = detectConversationalIntent(raw);
   if (intent) rememberCollectedField("intent", intent);
+
+  if (!intent && isGreetingOnlyText(raw)) {
+    return { botReply: buildGreetingReply(), handled: true };
+  }
 
   if (intent === "advisor") {
     return { botReply: buildAdvisorReply(), handled: true };
