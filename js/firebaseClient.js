@@ -34,6 +34,7 @@ const firebaseConfig = {
 };
 
 const SESSION_KEY = "musibot_session_id";
+const ACQUISITION_KEY_PREFIX = "musibot_acquisition_saved_";
 
 // "dev" cuando se corre en local (pruebas), "prod" cuando está publicado.
 // El Lector puede filtrar por este campo para no mezclar pruebas con leads reales.
@@ -65,6 +66,60 @@ export function getSessionId() {
 export function resetSessionId() {
   localStorage.removeItem(SESSION_KEY);
   return getSessionId();
+}
+
+function cleanTrackingValue(value, max = 200) {
+  return String(value || "").trim().slice(0, max);
+}
+
+function inferSourceFromReferrer(referrer) {
+  const value = String(referrer || "").toLowerCase();
+  if (!value) return "directo";
+  if (value.includes("instagram.com")) return "instagram";
+  if (value.includes("facebook.com") || value.includes("fb.com")) return "facebook";
+  if (value.includes("tiktok.com")) return "tiktok";
+  if (value.includes("youtube.com") || value.includes("youtu.be")) return "youtube";
+  if (value.includes("google.")) return "google";
+  try {
+    return new URL(referrer).hostname.replace(/^www\./, "") || "referido";
+  } catch {
+    return "referido";
+  }
+}
+
+export async function captureAcquisition() {
+  const sid = getSessionId();
+  const params = new URLSearchParams(location.search);
+  const referrer = cleanTrackingValue(document.referrer, 500);
+  const source = cleanTrackingValue(
+    params.get("utm_source") || params.get("source") || inferSourceFromReferrer(referrer)
+  ).toLowerCase();
+  const acquisition = {
+    acquisition_source: source || "directo",
+    acquisition_medium: cleanTrackingValue(params.get("utm_medium")).toLowerCase(),
+    acquisition_campaign: cleanTrackingValue(params.get("utm_campaign")),
+    acquisition_content: cleanTrackingValue(params.get("utm_content")),
+    acquisition_term: cleanTrackingValue(params.get("utm_term")),
+    landing_url: cleanTrackingValue(location.href, 500),
+    landing_path: cleanTrackingValue(location.pathname, 300),
+    referrer
+  };
+
+  const firstKey = ACQUISITION_KEY_PREFIX + sid;
+  const isFirstCapture = !localStorage.getItem(firstKey);
+  const fields = {
+    last_acquisition_source: acquisition.acquisition_source,
+    last_acquisition_medium: acquisition.acquisition_medium,
+    last_acquisition_campaign: acquisition.acquisition_campaign,
+    last_landing_url: acquisition.landing_url,
+    last_referrer: acquisition.referrer
+  };
+  if (isFirstCapture) Object.assign(fields, acquisition);
+
+  const result = await saveSessionFields(fields);
+  if (result?.success && isFirstCapture) localStorage.setItem(firstKey, "1");
+  await logEvent("acquisition", { ...acquisition, first_capture: isFirstCapture });
+  return acquisition;
 }
 
 export function initFirebase({ debug = false } = {}) {

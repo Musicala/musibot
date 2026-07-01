@@ -45,7 +45,7 @@ import { applySeasonSkin } from "./seasonSkin.js";
 
 // ✅ Lead sync (Google Sheets)
 import { createLeadSync } from "./leadStore.js";
-import { logEvent, logKnowledgeGap, saveSessionFields } from "./firebaseClient.js";
+import { captureAcquisition, logEvent, logKnowledgeGap, saveSessionFields } from "./firebaseClient.js";
 
 // Diccionarios UI ES/EN (labels / panel ayuda / placeholders)
 import I18N_ES_RAW from "./i18n/es.js";
@@ -2354,6 +2354,7 @@ function startFlowIfNeeded() {
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     bindLangUI();
+    await captureAcquisition();
 
     // Skin de temporada (colores/detalles según la época del año)
     const activeSkin = applySeasonSkin();
