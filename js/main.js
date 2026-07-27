@@ -1402,6 +1402,39 @@ function handleConversationalStateBeforeFlow(text = "") {
   const intent = detectConversationalIntent(raw);
   if (intent) rememberCollectedField("intent", intent);
 
+  // Una respuesta como "para una niña de 7 años" es contexto válido, no un
+  // nombre. Puede llegar mientras quedó activa una captura anterior de nombre
+  // (por ejemplo, después de una pregunta libre sobre un programa). En ese
+  // caso no insistimos con el dato personal: conservamos la edad y seguimos
+  // orientando la compra desde el punto actual.
+  const isBeneficiaryContext = Boolean(age) && /\b(para|hija|hijo|niña|niño|nina|nino|estudiante)\b/i.test(raw);
+  if (isBeneficiaryContext && isWaitingForLeadName()) {
+    state.memory = state.memory || {};
+    state.memory.lead = state.memory.lead || {};
+    state.memory.lead.nameSkipped = true;
+    state.memory.capture = state.memory.capture || {};
+    state.memory.capture.stage = null;
+    state.awaitingNodeId = null;
+    session.expectedInput = "free_text";
+
+    const artLabel = String(session.collected.art || "").trim();
+    const subject = artLabel
+      ? `para ${artLabel.toLowerCase()}`
+      : "para el arte que le interese";
+    const msg = makeBotMessage(
+      `¡Perfecto! Entonces buscamos clases ${subject} para una niña de ${age}.\n\n` +
+      "Con esa edad podemos orientarte sin problema. ¿Prefieren clases en sede, virtuales o a domicilio? También puedes ver los precios.",
+      getLastBotWithOptions()?.options || [
+        { label: "En sede", value: "presencial", kind: "option" },
+        { label: "Virtual", value: "virtual", kind: "option" },
+        { label: "A domicilio", value: "domicilio", kind: "option" },
+        { label: "Ver precios", value: "precios", kind: "option" }
+      ]
+    );
+    msg._flow = { allowFreeText: true, conversationalContext: "beneficiary_age" };
+    return { botReply: msg, handled: true };
+  }
+
   if (!intent && isGreetingOnlyText(raw)) {
     return { botReply: buildGreetingReply(), handled: true };
   }
