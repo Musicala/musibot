@@ -1,7 +1,7 @@
 {
   "meta": {
     "name": "Musicala Knowledge Base",
-    "version": "1.7",
+    "version": "1.8",
     "language": [
       "es",
       "en"
@@ -11,7 +11,8 @@
       "Agregado FAQ e intent de 'Artes que enseñamos / Arts we teach' con link a explicación.",
       "Agregada FAQ 'Zonas de cobertura (Hogar)' + intent de cobertura hogar.",
       "Actualizados horarios: programación Virtual y Hogar L-D 8:00 a.m. a 8:00 p.m.",
-      "Capa complementaria agregada para servicios adicionales, objeciones, FAQs complementarias, orientación y fallback más útil."
+      "Capa complementaria agregada para servicios adicionales, objeciones, FAQs complementarias, orientación y fallback más útil.",
+      "Actualización aditiva basada en preguntas reales: paquetes y frecuencia, varios estudiantes y orientación responsable ante necesidades particulares."
     ]
   },
   "fallback": {
@@ -428,7 +429,12 @@
           "Precios y d?as del curso",
           "Mas informacion para curso de dibujo",
           "Curso de bateria",
-          "Manejan canto"
+          "Manejan canto",
+          "esas 4 clases son para el mes o por semana",
+          "esas cuatro clases son para el mes o por semana",
+          "paquete de 4 clases",
+          "4 clases al mes o por semana",
+          "cada cuanto son las clases"
         ],
         "en": [
           "prices",
@@ -1261,7 +1267,13 @@
           "clases grupales",
           "grupales",
           "en grupo",
-          "grupos pequeños"
+          "grupos pequeños",
+          "somos varios estudiantes",
+          "son varios estudiantes",
+          "son tres estudiantes",
+          "tengo tres estudiantes",
+          "clases para hermanos",
+          "clases para dos hermanos"
         ],
         "en": [
           "group classes",
@@ -1655,6 +1667,100 @@
       "response": {
         "es": "Claro ✨ En Musicala tenemos opciones en música, danza, teatro y artes plásticas, en distintas edades y modalidades.\nSi me cuentas para quién sería y qué les gustaría explorar, puedo orientarte mejor.\nY si prefieres una recomendación más precisa, un asesor puede ayudarte.",
         "en": "Of course ✨ At Musicala we have options in music, dance, theatre and visual arts, across different ages and modalities.\nIf you tell me who it is for and what they would like to explore, I can guide you better.\nAnd if you prefer a more precise recommendation, an advisor can help."
+      }
+    },
+    {
+      "id": "faq_class_frequency",
+      "category": "faq",
+      "suggestionLabel": {
+        "es": "frecuencia y paquetes de clases",
+        "en": "class frequency and packages"
+      },
+      "patterns": {
+        "es": [
+          "las 4 clases son al mes o por semana",
+          "esas 4 clases son para el mes o por semana",
+          "cada cuanto son las clases",
+          "cuantas clases a la semana",
+          "cuántas clases a la semana",
+          "frecuencia de las clases",
+          "como funciona el paquete de 4 clases",
+          "cómo funciona el paquete de 4 clases",
+          "paquete de cuatro clases"
+        ],
+        "en": [
+          "are the 4 classes per month or per week",
+          "how often are the classes",
+          "how many classes per week",
+          "class frequency",
+          "how does the 4 class package work"
+        ]
+      },
+      "response": {
+        "es": "La frecuencia se organiza según el programa, la modalidad y la disponibilidad. Los paquetes pueden tener distintas cantidades de clases, por eso no conviene asumir que todas se toman en la misma semana o de la misma forma.\n\nSi me dices el arte, la edad y si prefieren sede, hogar o virtual, te orientamos; un asesor confirma la frecuencia exacta del paquete que aplique.",
+        "en": "Class frequency is organized according to the program, modality and availability. Packages may include different numbers of classes, so it is best not to assume they all follow the same weekly schedule.\n\nTell me the art area, age and whether you prefer on-site, at-home or online classes, and an advisor can confirm the exact package frequency."
+      }
+    },
+    {
+      "id": "guidance_multiple_students",
+      "category": "guidance",
+      "scoreBoost": 35,
+      "suggestionLabel": {
+        "es": "orientación para varios estudiantes",
+        "en": "guidance for multiple students"
+      },
+      "patterns": {
+        "es": [
+          "son tres estudiantes",
+          "somos tres estudiantes",
+          "son dos estudiantes",
+          "somos varios estudiantes",
+          "clases para hermanos",
+          "tengo hijos de diferentes edades",
+          "5 y 12 años",
+          "6 7 y 10 años"
+        ],
+        "en": [
+          "there are three students",
+          "there are two students",
+          "classes for siblings",
+          "my children are different ages",
+          "multiple students"
+        ]
+      },
+      "response": {
+        "es": "¡Qué bonito que quieran vivir el arte juntos! Podemos orientar cada proceso según la edad, el interés y la modalidad que les funcione.\n\nCuéntame las edades, qué arte les llama la atención y si buscan sede, hogar o virtual. Con esos datos un asesor puede confirmar la alternativa más adecuada para todos.",
+        "en": "It is wonderful that they want to experience the arts together! We can guide each process according to age, interests and the modality that works best.\n\nTell me their ages, the art areas that interest them and whether you prefer on-site, at-home or online classes. With that, an advisor can confirm the most suitable option for everyone."
+      }
+    },
+    {
+      "id": "guidance_personalized_context",
+      "category": "guidance",
+      "scoreBoost": 35,
+      "suggestionLabel": {
+        "es": "orientación personalizada",
+        "en": "personalized guidance"
+      },
+      "patterns": {
+        "es": [
+          "mi hijo es autista",
+          "mi hija es autista",
+          "tiene autismo",
+          "necesidades particulares de aprendizaje",
+          "necesidades especiales",
+          "requiere un acompañamiento especial",
+          "quiero clases de canto y piano para mi hijo"
+        ],
+        "en": [
+          "my child is autistic",
+          "my child has autism",
+          "special learning needs",
+          "needs additional support"
+        ]
+      },
+      "response": {
+        "es": "Gracias por compartirlo 💛 Para orientarles de forma responsable, lo mejor es que un asesor conozca brevemente la edad, los intereses artísticos, la modalidad que buscan y cualquier recomendación que consideren importante para el proceso.\n\nAsí el equipo puede revisar el contexto con cuidado y confirmar la orientación más adecuada, sin hacer promesas que deban validarse caso por caso.",
+        "en": "Thank you for sharing that 💛 To guide you responsibly, it is best for an advisor to briefly understand the age, artistic interests, preferred modality and any recommendation you consider important for the process.\n\nThis lets the team review the context carefully and confirm the most appropriate guidance without making promises that need case-by-case validation."
       }
     },
     {
