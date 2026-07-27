@@ -12,7 +12,7 @@
 // Persistencia offline: Firestore guarda en IndexedDB y reintenta solo cuando vuelve la red.
 // ============================
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 import {
   initializeFirestore,
   persistentLocalCache,
@@ -22,7 +22,7 @@ import {
   addDoc,
   serverTimestamp,
   increment
-} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBq5m_SSK7pbPiMvU96HRhPgRbza8JuLLc",
@@ -135,6 +135,11 @@ export function initFirebase({ debug = false } = {}) {
     ready = false;
   }
   return { app, db };
+}
+
+export function getFirebaseApp() {
+  if (!ready || !app) initFirebase();
+  return app;
 }
 
 function ensureDb() {

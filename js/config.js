@@ -267,6 +267,26 @@ export const CONFIG = Object.freeze({
   },
 
   /* =========================
+     IA CONTROLADA (Firebase AI Logic)
+     - El flujo y kb.json siempre tienen prioridad.
+     - La IA solo se consulta cuando el flujo iba a caer en fallback.
+     - App Check protege las llamadas publicadas en Firebase Hosting.
+  ========================= */
+  AI: {
+    ENABLED: true,
+    PROVIDER: "firebase-ai-logic",
+    MODEL: "gemini-3.5-flash-lite",
+    APP_CHECK_SITE_KEY: "6LfrIGgtAAAAABk077Hg23FbQ3q-vOtcsMGAk55Y",
+    MAX_RESPONSES_PER_SESSION: 3,
+    MAX_RESPONSES_PER_BROWSER_DAY: 10,
+    COOLDOWN_SECONDS: 10,
+    MAX_USER_MESSAGE_CHARS: 1000,
+    MAX_KNOWLEDGE_CONTEXT_CHARS: 4500,
+    MAX_OUTPUT_TOKENS: 300,
+    REMOTE_CONFIG_MIN_FETCH_MS: 60000,
+  },
+
+  /* =========================
      DEBUG
      Nota: tu engine revisa flags individuales (DEBUG.FLOW, etc).
      DEBUG.ENABLED queda como “switch” humano, por si lo usan en UI/otros módulos.

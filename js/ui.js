@@ -38,6 +38,7 @@ const $faqBody  = document.getElementById("faqBody");
 // Placeholder original
 const DEFAULT_PLACEHOLDER = $input ? ($input.getAttribute("placeholder") || "") : "";
 let LAST_QUICK_OPTIONS = [];
+let FORM_BUSY = false;
 
 /* =========================
    AUTOPLAY STATE
@@ -78,7 +79,7 @@ export function setComposerMode(mode = "chips") {
 
   if ($input) {
     // El compositor permanece escribible siempre; el modo solo cambia la guia visual.
-    $input.disabled = false;
+    $input.disabled = FORM_BUSY;
 
     if (!allowText) {
       $input.setAttribute("placeholder", getBlockedPlaceholder());
@@ -87,9 +88,29 @@ export function setComposerMode(mode = "chips") {
     }
   }
 
-  if ($submit) $submit.disabled = false;
+  if ($submit) $submit.disabled = FORM_BUSY;
 
   if (allowText) focusInput();
+}
+
+export function setComposerBusy(busy = false) {
+  FORM_BUSY = Boolean(busy);
+  if ($composer) {
+    $composer.classList.toggle("is-ai-busy", FORM_BUSY);
+    $composer.setAttribute("aria-busy", FORM_BUSY ? "true" : "false");
+  }
+  if ($input) {
+    $input.disabled = FORM_BUSY;
+    if (FORM_BUSY) {
+      $input.setAttribute("placeholder", "Revisando la mejor respuesta...");
+    } else if (DEFAULT_PLACEHOLDER) {
+      $input.setAttribute("placeholder", DEFAULT_PLACEHOLDER);
+    }
+  }
+  if ($submit) {
+    $submit.disabled = FORM_BUSY;
+    $submit.classList.toggle("is-loading", FORM_BUSY);
+  }
 }
 
 /* =========================
@@ -708,18 +729,25 @@ export function bindForm(onSubmit) {
   $form.dataset.bound = "1";
   bindViewportGuard();
 
-  $form.addEventListener("submit", (e) => {
+  $form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (FORM_BUSY) return;
 
     const value = $input.value.trim();
     if (!value) return;
 
-    onSubmit(value);
     $input.value = "";
-
     setInputActive(false);
     blurInput();
     scrollToBottom(false);
+
+    setComposerBusy(true);
+    try {
+      await Promise.resolve(onSubmit(value));
+    } finally {
+      setComposerBusy(false);
+      scrollToBottom(false);
+    }
   });
 
   $input.addEventListener("focus", () => {

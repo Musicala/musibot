@@ -1,4 +1,4 @@
-// main.js (v3.12.0)
+// main.js (v3.13.0-ai)
 // ============================
 // Orquestador principal de MusiBot (modo FLOW puro)
 //
@@ -46,6 +46,8 @@ import { applySeasonSkin } from "./seasonSkin.js";
 // ✅ Lead sync (Google Sheets)
 import { createLeadSync } from "./leadStore.js";
 import { captureAcquisition, logEvent, logKnowledgeGap, saveSessionFields } from "./firebaseClient.js";
+import { requestAIAnswer, resetAISessionUsage } from "./aiClient.js";
+import { shouldAttemptAI } from "./aiPolicy.mjs";
 
 // Diccionarios UI ES/EN (labels / panel ayuda / placeholders)
 import I18N_ES_RAW from "./i18n/es.js";
@@ -2354,7 +2356,11 @@ function startFlowIfNeeded() {
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     bindLangUI();
-    await captureAcquisition();
+    // La telemetría nunca debe bloquear el arranque visible del bot.
+    // Firestore puede tardar si la conexión está lenta o el navegador está offline.
+    captureAcquisition().catch((err) => {
+      console.warn("No se pudo registrar la adquisición al iniciar:", err);
+    });
 
     // Skin de temporada (colores/detalles según la época del año)
     const activeSkin = applySeasonSkin();
@@ -2449,7 +2455,7 @@ function startApp() {
    HANDLERS
 ========================= */
 
-function onUserSubmit(text) {
+async function onUserSubmit(text) {
   const value = String(text || "").trim();
   if (!value) return;
 
@@ -2520,10 +2526,71 @@ function onUserSubmit(text) {
     return;
   }
 
-  const botReply = enhanceBotReplyWithKnowledgeFallback(
-    value,
-    handleUserInput(value, state)
-  );
+  const localFlowReply = handleUserInput(value, state);
+  const aiDecision = shouldAttemptAI({
+    enabled: CONFIG?.AI?.ENABLED !== false,
+    userText: value,
+    botReply: localFlowReply,
+    captureStage: state?.memory?.capture?.stage || "",
+  });
+
+  let botReply = null;
+  let aiResult = null;
+
+  if (aiDecision.allowed) {
+    aiResult = await requestAIAnswer({
+      text: value,
+      lang: getLang(),
+      knowledgeBase: kbCache,
+    });
+  }
+
+  if (aiResult?.ok && aiResult?.text) {
+    botReply = {
+      ...localFlowReply,
+      text: aiResult.text,
+      _flow: {
+        ...(localFlowReply?._flow || {}),
+        aiAnswered: true,
+        allowFreeText: true,
+      },
+      _ai: {
+        provider: "firebase-ai-logic",
+        model: aiResult.model,
+        confidence: aiResult.confidence,
+        needsHuman: aiResult.needsHuman,
+        promptTokens: aiResult.usage?.promptTokenCount || 0,
+        outputTokens: aiResult.usage?.candidatesTokenCount || 0,
+        thoughtsTokens: aiResult.usage?.thoughtsTokenCount || 0,
+        totalTokens: aiResult.usage?.totalTokenCount || 0,
+        latencyMs: aiResult.latencyMs || 0,
+        knowledgeItems: aiResult.knowledgeItems || 0,
+      },
+    };
+  } else {
+    botReply = enhanceBotReplyWithKnowledgeFallback(value, localFlowReply);
+  }
+
+  if (aiDecision.allowed) {
+    try {
+      logEvent(aiResult?.ok ? "ai_response" : "ai_skipped", {
+        answered: Boolean(aiResult?.ok),
+        reason: aiResult?.reason || "not_available",
+        model: aiResult?.model || CONFIG?.AI?.MODEL || null,
+        confidence: aiResult?.confidence || null,
+        needs_human: aiResult?.needsHuman === true,
+        prompt_tokens: aiResult?.usage?.promptTokenCount || 0,
+        output_tokens: aiResult?.usage?.candidatesTokenCount || 0,
+        thoughts_tokens: aiResult?.usage?.thoughtsTokenCount || 0,
+        total_tokens: aiResult?.usage?.totalTokenCount || 0,
+        latency_ms: aiResult?.latencyMs || 0,
+        knowledge_items: aiResult?.knowledgeItems || 0,
+        node_id: answeredNode.nodeId,
+        node_name: answeredNode.nodeName,
+      });
+    } catch {}
+  }
+
   logTurnEvent("user_message", value, botReply, answeredNode);
   if (botReply) {
     state.history.push(botReply);
@@ -2715,6 +2782,7 @@ function onChipClick(value, kind, label) {
 
 function onReset() {
   logAction("reset", {});
+  resetAISessionUsage();
   state = normalizeStateShape(resetConversationKeepMemory(state));
   state.memory.ui = state.memory.ui || {};
   state.memory.ui.lang = getLang();

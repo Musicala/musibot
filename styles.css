@@ -646,6 +646,40 @@ body[data-season="navidad"]{
   background: linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.80));
 }
 
+.ai-note{
+  margin: 7px 4px 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.composer.is-ai-busy .ai-note::before{
+  content: "✦ ";
+}
+
+.composer.is-ai-busy .inputbar .btn.primary{
+  cursor: wait;
+  opacity: .72;
+}
+
+.composer.is-ai-busy .inputbar .btn.primary::after{
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  vertical-align: -2px;
+  animation: ai-spin .7s linear infinite;
+}
+
+@keyframes ai-spin{
+  to{ transform: rotate(360deg); }
+}
+
 .composer.is-typing .chips,
 .composer.is-typing .quick-picker{
   display: none;

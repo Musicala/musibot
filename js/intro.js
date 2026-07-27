@@ -8,11 +8,11 @@
 // ============================
 
 const INTRO_SEEN_KEY = "musibot_intro_seen_v4"; // (opcional: si quieres eliminar memoria del intro, mira abajo)
-const INTRO_LOCK_KEY = "__musibot_intro_lock__";
+let introLocked = false;
 
 export function initIntro(onFinish, opts = {}) {
-  if (window[INTRO_LOCK_KEY]) return;
-  window[INTRO_LOCK_KEY] = true;
+  if (introLocked) return;
+  introLocked = true;
 
   const overlay = document.getElementById("introOverlay");
   const video = document.getElementById("introVideo");
@@ -232,7 +232,7 @@ export function initIntro(onFinish, opts = {}) {
   }
 
   function safeUnlock() {
-    try { window[INTRO_LOCK_KEY] = false; } catch {}
+    introLocked = false;
   }
 
   function clearTimeoutSafe(id) {
